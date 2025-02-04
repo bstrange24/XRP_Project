@@ -1,13 +1,5 @@
 from django.db import models
 
-# class XRPLAccount(models.Model):
-#     account_id = models.CharField(max_length=100, unique=True)
-#     balance = models.CharField(max_length=100)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#
-#     def __str__(self):
-#         return self.account_id
-
 class XRPLAccount(models.Model):
     objects = None
     account_id = models.CharField(max_length=35, unique=True)
@@ -18,12 +10,6 @@ class XRPLAccount(models.Model):
 
     def __str__(self):
         return self.account_id
-
-    # class Meta:
-    #     db_table = 'xrpl_app_xrplaccount'  # Ensure this matches the table name
-
-
-from django.db import models
 
 class Payment(models.Model):
     sender = models.CharField(max_length=35)  # Sender's XRPL address

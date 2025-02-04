@@ -22,6 +22,7 @@ class XRPLAccount(models.Model):
     # class Meta:
     #     db_table = 'xrpl_app_xrplaccount'  # Ensure this matches the table name
 
+
 from django.db import models
 
 class Payment(models.Model):

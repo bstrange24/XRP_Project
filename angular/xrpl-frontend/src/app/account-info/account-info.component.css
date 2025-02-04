@@ -1,0 +1,13 @@
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+mat-expansion-panel {
+  margin-top: 10px;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

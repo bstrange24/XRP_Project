@@ -1,0 +1,70 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color: black; }
+
+.navbar-collapse {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-nav {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  margin-right: 20px;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+}
+
+.nav-link.active {
+  font-weight: bold;
+}
+
+.search {
+  margin-right: auto;
+}
+
+.dot {
+  height: 8px;
+  width: 8px;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dropdown-right {
+  position: relative;
+}
+
+.dropdown-toggle-text {
+  display: inline-block;
+}
+
+mat-menu {
+  display: block;
+  background-color: black;
+  color: white;
+}
+
+mat-card {
+  background-color: black;
+  color: white;
+}
+
+mat-card-header {
+  background-color: black;
+  color: white;
+}
+
+mat-card-content {
+  background-color: black;
+  color: white;
+}

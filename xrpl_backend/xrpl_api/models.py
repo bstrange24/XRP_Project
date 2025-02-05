@@ -1,6 +1,7 @@
 from django.db import models
 
 class XRPLAccount(models.Model):
+    DoesNotExist = None
     objects = None
     account_id = models.CharField(max_length=35, unique=True)
     balance = models.DecimalField(max_digits=20, decimal_places=6)

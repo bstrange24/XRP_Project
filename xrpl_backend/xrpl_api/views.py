@@ -1,14 +1,10 @@
 from django.core.paginator import Paginator
+from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from xrpl.clients import JsonRpcClient
-from xrpl.models.requests import AccountInfo, AccountTx
-from xrpl.wallet import Wallet
-from .models import XRPLAccount
-from .serializers import XRPLAccountSerializer
 import xrpl
 from django.http import JsonResponse, HttpResponseBadRequest
 from xrpl.models import AccountTx, Tx
@@ -16,11 +12,8 @@ from xrpl.utils import xrp_to_drops
 from xrpl.wallet import Wallet
 from xrpl.models.requests import AccountInfo
 from .models import XRPLAccount
-# from .utils.error_handling import validate_account_id
-# from .utils.error_handling import handle_error
-# from .utils.xrpl_client import get_xrpl_client
 from xrpl.transaction import submit_and_wait
-from xrpl.models.transactions import AccountSet
+from xrpl.models.transactions import AccountSet, AccountSetFlag
 from decimal import Decimal
 from .models import Payment
 import json
@@ -28,64 +21,34 @@ import requests
 import logging
 import time
 
+from .utils import validate_account_id, get_xrpl_client, handle_error
+
 logger = logging.getLogger(__name__)
 
 JSON_RPC_URL = "https://s.altnet.rippletest.net:51234/"
 FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
 
-class XRPLAccountView(APIView):
-    def get(self, request, account_id):
-        client = JsonRpcClient("https://s.altnet.rippletest.net:51234")  # Testnet URL
-        account_info = AccountInfo(account=account_id)
-        response = client.request(account_info)
-
-        if response.is_successful():
-            balance = response.result.get("account_data", {}).get("Balance", "0")
-            account, created = XRPLAccount.objects.get_or_create(
-                account_id=account_id,
-                defaults={'balance': balance}
-            )
-            # serializer = XRPLAccountSerializer(account)
-            # return Response(serializer.data, status=status.HTTP_200_OK)
-
-            # Return the full response from the XRPL
-            return Response(response.result, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Account not found"}, status=status.HTTP_404_NOT_FOUND)
-
-class XRPLAccountTransactionsView(APIView):
-    def get(self, request, account_id):
-        client = JsonRpcClient("https://s.altnet.rippletest.net:51234")  # Testnet URL
-        account_tx = AccountTx(account=account_id)
-        response = client.request(account_tx)
-
-        if response.is_successful():
-            transactions = response.result.get("transactions", [])
-            return Response(transactions, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Unable to fetch transactions"}, status=status.HTTP_404_NOT_FOUND)
-
-class XRPLCreateAccountView(APIView):
-    def post(self, request):
-        # Generate a new wallet (account)
-        wallet = Wallet.create()
-
-        # Fund the account with Testnet faucet (optional)
-        client = JsonRpcClient("https://s.altnet.rippletest.net:51234")  # Testnet URL
-        response = client.request({
-            "command": "faucet",
-            "destination": wallet.classic_address,
-        })
-
-        if response.is_successful():
-            return Response({
-                "address": wallet.classic_address,
-                "secret": wallet.seed,  # Be cautious with exposing the secret
-                "message": "Account created and funded successfully."
-            }, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"error": "Failed to fund account with Testnet faucet."},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# class XRPLCreateAccountView(APIView):
+#     def post(self, request):
+#         # Generate a new wallet (account)
+#         wallet = Wallet.create()
+#
+#         # Fund the account with Testnet faucet (optional)
+#         client = JsonRpcClient("https://s.altnet.rippletest.net:51234")  # Testnet URL
+#         response = client.request({
+#             "command": "faucet",
+#             "destination": wallet.classic_address,
+#         })
+#
+#         if response.is_successful():
+#             return Response({
+#                 "address": wallet.classic_address,
+#                 "secret": wallet.seed,  # Be cautious with exposing the secret
+#                 "message": "Account created and funded successfully."
+#             }, status=status.HTTP_201_CREATED)
+#         else:
+#             return Response({"error": "Failed to fund account with Testnet faucet."},
+#                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AccountInfoPagination(PageNumberPagination):
     page_size = 10
@@ -149,9 +112,8 @@ def create_account(request):
 def get_account_info(request, account_id):
     try:
         # Validate the account ID format
-        if not account_id.startswith("r") or len(account_id) < 25 or len(account_id) > 35:
-            logger.error(f"Invalid account ID format: {account_id}")
-            return JsonResponse({'error': 'Invalid account ID format'}, status=400)
+        if not account_id or not account_id.startswith('r') or len(account_id) < 25 or len(account_id) > 35:
+            return handle_error('"Invalid address format', status_code=400)
 
         # Log the account ID being queried
         logger.info(f"Fetching account info for: {account_id}")
@@ -188,8 +150,7 @@ def check_balance(request, address):
     try:
         # Validate the address format
         if not address or not address.startswith('r') or len(address) < 25 or len(address) > 35:
-            logger.error(f"Invalid address format: {address}")
-            return JsonResponse({"error": "Invalid address format"}, status=400)
+            return handle_error('"Invalid address format', status_code=400)
 
         # Get the XRPL client
         client = get_xrpl_client()
@@ -434,23 +395,52 @@ def send_payment(request):
     except Exception as e:
         return handle_error(f"Error sending payment: {e}")
 
-def handle_error(error_message, status_code=500):
-    """
-    Logs an error and returns a JsonResponse with the error message.
-    """
-    logger.error(error_message)
-    return JsonResponse({'error': error_message}, status=status_code)
+# @require_http_methods(["DELETE"])
+def delete_account(request, address):
+    logger.info(f"Request received to check balance for address: {address}")
 
-def validate_account_id(account_id):
-    """
-    Validates the format of an XRPL account ID.
-    """
-    if not account_id.startswith("r") or len(account_id) < 25 or len(account_id) > 35:
-        return False
-    return True
+    if not address or not address.startswith('r') or len(address) < 25 or len(address) > 35:
+        return handle_error('"Invalid address format', status_code=400)
 
-def get_xrpl_client():
-    """
-    Returns a configured JSON-RPC client for the XRPL Testnet.
-    """
-    return JsonRpcClient(JSON_RPC_URL)
+    try:
+        # Get the sender's seed from the request
+        sender_seed = request.GET.get('sender_seed')
+        if not sender_seed:
+            return handle_error('Sender seed is required', status_code=400)
+
+        # Connect to the XRPL client
+        client = get_xrpl_client()
+
+        # Create the sender's wallet from the seed
+        sender_wallet = Wallet.from_seed(sender_seed)
+
+        # Create an AccountSet transaction to disable the master key
+        account_set_tx = AccountSet(
+            account=sender_wallet.classic_address,
+            set_flag=AccountSetFlag.ASF_DISABLE_MASTER
+        )
+
+        # Sign and submit the transaction
+        signed_tx = account_set_tx.sign(sender_wallet)
+        tx_response = submit_and_wait(signed_tx, client)
+
+        # Check if the transaction was successful
+        if tx_response.result.get("engine_result") == "tesSUCCESS":
+            # Delete the wallet from the database
+            try:
+                wallet = XRPLAccount.objects.get(address=address)
+                wallet.delete()
+                logger.info(f"Wallet {address} deleted from the database.")
+                return JsonResponse({"message": "Wallet deleted successfully from the ledger and database."})
+            except XRPLAccount.DoesNotExist:
+                logger.error(f"Wallet {address} not found in the database.")
+                return handle_error("Wallet not found in the database.", status_code=404)
+            except Exception as db_error:
+                logger.error(f"Error deleting wallet from the database: {db_error}")
+                return handle_error("Error deleting wallet from the database.", status_code=500)
+        else:
+            # If the transaction failed, return an error
+            logger.error(f"Failed to delete wallet on the ledger: {tx_response.result}")
+            return handle_error("Failed to delete wallet on the ledger.", status_code=400)
+    except Exception as e:
+        return handle_error(f"Error deleting wallet: {e}")

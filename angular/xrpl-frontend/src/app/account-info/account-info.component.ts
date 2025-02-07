@@ -43,7 +43,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
   encapsulation: ViewEncapsulation.None
 })
 
-export class AccountInfoComponent implements OnInit{
+export class AccountInfoComponent implements OnInit {
   wallet_address: string = '';
   accountInfo: any;
   transactions: any[] = [];
@@ -68,16 +68,10 @@ export class AccountInfoComponent implements OnInit{
   ) { }
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    
-    // Check if 'idParam' is not null, then convert to a number
-    if (idParam) {
-      this.id = Number(idParam); // Convert the string to number
-    } else {
-      console.error('No ID parameter found');
-    }
-    
-    console.log('Account ID:', this.id);  // Log the accountId
+    // Use ActivatedRoute here
+    this.route.params.subscribe(params => {
+      console.log(params);
+    });
   }
 
   // Method to handle Enter key press and fetch account info and transactions

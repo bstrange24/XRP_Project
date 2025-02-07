@@ -1,6 +1,7 @@
 import { Component, OnInit} from '@angular/core';
 import { DatePipe, CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+// import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TransactionService } from '../transaction.service'; 
 
 @Component({
@@ -8,7 +9,8 @@ import { TransactionService } from '../transaction.service';
   templateUrl: './transaction-detail.component.html',
   styleUrls: ['./transaction-detail.component.css'],
   providers: [DatePipe],
-  imports: [CommonModule],
+  // imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule,],
   standalone: true,
 })
 export class TransactionDetailComponent implements OnInit {
@@ -34,7 +36,6 @@ export class TransactionDetailComponent implements OnInit {
       }
     });
   }
-  
 
    // Fetch transaction data from the backend
    fetchTransactionData(wallet_address: string): void {

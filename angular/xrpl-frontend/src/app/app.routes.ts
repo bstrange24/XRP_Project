@@ -2,15 +2,17 @@ import { NgModule } from '@angular/core';
 import { TransactionDetailComponent } from './transaction-detail/transaction-detail.component';
 import { AccountInfoComponent } from './account-info/account-info.component';
 import { RouterModule, Routes } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 export const routes: Routes = [
-    { path: 'transaction/:id', component: TransactionDetailComponent },
+    { path: 'transaction/:wallet_address', component: TransactionDetailComponent },
     { path: 'account-info', component: AccountInfoComponent },
-    { path: '', redirectTo: '/account-info', pathMatch: 'full' }
+    { path: '', redirectTo: '/account-info', pathMatch: 'full' },
+    { path: '**', redirectTo: '/default-page' },
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
+    imports: [CommonModule, RouterModule.forRoot(routes)],
     exports: [RouterModule]
   })
 

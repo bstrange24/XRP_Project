@@ -125,9 +125,13 @@
             </ng-container>
         
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <!-- <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr> -->
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" 
+          (click)="navigateToTransaction(row.Account)">
+      </tr>
           </table>
         
+          
           <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="pageIndex"
             (page)="onPageChange($event)">
           </mat-paginator>

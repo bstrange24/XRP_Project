@@ -16,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-account-info',
@@ -64,7 +65,8 @@ export class AccountInfoComponent implements OnInit {
     private readonly xrplService: XrplService, 
     private readonly snackBar: MatSnackBar, 
     private readonly datePipe: DatePipe,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
   ) { }
 
   ngOnInit(): void {
@@ -147,6 +149,12 @@ export class AccountInfoComponent implements OnInit {
     );
   }
 
+   // Navigate to the transaction page when a row is clicked
+   navigateToTransaction(wallet_address: string): void {
+    console.log('Navigating to:', wallet_address); 
+    this.router.navigate(['/transaction', wallet_address]);
+  }
+  
   // Helper method to safely access transaction properties
   getTransactionProperty(tx: any, property: string): string {
     return tx?.tx?.[property] || 'N/A';

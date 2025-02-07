@@ -3,7 +3,7 @@ import { AccountInfoComponent } from './account-info/account-info.component';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
+  // standalone: true,
   imports: [AccountInfoComponent],
   template: `<app-account-info></app-account-info>`,
 })

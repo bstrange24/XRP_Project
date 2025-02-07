@@ -6,28 +6,30 @@ import { HttpClient, HttpParams } from '@angular/common/http';
   providedIn: 'root'
 })
 export class XrplService {
-  private apiUrl = 'http://localhost:8000/xrpl';
-  private apiPaginationUrl = 'http://localhost:8000/xrpl/transaction-history-with-pag/';
+  private readonly apiUrl = 'http://localhost:8000/xrpl';
+  private readonly apiPaginationUrl = 'http://localhost:8000/xrpl/transaction-history-with-pag/';
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
-  getAccountInfo(accountId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/account-info/${accountId}/`);
+  getAccountInfo(wallet_address: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/wallet-info/${wallet_address}/`);
   }
 
-  getAccountTransactionHistoryWithPagination(accountId: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/transaction-history-with-pag/${accountId}/`);
+  getAccountTransactionHistoryWithPagination(wallet_address: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/transaction-history-with-pag/${wallet_address}/`);
   }
 
-  getAccountTransactionHistoryWithPaginations(account: string, page: number = 1, pageSize: number = 10): Observable<any> {
+  getAccountTransactionHistoryWithPaginations(wallet_address: string, page: number, pageSize: number = 10): Observable<any> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('page_size', pageSize.toString());
 
-    // Append the account to the URL
-    const url = `${this.apiPaginationUrl}${account}/`;
+    const url = `${this.apiPaginationUrl}${wallet_address}/`;
+    return this.http.get(url, { params });
+  }
 
-    return this.http.post(url, { params });
+  getTransactionHistory(wallet_address: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/transaction-history/${wallet_address}/`, {});
   }
 
   createAccount(): Observable<any> {

@@ -1,0 +1,9 @@
+<h3>Transaction Details</h3>
+
+<div *ngIf="transaction">
+  <p><strong>Account:</strong> {{ transaction.Account }}</p>
+  <p><strong>Type:</strong> {{ transaction.TransactionType }}</p>
+  <p><strong>Destination:</strong> {{ transaction.Destination }}</p>
+  <p><strong>Delivered Amount:</strong> {{ transaction.delivered_amount | number: '1.2-2' }} XRP</p>
+  <p><strong>Date/Time:</strong> {{ transaction.date | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}</p>
+</div>

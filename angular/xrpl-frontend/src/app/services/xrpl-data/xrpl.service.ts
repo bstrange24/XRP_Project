@@ -28,9 +28,9 @@ export class XrplService {
     return this.http.get(url, { params });
   }
 
-  // getTransactionHistory(wallet_address: string): Observable<any> {
-    // return this.http.post(`${this.apiUrl}/transaction-history/${wallet_address}/`, {});
-  // }
+  getSingleTransactionHistory(wallet_address: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/transaction-history/${wallet_address}/`, {});
+  }
 
   createAccount(): Observable<any> {
     return this.http.post(`${this.apiUrl}/account/create/`, {});

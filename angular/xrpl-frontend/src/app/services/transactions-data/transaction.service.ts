@@ -12,8 +12,7 @@ export class TransactionService {
 
   // Fetch transaction data for a specific accountId
   getTransactionHistory(wallet_address: string): Observable<any> {
-    console.log(`API URL: ${this.apiUrl}/transaction-history/${wallet_address}/`); // Log the API URL
-
+    console.log(`API URL: ${this.apiUrl}/transaction-history/${wallet_address}/`);
     return this.http.get(`${this.apiUrl}/transaction-history/${wallet_address}/`);
   }
 }

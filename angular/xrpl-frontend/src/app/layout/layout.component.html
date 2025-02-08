@@ -1,0 +1,36 @@
+<!-- layout.component.html -->
+
+<header class="top-bar">
+    <div class="logo">
+      <h1>XRPL</h1>
+    </div>
+    <div class="nav-bar">
+      <nav>
+        <ul>
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/about">About</a></li>
+          <li><a routerLink="/docs">Docs</a></li>
+          <li><a routerLink="/contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  
+  <!-- Banner -->
+  <div class="banner">
+    <p>Welcome to the XRPL! Explore your XRPL accounts and transactions.</p>
+  </div>
+  
+  <!-- Main Content -->
+  <mat-card-header>
+    <div class="form-container">
+      <mat-form-field class="wide-form-field" appearance="fill">
+        <mat-label>Search by Address</mat-label>
+        <input matInput [(ngModel)]="wallet_address" placeholder="Enter XRPL Address" (keydown.enter)="onEnter()" class="full-width-input">
+      </mat-form-field>
+    </div>
+  </mat-card-header>
+  
+  <!-- Router Outlet (Where other page content will be displayed) -->
+  <router-outlet></router-outlet>
+  

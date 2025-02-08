@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation, OnInit  } from '@angular/core';
-import { XrplService } from '../xrpl.service';
+import { XrplService } from '../services/xrpl-data/xrpl.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -15,8 +15,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule, ActivatedRoute } from '@angular/router';
-import { Router } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-account-info',
@@ -41,7 +40,7 @@ import { Router } from '@angular/router';
   templateUrl: './account-info.component.html',
   styleUrls: ['./account-info.component.css'],
   providers: [DatePipe],
-  encapsulation: ViewEncapsulation.None
+  // encapsulation: ViewEncapsulation.None
 })
 
 export class AccountInfoComponent implements OnInit {
@@ -50,7 +49,7 @@ export class AccountInfoComponent implements OnInit {
   transactions: any[] = [];
   errorMessage: string = '';
   // displayedColumns: string[] = ['account', 'TransactionType', 'Destination', 'ledger_index', 'delivered_amount','close_time_iso'];
-  displayedColumns: string[] = ['account', 'TransactionType', 'Destination', 'delivered_amount','close_time_iso'];
+  displayedColumns: string[] = ['account', 'TransactionType', 'Destination', 'TransactionResult', 'delivered_amount','close_time_iso'];
   newAccount: any = null;
   totalItems: number = 0;
   pageSize: number = 10;
@@ -60,6 +59,8 @@ export class AccountInfoComponent implements OnInit {
   id: number = 0;
   // The variable that controls visibility
   isVisible = false;
+  isTransactionDetails: boolean = false;
+  selectedTransaction: string = ''; // This will hold the account ID or relevant identifier for the selected transaction
 
   constructor(
     private readonly xrplService: XrplService, 
@@ -118,8 +119,10 @@ export class AccountInfoComponent implements OnInit {
                   this.transactions = data.transactions.map((tx: any) => ({
                       ...tx.tx_json,
                       date: tx.close_time_iso,
-                      delivered_amount: tx.meta.delivered_amount,
-                      transaction_result: tx.meta.TransactionResult
+                      // delivered_amount: tx.meta.delivered_amount,
+                      delivered_amount: tx.meta.delivered_amount ?? '',
+                      transaction_result: tx.meta.TransactionResult.indexOf('SUCCESS') > 0 ? 'Success' : tx.meta.TransactionResult,
+                      // transaction_result: tx.meta.TransactionResult
                   }));
                   this.totalItems = data.total_transactions;
                   this.pageIndex = page - 1;
@@ -152,7 +155,18 @@ export class AccountInfoComponent implements OnInit {
    // Navigate to the transaction page when a row is clicked
    navigateToTransaction(wallet_address: string): void {
     console.log('Navigating to:', wallet_address); 
+    this.isTransactionDetails = true;
     this.router.navigate(['/transaction', wallet_address]);
+    // this.xrplService.getSingleTransactionHistory(wallet_address).subscribe(
+    //   (data) => {
+    //     this.accountInfo = data;
+    //     this.errorMessage = '';
+    //   },
+    //   (error) => {
+    //     this.errorMessage = 'Error fetching account info. Please check the account ID.';
+    //     console.error('Error fetching account info:', error);
+    //   }
+    // );
   }
   
   // Helper method to safely access transaction properties

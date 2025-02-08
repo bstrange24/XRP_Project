@@ -1,0 +1,15 @@
+<div *ngIf="transactionData">
+  <h2>Transaction Details for {{ wallet_address }}</h2>
+  
+  <div *ngIf="transactionData">
+    <p><strong>Transaction Type:</strong> {{ transactionData.TransactionType }}</p>
+    <p><strong>Delivered Amount:</strong> {{ transactionData.delivered_amount / 1000000 }} XRP</p>
+    <p><strong>Destination:</strong> {{ transactionData.Destination }}</p>
+    <p><strong>Date/Time:</strong> {{ transactionData.date | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}</p>
+    <!-- Add more fields as per the response from your backend -->
+  </div>
+</div>
+
+<div *ngIf="!transactionData">
+  <p>Loading transaction data...</p>
+</div>

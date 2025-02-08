@@ -1,0 +1,21 @@
+/* Ensure the html and body tags take up the full height */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.dot {
+  height: 8px;
+  width: 8px;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Global font family for the entire application */
+* {
+  font-family: currency_symbols, Work Sans, system-ui, Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+}
+
+
+

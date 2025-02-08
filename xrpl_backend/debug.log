@@ -1,0 +1,16 @@
+ERROR 2025-02-04 15:42:58,046 Internal Server Error: /xrpl/delete-account/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/
+Traceback (most recent call last):
+  File "C:\Users\bstra\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\bstra\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+TypeError: delete_account() got an unexpected keyword argument 'account_id'
+ERROR 2025-02-04 15:42:58,053 "GET /xrpl/delete-account/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/ HTTP/1.1" 500 88200
+ERROR 2025-02-04 15:43:38,231 Internal Server Error: /xrpl/delete-account/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/
+Traceback (most recent call last):
+  File "C:\Users\bstra\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\bstra\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+TypeError: delete_account() got an unexpected keyword argument 'account_id'
+ERROR 2025-02-04 15:43:38,247 "GET /xrpl/delete-account/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/ HTTP/1.1" 500 88200

@@ -16,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { SharedDataService } from '../services/shared-data/shared-data.service';
 
 @Component({
   selector: 'app-layout',
@@ -59,11 +60,12 @@ export class LayoutComponent {
   isTransactionDetails: boolean = false;
   selectedTransaction: string = ''; // This will hold the account ID or relevant identifier for the selected transaction
 
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router, private readonly sharedDataService: SharedDataService) {}
 
     // Method to handle Enter key press and fetch account info and transactions
     onEnter(): void {
       if (this.wallet_address.trim()) {
+        this.sharedDataService.setWalletAddress(this.wallet_address); // Share the wallet address
         // Call both methods simultaneously
         // this.fetchAccountInfo(this.wallet_address);
         // this.onfetchAccountTransactions(this.wallet_address);

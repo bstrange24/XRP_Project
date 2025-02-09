@@ -134,17 +134,6 @@ html, body {
     text-decoration: underline;
   }
   
-  /* Banner Styling */
-  .banner {
-    background-color: #f1c40f;
-    padding: 15px 20px;
-    text-align: center;
-    font-size: 1.2em;
-    color: #333;
-    font-weight: bold;
-  }
-  
-  
   mat-form-field {
     display: block;        /* Ensures the mat-form-field takes up a full line */
     margin-bottom: 16px;   /* Adds space below the form field */

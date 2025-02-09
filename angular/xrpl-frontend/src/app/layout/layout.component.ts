@@ -43,30 +43,15 @@ import { SharedDataService } from '../services/shared-data/shared-data.service';
 })
 export class LayoutComponent {
   wallet_address: string = '';
-  accountInfo: any;
-  transactions: any[] = [];
-  errorMessage: string = '';
-  // displayedColumns: string[] = ['account', 'TransactionType', 'Destination', 'ledger_index', 'delivered_amount','close_time_iso'];
-  displayedColumns: string[] = ['account', 'TransactionType', 'Destination', 'TransactionResult', 'delivered_amount','close_time_iso'];
-  newAccount: any = null;
-  totalItems: number = 0;
-  pageSize: number = 10;
-  pageIndex: number = 0;
-  option1: string = 'Hey';
-  option2: string = 'Joe';
-  id: number = 0;
-  // The variable that controls visibility
   isVisible = false;
-  isTransactionDetails: boolean = false;
-  selectedTransaction: string = ''; // This will hold the account ID or relevant identifier for the selected transaction
 
   constructor(private readonly router: Router, private readonly sharedDataService: SharedDataService) {}
 
     // Method to handle Enter key press and fetch account info and transactions
     onEnter(): void {
       if (this.wallet_address.trim()) {
-        this.sharedDataService.setWalletAddress(this.wallet_address); // Share the wallet address
-        this.isVisible = true;  // Show the account info when Enter is pressed
+        this.sharedDataService.setWalletAddress(this.wallet_address);
+        this.isVisible = true;
         this.router.navigate(['/account-info', this.wallet_address]);
       }
     }

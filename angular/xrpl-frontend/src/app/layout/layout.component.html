@@ -2,35 +2,41 @@
 
 <header class="top-bar">
     <div class="logo">
-      <h1>XRPL</h1>
+        <h1>XRPL</h1>
     </div>
     <div class="nav-bar">
-      <nav>
-        <ul>
-          <li><a routerLink="/">Home</a></li>
-          <li><a (click)="navigateToHome()">About</a></li>
-          <li><a routerLink="/docs">Docs</a></li>
-          <li><a routerLink="/contact">Contact</a></li>
-        </ul>
-      </nav>
+        <nav>
+            <ul>
+                <li><a routerLink="/">Home</a></li>
+                <li><a (click)="navigateToHome()">About</a></li>
+                <li><a routerLink="/docs">Docs</a></li>
+                <li><a routerLink="/contact">Contact</a></li>
+            </ul>
+        </nav>
     </div>
-  </header>
-  
-  <!-- Banner -->
-  <div class="banner">
+</header>
+
+<!-- Banner -->
+<div class="banner">
     <p>Welcome to the XRPL! Explore your XRPL accounts and transactions.</p>
-  </div>
-  
-  <!-- Main Content -->
-  <mat-card-header>
+</div>
+
+<!-- Main Content -->
+<mat-card-header>
     <div class="form-container">
-      <mat-form-field class="wide-form-field" appearance="fill">
-        <mat-label>Search by Address</mat-label>
-        <input matInput [(ngModel)]="wallet_address" placeholder="Enter XRPL Address" (keydown.enter)="onEnter()" class="full-width-input">
-      </mat-form-field>
+        <mat-form-field class="wide-form-field" appearance="fill">
+            <mat-label>Search by Address</mat-label>
+            <input matInput [(ngModel)]="wallet_address" placeholder="Enter XRPL Address" (keydown.enter)="onEnter()"
+                class="full-width-input">
+        </mat-form-field>
     </div>
-  </mat-card-header>
-  
-  <!-- Router Outlet (Where other page content will be displayed) -->
-  <router-outlet></router-outlet>
-  
+</mat-card-header>
+
+<!-- Router Outlet (Where other page content will be displayed) -->
+<router-outlet></router-outlet>
+
+<!-- Card Footer -->
+<mat-card-footer>
+    <p>&copy; 2025 XRPL. All rights reserved.</p>
+</mat-card-footer>
+<!-- Card Footer -->

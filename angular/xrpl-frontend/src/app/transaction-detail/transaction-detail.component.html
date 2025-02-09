@@ -1,28 +1,5 @@
 <div class="app">
   <mat-card>
-    <!-- Card Header -->
-    <!-- Top Bar (Header) -->
-    <!-- <header class="top-bar">
-      <div class="logo">
-        <h1>XRPL</h1>
-      </div>
-      <div class="nav-bar">
-        <nav>
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Docs</a></li>
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header> -->
-
-    <!-- Banner -->
-    <!-- <div class="banner">
-      <p>Welcome to the XRPL! Explore your XRPL accounts and transactions.</p>
-    </div> -->
-
     <div *ngIf="transactionData">
       <h2>Transaction Details for {{ wallet_address }}</h2>
 
@@ -31,7 +8,6 @@
         <p><strong>Delivered Amount:</strong> {{ transactionData.delivered_amount / 1000000 }} XRP</p>
         <p><strong>Destination:</strong> {{ transactionData.Destination }}</p>
         <p><strong>Date/Time:</strong> {{ transactionData.date | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}</p>
-        <!-- Add more fields as per the response from your backend -->
       </div>
     </div>
 

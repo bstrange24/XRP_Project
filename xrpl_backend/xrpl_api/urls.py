@@ -16,7 +16,7 @@ urlpatterns = [
     path('delete-account/<str:wallet_address>/', delete_account, name='delete_account'),
 
     # http://127.0.0.1:8000/xrpl/transaction-history/rQGijrV8XYRseZAfjFvC9cDxxr58h9SvMY/
-    path("transaction-history/<str:wallet_address>/", get_transaction_history, name="get_transaction_history"),
+    path("transaction-history/<str:wallet_address>/<str:transaction_hash>/", get_transaction_history, name="get_transaction_history"),
     # http://127.0.0.1:8000/xrpl/transaction-history-with-pag/rQGijrV8XYRseZAfjFvC9cDxxr58h9SvMY/
     path("transaction-history-with-pag/<str:wallet_address>/", get_transaction_history_with_pagination,
          name="get_transaction_history_with_pagination"),

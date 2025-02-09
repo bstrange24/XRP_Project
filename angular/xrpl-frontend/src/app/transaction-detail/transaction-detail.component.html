@@ -4,10 +4,10 @@
       <h2>Transaction Details for {{ wallet_address }}</h2>
 
       <div *ngIf="transactionData">
-        <p><strong>Transaction Type:</strong> {{ transactionData.TransactionType }}</p>
-        <p><strong>Delivered Amount:</strong> {{ transactionData.delivered_amount / 1000000 }} XRP</p>
-        <p><strong>Destination:</strong> {{ transactionData.Destination }}</p>
-        <p><strong>Date/Time:</strong> {{ transactionData.date | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}</p>
+        <p><strong>Transaction Type:</strong> {{ transactionData.tx_json.TransactionType }}</p>
+        <p><strong>Delivered Amount:</strong> {{ transactionData.meta.delivered_amount / 1000000 }} XRP</p>
+        <p><strong>Destination:</strong> {{ transactionData.tx_json.Destination }}</p>
+        <p><strong>Date/Time:</strong> {{ transactionData.close_time_iso | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}</p>
       </div>
     </div>
 

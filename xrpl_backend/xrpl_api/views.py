@@ -18,11 +18,10 @@ from .models import XrplAccountData, XrplPaymentData
 from xrpl.transaction import submit_and_wait
 from xrpl.models.transactions import AccountSet
 from decimal import Decimal
-from .utils import validate_account_id, get_xrpl_client, handle_error, get_account_reserves
+from .utils import validate_account_id, get_xrpl_client, handle_error, get_account_reserves, validate_transaction_hash, \
+    check_for_none
 
 logger = logging.getLogger('xrpl_app')
-
-FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
 
 class AccountInfoPagination(PageNumberPagination):
     page_size = 10
@@ -34,13 +33,15 @@ def create_account(request):
     try:
         client = get_xrpl_client()
 
-        if not client:
-            return handle_error({'status': 'failure', 'message': f"Error client initialization failed."}, status_code=500, function_name=function_name)
+        check_for_none(client, function_name)
+        # if not client:
+        #     return handle_error({'status': 'failure', 'message': f"Error client initialization failed."}, status_code=500, function_name=function_name)
 
         new_wallet = generate_faucet_wallet(client, debug=True)
 
-        if not new_wallet:
-            return handle_error({'status': 'failure', 'message': f"Error creating new wallet. Wallet is empty"}, status_code=500, function_name=function_name)
+        check_for_none(new_wallet, function_name)
+        # if not new_wallet:
+        #     return handle_error({'status': 'failure', 'message': f"Error creating new wallet. Wallet is empty"}, status_code=500, function_name=function_name)
 
         test_account = new_wallet.address
         test_xaddress = addresscodec.classic_address_to_xaddress(test_account, tag=12345, is_test_network=True)
@@ -53,13 +54,15 @@ def create_account(request):
             strict=True,
         )
 
-        if not acct_info:
-            return handle_error({'status': 'failure', 'message': f"Error creating Account Info."}, status_code=500, function_name=function_name)
+        check_for_none(acct_info, function_name)
+        # if not acct_info:
+        #     return handle_error({'status': 'failure', 'message': f"Error creating Account Info."}, status_code=500, function_name=function_name)
 
         response = client.request(acct_info)
-        logger.info("response.status: " + response.status)
 
         if response and response.status == 'success':
+            logger.info("response.status: " + response.status)
+
             result = response.result
 
             logger.debug(f"Raw XRPL response:")
@@ -262,36 +265,56 @@ def account_set(request):
     except Exception as e:
         return handle_error({'status': 'failure', 'message': f"Error fetching account info: {e}"}, status_code=500, function_name=function_name)
 
-def get_transaction_history(request, wallet_address):
+def get_transaction_history(request, wallet_address, transaction_hash):
     function_name = 'get_transaction_history'
     logger.info(f"Entering: {function_name}")
 
     if not validate_account_id(wallet_address):
         return handle_error({'status': 'failure', 'message': 'Invalid address format.'}, status_code=400, function_name=function_name)
 
+    if not validate_transaction_hash(transaction_hash):
+        return handle_error({'status': 'failure', 'message': 'Invalid address format.'}, status_code=400, function_name=function_name)
+
     try:
         client = get_xrpl_client()
+        check_for_none(client, function_name)
 
-        if not client:
-            return handle_error({'status': 'failure', 'message': f"Error client initialization failed."}, status_code=500,
-                                function_name=function_name)
+        # if not client:
+        #     return handle_error({'status': 'failure', 'message': f"Error client initialization failed."}, status_code=500,
+        #                         function_name=function_name)
 
         # Create an AccountTx request
-        account_tx_request = AccountTx(account=wallet_address)
+        account_tx_request = AccountTx(account=wallet_address, limit=1)
 
         # Submit the request to the XRPL
         response = client.request(account_tx_request)
 
+        # Check if the response contains transactions
+        if response and 'transactions' in response.result:
+            transactions = response.result['transactions']
+
+            # Search for the transaction with the specific hash
+            for transaction in transactions:
+                if transaction['hash'] == transaction_hash:
+                    logger.debug("Transaction found:", transaction)
+
+                    logger.debug(json.dumps(transaction, indent=4, sort_keys=True))
+
+                    # Return the transaction history  response.result['transactions'][0]['hash']
+                    # return JsonResponse(response.result)
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Transaction history successfully retrieved.',
+                        'response': transaction,
+                    })
+        else:
+            return handle_error({'status': 'failure', 'message': f"Error fetching transaction history info"},
+                                status_code=500, function_name=function_name)
+
         # Log the response
         logger.info(f"Transaction history fetched for address: {wallet_address}")
 
-        # Return the transaction history
-        # return JsonResponse(response.result)
-        return JsonResponse({
-            'status': 'success',
-            'message': 'Transaction history successfully retrieved.',
-            'response': response.result,
-        })
+
     except Exception as e:
         return handle_error({'status': 'failure', 'message': f"Error fetching transaction history info: {e}"}, status_code=500, function_name=function_name)
 
@@ -372,7 +395,6 @@ def check_transaction_status(request, tx_hash):
         if not client:
             return handle_error({'status': 'failure', 'message': f"Error client initialization failed."}, status_code=500,
                                 function_name=function_name)
-
 
         # Create a transaction request
         tx_request  = Tx(transaction=tx_hash)

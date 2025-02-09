@@ -10,8 +10,7 @@ export class TransactionService {
 
   constructor(private readonly http: HttpClient) { }
 
-  getTransactionHistory(wallet_address: string): Observable<any> {
-    console.log(`API URL: ${this.apiUrl}/transaction-history/${wallet_address}/`);
-    return this.http.get(`${this.apiUrl}/transaction-history/${wallet_address}/`);
+  getTransactionHistory(wallet_address: string, transaction_hash: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/transaction-history/${wallet_address}/${transaction_hash}/`);
   }
 }

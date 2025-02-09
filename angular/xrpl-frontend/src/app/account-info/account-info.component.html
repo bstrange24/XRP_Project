@@ -84,7 +84,7 @@
 
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr style="cursor: pointer;" mat-row *matRowDef="let row; columns: displayedColumns"
-                (click)="navigateToTransaction(row.Account)">
+                (click)="navigateToTransaction(row.Account, row.transaction_hash)">
               </tr>
             </table>
 

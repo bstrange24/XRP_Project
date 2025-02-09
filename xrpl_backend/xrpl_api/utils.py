@@ -2,12 +2,12 @@ from django.http import JsonResponse
 
 import logging
 import json
+import constants
 from xrpl.clients import JsonRpcClient
 from xrpl.models import AccountInfo, ServerInfo
 from xrpl.wallet import Wallet
 
 logger = logging.getLogger('xrpl_app')
-JSON_RPC_URL = "https://s.altnet.rippletest.net:51234/"
 
 def handle_error(error_message, status_code, function_name):
     """
@@ -25,11 +25,19 @@ def validate_account_id(wallet_address):
         return False
     return True
 
+def validate_transaction_hash(transaction_hash):
+    """
+    Validates the format of an XRPL account ID.
+    """
+    if not transaction_hash or not len(transaction_hash) > 25:
+        return False
+    return True
+
 def get_xrpl_client():
     """
     Returns a configured JSON-RPC client for the XRPL Testnet.
     """
-    return JsonRpcClient(JSON_RPC_URL)
+    return JsonRpcClient(constants.JSON_RPC_URL)
 
 def get_account_reserves():
     """
@@ -61,7 +69,20 @@ def get_account_reserves():
         logger.error(f"Error fetching server info: {e}")
         return None, None
 
+def check_for_none(object, function_name, error_message):
+    if not object:
+        return handle_error({'status': 'failure', 'message': f"{error_message}"}, status_code=500,
+                            function_name=function_name)
 
+# def check_for_none_wallet(wallet,function_name):
+#     if not wallet:
+#         return handle_error({'status': 'failure', 'message': f"Error creating new wallet. Wallet is empty"}, status_code=500,
+#                             function_name=function_name)
+
+# def check_for_none_account_info(acct_info, function_name):
+#     if not acct_info:
+#         return handle_error({'status': 'failure', 'message': f"Error creating Account Info."}, status_code=500,
+#                             function_name=function_name)
 
 # def get_xrpl_client_and_wallet(sender_seed=None):
 #     client = get_xrpl_client()  # Centralized client creation

@@ -45,6 +45,7 @@ import { SharedDataService } from '../services/shared-data/shared-data.service';
 export class TransactionDetailComponent implements OnInit {
   wallet_address: any;
   transactionData: any;
+  transaction_hash: any;
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -58,6 +59,12 @@ export class TransactionDetailComponent implements OnInit {
     console.log('TransactionDetailComponent initialized');
     // Get the wallet address from the route
     this.route.paramMap.subscribe((params) => {
+      
+      this.sharedDataService.transactionHash$.subscribe(transaction_hash => {
+        this.transaction_hash = transaction_hash;
+        console.log('Transaction Hash from Shared Service:', transaction_hash);
+      });
+
       this.sharedDataService.walletAddress$.subscribe(address => {
         this.wallet_address = address;
         console.log('Wallet Address from Shared Service:', address);
@@ -65,7 +72,7 @@ export class TransactionDetailComponent implements OnInit {
 
       if (this.wallet_address) {
         console.log('Received wallet_address:', this.wallet_address);
-        this.fetchTransactionData(this.wallet_address);
+        this.fetchTransactionData(this.wallet_address, this.transaction_hash);
       } else {
         console.error('Wallet Address not found');
       }
@@ -73,11 +80,12 @@ export class TransactionDetailComponent implements OnInit {
   }
 
   // Fetch transaction data from the backend
-  fetchTransactionData(wallet_address: string): void {
+  fetchTransactionData(wallet_address: string, transaction_hash: string): void {
     console.log('Making API call with wallet_address:', wallet_address); // Check if the method is called
-    this.transactionService.getTransactionHistory(wallet_address).subscribe(
+    this.transactionService.getTransactionHistory(wallet_address, transaction_hash).subscribe(
       (data) => {
-        this.transactionData = data; // Store the response in the component's property
+        const transactionReponse = data;
+        this.transactionData = transactionReponse.response; // Store the response in the component's property
         console.log('Transaction data:', this.transactionData); // Check the data in the console
       },
       (error) => {

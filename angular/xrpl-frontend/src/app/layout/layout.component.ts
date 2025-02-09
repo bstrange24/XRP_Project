@@ -1,5 +1,4 @@
 import { Component, ViewEncapsulation, OnInit  } from '@angular/core';
-import { XrplService } from '../services/xrpl-data/xrpl.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';

@@ -45,6 +45,7 @@ import { SharedDataService } from '../services/shared-data/shared-data.service';
 
 export class AccountInfoComponent implements OnInit {
   wallet_address: string = '';
+  transactionHash: string = '';
   accountInfo: any;
   transactions: any[] = [];
   errorMessage: string = '';
@@ -75,6 +76,11 @@ export class AccountInfoComponent implements OnInit {
         this.sharedDataService.walletAddress$.subscribe(address => {
           this.wallet_address = address;
           console.log('Wallet Address from Shared Service:', address);
+        });
+
+        this.sharedDataService.transactionHash$.subscribe(transactionHash => {
+          this.transactionHash = transactionHash;
+          console.log('transaction Hash from Shared Service:', transactionHash);
         });
   
         if (this.wallet_address) {
@@ -133,7 +139,7 @@ export class AccountInfoComponent implements OnInit {
                       // delivered_amount: tx.meta.delivered_amount,
                       delivered_amount: tx.meta.delivered_amount ?? '',
                       transaction_result: tx.meta.TransactionResult.indexOf('SUCCESS') > 0 ? 'Success' : tx.meta.TransactionResult,
-                      // transaction_result: tx.meta.TransactionResult
+                      transaction_hash: tx.hash,
                   }));
                   this.totalItems = data.total_transactions;
                   this.pageIndex = page - 1;
@@ -164,11 +170,14 @@ export class AccountInfoComponent implements OnInit {
   }
 
    // Navigate to the transaction page when a row is clicked
-   navigateToTransaction(wallet_address: string): void {
+   navigateToTransaction(wallet_address: string, transaction_hash: string): void {
     console.log('Navigating to:', wallet_address); 
+    console.log('hash:', transaction_hash); 
+    this.sharedDataService.setTransactionHashSubject(transaction_hash);
     this.isTransactionDetails = true;
     // this.router.navigate(['/transaction', wallet_address]);
-    this.router.navigate(['/transaction']);
+    // this.router.navigate(['/transaction']);
+    this.router.navigate(['/transaction'] );
   }
   
   // Helper method to safely access transaction properties

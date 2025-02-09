@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit  } from '@angular/core';
+import { Component, OnInit  } from '@angular/core';
 import { XrplService } from '../services/xrpl-data/xrpl.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +16,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { SharedDataService } from '../services/shared-data/shared-data.service';
 
 @Component({
   selector: 'app-account-info',
@@ -40,7 +41,6 @@ import { RouterModule, ActivatedRoute, Router } from '@angular/router';
   templateUrl: './account-info.component.html',
   styleUrls: ['./account-info.component.css'],
   providers: [DatePipe],
-  // encapsulation: ViewEncapsulation.None
 })
 
 export class AccountInfoComponent implements OnInit {
@@ -48,14 +48,11 @@ export class AccountInfoComponent implements OnInit {
   accountInfo: any;
   transactions: any[] = [];
   errorMessage: string = '';
-  // displayedColumns: string[] = ['account', 'TransactionType', 'Destination', 'ledger_index', 'delivered_amount','close_time_iso'];
   displayedColumns: string[] = ['account', 'TransactionType', 'Destination', 'TransactionResult', 'delivered_amount','close_time_iso'];
   newAccount: any = null;
   totalItems: number = 0;
   pageSize: number = 10;
   pageIndex: number = 0;
-  option1: string = 'Hey';
-  option2: string = 'Joe';
   id: number = 0;
   // The variable that controls visibility
   isVisible = false;
@@ -67,13 +64,27 @@ export class AccountInfoComponent implements OnInit {
     private readonly snackBar: MatSnackBar, 
     private readonly datePipe: DatePipe,
     private readonly route: ActivatedRoute,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly sharedDataService: SharedDataService,
   ) { }
 
   ngOnInit(): void {
     // Use ActivatedRoute here
     this.route.params.subscribe(params => {
       console.log(params);
+        this.sharedDataService.walletAddress$.subscribe(address => {
+          this.wallet_address = address;
+          console.log('Wallet Address from Shared Service:', address);
+        });
+  
+        if (this.wallet_address) {
+          console.log('Received wallet_address:', this.wallet_address);
+          this.fetchAccountInfo(this.wallet_address);
+          this.onfetchAccountTransactions(this.wallet_address);
+          this.isVisible = true;  // Show the account info when Enter is pressed
+        } else {
+          console.error('Wallet Address not found');
+        }
     });
   }
 
@@ -156,17 +167,8 @@ export class AccountInfoComponent implements OnInit {
    navigateToTransaction(wallet_address: string): void {
     console.log('Navigating to:', wallet_address); 
     this.isTransactionDetails = true;
-    this.router.navigate(['/transaction', wallet_address]);
-    // this.xrplService.getSingleTransactionHistory(wallet_address).subscribe(
-    //   (data) => {
-    //     this.accountInfo = data;
-    //     this.errorMessage = '';
-    //   },
-    //   (error) => {
-    //     this.errorMessage = 'Error fetching account info. Please check the account ID.';
-    //     console.error('Error fetching account info:', error);
-    //   }
-    // );
+    // this.router.navigate(['/transaction', wallet_address]);
+    this.router.navigate(['/transaction']);
   }
   
   // Helper method to safely access transaction properties

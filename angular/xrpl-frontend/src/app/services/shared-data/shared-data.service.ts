@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class SharedDataService {
-  private walletAddressSubject = new BehaviorSubject<string>('');
+  private readonly walletAddressSubject = new BehaviorSubject<string>('');
   walletAddress$ = this.walletAddressSubject.asObservable();
 
   setWalletAddress(address: string) {

@@ -66,13 +66,12 @@ export class LayoutComponent {
     onEnter(): void {
       if (this.wallet_address.trim()) {
         this.sharedDataService.setWalletAddress(this.wallet_address); // Share the wallet address
-        // Call both methods simultaneously
-        // this.fetchAccountInfo(this.wallet_address);
-        // this.onfetchAccountTransactions(this.wallet_address);
         this.isVisible = true;  // Show the account info when Enter is pressed
-        // Navigate to the transaction detail page with the wallet address
-        this.router.navigate(['/transaction', this.wallet_address]);
-        // this.router.navigate(['/account-info', this.wallet_address]);
+        this.router.navigate(['/account-info', this.wallet_address]);
       }
     }
+
+    navigateToHome() {
+    this.router.navigate(['']);
+  }
 }

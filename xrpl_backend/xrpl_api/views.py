@@ -16,7 +16,6 @@ from xrpl.wallet import Wallet
 from xrpl.models.requests import AccountInfo
 from xrpl.models.requests import Ledger
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
 from .constants import *
 from .db_operations import save_account_data_to_databases
@@ -29,17 +28,10 @@ from .utils import validate_account_id, get_xrpl_client, handle_error, get_accou
 
 logger = logging.getLogger('xrpl_app')
 
-# Constants for flags
-# REQUIRE_DESTINATION_TAG_FLAG = 0x00010000  # 0x00010000: Require Destination Tag
-# DISABLE_MASTER_KEY_FLAG = 0x00040000  # 0x00040000: Disable Master Key
-# ENABLE_REGULAR_KEY_FLAG = 0x00080000  # 0x00080000: Enable Regular Key
-# MAX_RETRIES = 3  # Maximum retry attempts
-# RETRY_BACKOFF = 2  # Exponential backoff base in seconds
-# PAGINATION_PAGE_SIZE = 10
-
 class AccountInfoPagination(PageNumberPagination):
     page_size = PAGINATION_PAGE_SIZE
 
+@api_view(['GET'])
 def create_account(request):
     function_name = 'create_account'
     logger.info(f"Entering: {function_name}")
@@ -110,11 +102,8 @@ def create_account(request):
             time.sleep(backoff_time)  # Wait before retrying
 
             retries += 1  # Increment the retry count
-        # except ValueError as ve:
-        #     return handle_error({'status': 'failure', 'message': f"ValueError: {str(ve)}"}, status_code=500, function_name=function_name)
-        # except Exception as e:
-        #     return handle_error({'status': 'failure', 'message': f"Error creating new wallet: {str(e)}"}, status_code=500, function_name=function_name)
 
+@api_view(['GET'])
 def get_wallet_info(request, wallet_address):
     function_name = 'get_wallet_info'
     logger.info(f"Entering: {function_name}")
@@ -123,6 +112,16 @@ def get_wallet_info(request, wallet_address):
     if not validate_account_id(wallet_address):
         return handle_error({'status': 'failure', 'message': 'Invalid address format.'}, status_code=400,
                             function_name=function_name)
+
+    # Check if the data is in the cache
+    cache_key = f"wallet_info:{wallet_address}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data:
+        logger.info(f"Cache hit for wallet address: {wallet_address}")
+        return JsonResponse(cached_data)
+
+    logger.info(f"Cache miss for wallet address: {wallet_address}")
 
     # Retry logic initialization
     retries = 0
@@ -169,14 +168,20 @@ def get_wallet_info(request, wallet_address):
                 else:
                     return handle_error({'status': 'failure', 'message': 'Failed to fetch reserve data.'}, status_code=500,function_name=function_name)
 
-                logger.info(f"Account found: {wallet_address}, Balance: {balance}, Base Reserve: {base_reserve}, Reserve Increment: {reserve_increment}")
-                return JsonResponse({
+                logger.info(
+                    f"Account found: {wallet_address}, Balance: {balance}, Base Reserve: {base_reserve}, Reserve Increment: {reserve_increment}")
+                response_data = {
                     'status': 'success',
                     'message': 'Successfully retrieved account information.',
                     'reserve': base_reserve,
                     'reserve_increment': reserve_increment,
                     'result': result,
-                })
+                }
+
+                # Store the data in the cache
+                cache.set(cache_key, response_data, CACHE_TIMEOUT_FOR_WALLET)
+
+                return JsonResponse(response_data)
             else:
                 return handle_error({'status': 'failure', 'message': 'Account not found on XRPL.'}, status_code=404, function_name=function_name)
         except (xrpl.XRPLException, ConnectionError, ValueError, Exception) as e:
@@ -193,11 +198,8 @@ def get_wallet_info(request, wallet_address):
             time.sleep(backoff_time)  # Wait before retrying
 
             retries += 1  # Increment the retry count
-        # except ValueError as ve:
-        #     return handle_error({'status': 'failure', 'message': f"ValueError: {str(ve)}"}, status_code=400, function_name=function_name)
-        # except Exception as e:
-        #     return handle_error({'status': 'failure', 'message': f"Error fetching account info: {str(e)}"}, status_code=500, function_name=function_name)
 
+@api_view(['GET'])
 def check_wallet_balance(request, wallet_address):
     function_name = 'check_wallet_balance'
     logger.info(f"Entering: {function_name}")
@@ -206,7 +208,16 @@ def check_wallet_balance(request, wallet_address):
     if not validate_account_id(wallet_address):
         return handle_error({'status': 'failure', 'message': 'Invalid address format.'}, status_code=400, function_name=function_name)
 
+    # Check if the data is in the cache
+    cache_key = f"wallet_balance:{wallet_address}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data:
+        logger.info(f"Cache hit for wallet address: {wallet_address}")
+        return JsonResponse(cached_data)
+
     # Log the start of the check balance request
+    logger.info(f"Cache miss for wallet address")
     logger.info(f"Request received to check balance for address: {wallet_address}")
 
     # Retry logic initialization
@@ -238,12 +249,18 @@ def check_wallet_balance(request, wallet_address):
                 # Log the successful balance retrieval
                 logger.info(f"Balance for address {wallet_address} retrieved successfully: {balance_in_xrp} XRP")
 
-                # Return the balance as JSON response
-                return JsonResponse({
+                # Prepare the response data
+                response_data = {
                     'status': 'success',
                     'message': 'Successfully retrieved account balance.',
                     "balance": balance_in_xrp,
-                })
+                }
+
+                # Store the data in the cache
+                cache.set(cache_key, response_data, CACHE_TIMEOUT)
+
+                # Return the balance as JSON response
+                return JsonResponse(response_data)
             else:
                 # Log the failure to fetch account info
                 return handle_error({'status': 'failure', 'message': 'Account not found on XRPL.'}, status_code=404, function_name=function_name)
@@ -262,6 +279,7 @@ def check_wallet_balance(request, wallet_address):
 
             retries += 1  # Increment the retry count
 
+@api_view(['GET'])
 def account_set(request):
     function_name = 'account_set'
     logger.info(f"Entering: {function_name}")
@@ -278,28 +296,25 @@ def account_set(request):
             disable_master_key = request.GET.get('disable_master_key', 'false').lower() == 'true'
             enable_regular_key = request.GET.get('enable_regular_key', 'false').lower() == 'true'
 
+            # Create a unique cache key based on the request parameters
+            cache_key = f"account_set:{sender_seed}:{require_destination_tag}:{disable_master_key}:{enable_regular_key}"
+
+            # Check if the response is already cached
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                logger.info(f"Cache hit for account_set with key: {cache_key}")
+                return JsonResponse(cached_data)
+
             # Log the passed in account setting values
+            logger.info(f"Cache miss for account_set with key: {cache_key}")
             logger.info(f"require_destination_tag: {require_destination_tag}, disable_master_key: {disable_master_key}, enable_regular_key: {enable_regular_key}")
 
             # Create the wallet from the sender seed
             sender_wallet = Wallet.from_seed(sender_seed)
             sender_address = sender_wallet.classic_address
 
+            # Build the flags you want to set
             flags = build_flags(require_destination_tag, disable_master_key, enable_regular_key)
-            # # Build the flags you want to set
-            # flags = 0
-            #
-            # # Enable or disable the requireDestinationTag flag
-            # if require_destination_tag:
-            #     flags |= 0x00010000  # 0x00010000: Require Destination Tag
-            #
-            # # Disable master key
-            # if disable_master_key:
-            #     flags |= 0x00040000  # 0x00040000: Disable Master Key
-            #
-            # # Enable regular key
-            # if enable_regular_key:
-            #     flags |= 0x00080000  # 0x00080000: Enable Regular Key
 
             # Create the AccountSet transaction
             account_set_tx = AccountSet(
@@ -319,14 +334,18 @@ def account_set(request):
             # Check if the transaction was successful
             if response.is_successful():
                 logger.info(f"AccountSet transaction successful for account {sender_address}")
-                return JsonResponse({
+                response_data = {
                     'status': 'success',
                     'message': 'Successfully updated account settings.',
                     'transaction_hash': response.result['hash'],
                     'account': sender_address,
                     'settings': response.result
-                })
+                }
 
+                # Cache the response data
+                cache.set(cache_key, response_data, CACHE_TIMEOUT_FOR_WALLET)
+
+                return JsonResponse(response_data)
             else:
                 return handle_error({'status': 'failure', 'message': f"AccountSet transaction failed for account {sender_address}. Response: {response}"}, status_code=500, function_name=function_name)
         except (xrpl.XRPLException, ConnectionError, ValueError, Exception) as e:
@@ -343,12 +362,8 @@ def account_set(request):
             time.sleep(backoff_time)  # Wait before retrying
 
             retries += 1  # Increment the retry count
-        # except ValueError as ve:
-        #     error_msg = f"ValueError: {str(ve)}"
-        #     return handle_error({'status': 'failure', 'message': f"ValueError: {str(ve)}"}, status_code=400, function_name=function_name)
-        # except Exception as e:
-        #     return handle_error({'status': 'failure', 'message': f"Error fetching account info: {str(e)}"}, status_code=500, function_name=function_name)
 
+@api_view(['GET'])
 def get_transaction_history(request, wallet_address, transaction_hash):
     function_name = 'get_transaction_history'
     logger.info(f"Entering: {function_name}")
@@ -358,6 +373,17 @@ def get_transaction_history(request, wallet_address, transaction_hash):
 
     if not validate_transaction_hash(transaction_hash):
         return handle_error({'status': 'failure', 'message': 'Invalid address format.'}, status_code=400, function_name=function_name)
+
+    # Create a unique cache key
+    cache_key = f"transaction_history:{wallet_address}:{transaction_hash}"
+
+    # Check if the transaction history is already cached
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        logger.info(f"Cache hit for transaction history with key: {cache_key}")
+        return JsonResponse(cached_data)
+
+    logger.info(f"Cache miss for transaction history with key: {cache_key}")
 
     retries = 0  # Retry attempt counter
 
@@ -390,11 +416,17 @@ def get_transaction_history(request, wallet_address, transaction_hash):
 
                         # Return the transaction history  response.result['transactions'][0]['hash']
                         # return JsonResponse(response.result)
-                        return JsonResponse({
+                        # Prepare the response data
+                        response_data = {
                             'status': 'success',
                             'message': 'Transaction history successfully retrieved.',
                             'response': transaction,
-                        })
+                        }
+
+                        # Cache the response
+                        cache.set(cache_key, response_data, CACHE_TIMEOUT_FOR_TRANSACTION_HISTORY)
+
+                        return JsonResponse(response_data)
             else:
                 return handle_error({'status': 'failure', 'message': f"Error fetching transaction history info"},
                                     status_code=500, function_name=function_name)
@@ -416,86 +448,104 @@ def get_transaction_history(request, wallet_address, transaction_hash):
             time.sleep(backoff_time)  # Wait before retrying
 
             retries += 1  # Increment the retry count
-        # except Exception as e:
-        #     return handle_error({'status': 'failure', 'message': f"Error fetching transaction history info: {e}"}, status_code=500, function_name=function_name)
 
 @api_view(['GET'])
 def get_transaction_history_with_pagination(request, wallet_address):
     function_name = 'get_transaction_history_with_pagination'
     logger.info(f"Entering: {function_name}")
 
+    # Validate the wallet address
     if not validate_account_id(wallet_address):
         return handle_error({'status': 'failure', 'message': 'Invalid address format.'}, status_code=400, function_name=function_name)
 
-    retries = 0  # Retry attempt counter
-    transactions = []
-    marker = None
+    # Create a unique cache key for the transaction history
+    cache_key = f"transaction_history_with_pagination:{wallet_address}"
 
-    while retries <= MAX_RETRIES:
-        try:
-            client = get_xrpl_client()
-            check_for_none(client, function_name, "Error client initialization failed.")
+    # Check if the transaction history is already cached
+    cached_transactions = cache.get(cache_key)
+    if cached_transactions is not None:
+        logger.info(f"Cache hit for transaction history with key: {cache_key}")
+    else:
+        logger.info(f"Cache miss for transaction history with key: {cache_key}")
+        retries = 0
+        transactions = []
+        marker = None
 
-            while True:
-                account_tx_request = AccountTx(
-                    account=wallet_address,
-                    ledger_index_min=-1,
-                    ledger_index_max=-1,
-                    limit=100,
-                    marker=marker,
-                )
-                check_for_none(account_tx_request, function_name, "Error getting AccountTx.")
+        while retries <= MAX_RETRIES:
+            try:
+                client = get_xrpl_client()
+                check_for_none(client, function_name, "Error client initialization failed.")
 
-                response = client.request(account_tx_request)
-                check_for_none(response, function_name, "Response is none.")
+                while True:
+                    account_tx_request = AccountTx(
+                        account=wallet_address,
+                        ledger_index_min=-1,
+                        ledger_index_max=-1,
+                        limit=100,
+                        marker=marker,
+                    )
+                    check_for_none(account_tx_request, function_name, "Error getting AccountTx.")
 
-                transactions.extend(response.result["transactions"])
-                logger.debug(json.dumps(response.result["transactions"], indent=4, sort_keys=True))
+                    response = client.request(account_tx_request)
+                    check_for_none(response, function_name, "Response is none.")
 
-                # Check if there are more transactions to fetch
-                marker = response.result.get("marker")
-                if not marker:
-                    break
+                    transactions.extend(response.result["transactions"])
+                    logger.debug(json.dumps(response.result["transactions"], indent=4, sort_keys=True))
 
-            # Get pagination parameters from request
-            # page = int(request.GET.get('page'))
-            # if not page:
-            page = int(request.GET.get('page', 1))
-            page_size = int(request.GET.get('page_size', 10))
-            paginator = Paginator(transactions, page_size)
-            paginated_transactions = paginator.get_page(page)
+                    # Check if there are more transactions to fetch
+                    marker = response.result.get("marker")
+                    if not marker:
+                        break
 
-            data = {
-                "transactions": list(paginated_transactions),
-                "total_transactions": paginator.count,
-                "pages": paginator.num_pages,
-                "current_page": paginated_transactions.number,
-            }
+                # Cache the fetched transaction history
+                cache.set(cache_key, transactions, CACHE_TIMEOUT_FOR_TRANSACTION_HISTORY)
+                break
+            except (xrpl.XRPLException, ConnectionError, ValueError, Exception) as e:
+                logger.error(f"Attempt {retries + 1} - Error: {str(e)}")
 
-            logger.info(f"Transaction history fetched for address: {wallet_address}")
-            return JsonResponse(data)
-            # return JsonResponse({
-            #     'status': 'success',
-            #     'message': 'Transaction history successfully retrieved.',
-            #     'transactions': data,
-            # })
-        except (xrpl.XRPLException, ConnectionError, ValueError, Exception) as e:
-            logger.error(f"Attempt {retries + 1} - Error: {str(e)}")
+                # If retries exhausted, return error
+                if retries == MAX_RETRIES:
+                    logger.error(f"Max retry attempts reached for fetching transaction history.")
+                    return handle_error(
+                        {'status': 'failure', 'message': f"Error fetching transaction history info: {str(e)}"},
+                        status_code=500,
+                        function_name=function_name
+                    )
 
-            # If retries exhausted, return error
-            if retries == MAX_RETRIES:
-                logger.error(f"Max retry attempts reached for fetching transaction history.")
-                return handle_error({'status': 'failure', 'message': f"Error fetching transaction history info: {str(e)}"}, status_code=500, function_name=function_name)
+                # Exponential backoff logic
+                backoff_time = RETRY_BACKOFF * (2 ** retries)  # Exponential backoff
+                logger.info(f"Retrying in {backoff_time} seconds...")
+                time.sleep(backoff_time)  # Wait before retrying
 
-            # Exponential backoff logic
-            backoff_time = RETRY_BACKOFF * (2 ** retries)  # Exponential backoff
-            logger.info(f"Retrying in {backoff_time} seconds...")
-            time.sleep(backoff_time)  # Wait before retrying
+                retries += 1  # Increment the retry count
 
-            retries += 1  # Increment the retry count
-    # except Exception as e:
-    #     return handle_error({'status': 'failure', 'message': f"Error fetching transaction history info: {e}"}, status_code=500, function_name=function_name)
+        # Assign the fetched transactions to the cache variable for further use
+        cached_transactions = transactions
 
+    # Get pagination parameters from the request
+    page = int(request.GET.get('page', 1))
+    page_size = int(request.GET.get('page_size', 10))
+
+    # Paginate the transaction history
+    paginator = Paginator(cached_transactions, page_size)
+    try:
+        paginated_transactions = paginator.get_page(page)
+    except Exception as e:
+        logger.error(f"Pagination error: {str(e)}")
+        return handle_error({'status': 'failure', 'message': 'Invalid pagination parameters.'}, status_code=400, function_name=function_name)
+
+    # Prepare the paginated data
+    data = {
+        "transactions": list(paginated_transactions),
+        "total_transactions": paginator.count,
+        "pages": paginator.num_pages,
+        "current_page": paginated_transactions.number,
+    }
+
+    logger.info(f"Transaction history with pagination fetched for address: {wallet_address}")
+    return JsonResponse(data)
+
+@api_view(['GET'])
 def check_transaction_status(request, tx_hash):
     function_name = 'check_transaction_status'
     logger.info(f"Entering: {function_name}")
@@ -556,6 +606,7 @@ def check_transaction_status(request, tx_hash):
         # except Exception as e:
             # return handle_error({'status': 'failure', 'message': f"Error while checking transaction status for hash {tx_hash}: {e}"}, status_code=500, function_name=function_name)
 
+@api_view(['GET'])
 def send_payment(request):
     function_name = 'send_payment'
     logger.info(f"Entering: {function_name}")
@@ -643,6 +694,7 @@ def send_payment(request):
         # except Exception as e:
         #     return handle_error({'status': 'failure', 'message': f"Error sending payment: {e}"}, status_code=500, function_name=function_name)
 
+@api_view(['GET'])
 def delete_account(request, wallet_address):
     """
     Check the balance of an XRP wallet, and if the balance is zero,

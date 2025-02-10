@@ -12,6 +12,8 @@ PAGINATION_PAGE_SIZE = 10
 
 CACHE_TIMEOUT = 60  # 1 minute cache timeout
 CACHE_TIMEOUT_FOR_TRUST_LINES = 300
-CACHE_TIMEOUT_FOR_GET_OFFERS = 300  # 5 minutes
+CACHE_TIMEOUT_FOR_GET_OFFERS = 10  # 10 seconds
 CACHE_TIMEOUT_FOR_SERVER_INFO = 300  # 5 minutes
 CACHE_TIMEOUT_FOR_TRUST_LINE = 300  # 5 minutes
+CACHE_TIMEOUT_FOR_WALLET = 300  # Cache timeout in seconds (e.g., 5 minutes)
+CACHE_TIMEOUT_FOR_TRANSACTION_HISTORY = 300  # Cache timeout in seconds (e.g., 5 minutes)

@@ -2,10 +2,10 @@ from django.http import JsonResponse
 
 import logging
 import json
-import constants
 from xrpl.clients import JsonRpcClient
 from xrpl.models import AccountInfo, ServerInfo
 from xrpl.wallet import Wallet
+from .constants import *
 
 logger = logging.getLogger('xrpl_app')
 
@@ -37,7 +37,7 @@ def get_xrpl_client():
     """
     Returns a configured JSON-RPC client for the XRPL Testnet.
     """
-    return JsonRpcClient(constants.JSON_RPC_URL)
+    return JsonRpcClient(JSON_RPC_URL)
 
 def get_account_reserves():
     """
@@ -69,8 +69,11 @@ def get_account_reserves():
         logger.error(f"Error fetching server info: {e}")
         return None, None
 
-def check_for_none(object, function_name, error_message):
-    if not object:
+def check_for_none(obj, function_name, error_message):
+    """
+    Returns customized error message and exits if the passed object is None
+    """
+    if not obj:
         return handle_error({'status': 'failure', 'message': f"{error_message}"}, status_code=500,
                             function_name=function_name)
 

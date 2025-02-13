@@ -1,18 +1,59 @@
 <div class="app">
   <mat-card>
-    <div *ngIf="transactionData">
-      <h2>Transaction Details for {{ wallet_address }}</h2>
+    <div class="centered-container">
+      <div class="transaction">
+        <div class="summary">
+          <div class="type">Payment</div><a href="https://xrpl.org/tec-codes.html#tecUNFUNDED_PAYMENT"
+            title="Fail - tecUNFUNDED_PAYMENT" class="tx-status tx-result fail"><span class="status-icon"><svg
+                width="24" height="17" viewBox="0 0 24 17" fill="none" xmlns="http://www.w3.org/2000/svg"
+                class="logo fail">
+                <path
+                  d="M16 0.5H8C3.58172 0.5 0 4.08172 0 8.5C0 12.9183 3.58172 16.5 8 16.5H16C20.4183 16.5 24 12.9183 24 8.5C24 4.08172 20.4183 0.5 16 0.5Z"
+                  fill="currentColor"></path>
+                <path
+                  d="M16 1H8C3.85786 1 0.5 4.35786 0.5 8.5C0.5 12.6421 3.85786 16 8 16H16C20.1421 16 23.5 12.6421 23.5 8.5C23.5 4.35786 20.1421 1 16 1Z"
+                  stroke="currentColor"></path>
+                <path d="M12 4.5V8.5" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+                <path d="M12 12.5H12.01" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+              </svg></span><span class="status"><span class="status-message">Fail</span><span
+                class="status-code">tecUNFUNDED_PAYMENT</span></span></a>
+          <div class="txid" title="706F925817BDA37076F71F2A20E7EFE1390FB1B973AF87C53E80DF2F05F0DFE9">
+            <div class="title">Hash: </div>706F925817BDA37076F71F2A20E7EFE1390FB1B973AF87C53E80DF2F05F0DFE9
+          </div>
+          <div class="txid" title="C045F29500000001">
+            <div class="title">CTID: </div>C045F29500000001
+          </div>
+        </div>
+        
+        <div class="summary">
+          <div *ngIf="transactionData">
+            <h2>Transaction Details for {{ wallet_address }}</h2>
 
-      <div *ngIf="transactionData">
-        <p><strong>Transaction Type:</strong> {{ transactionData.tx_json.TransactionType }}</p>
-        <p><strong>Delivered Amount:</strong> {{ transactionData.meta.delivered_amount / 1000000 }} XRP</p>
-        <p><strong>Destination:</strong> {{ transactionData.tx_json.Destination }}</p>
-        <p><strong>Date/Time:</strong> {{ transactionData.close_time_iso | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}</p>
+            <div *ngIf="transactionData">
+              <p><strong>Transaction Type:</strong> {{ transactionData.tx_json.TransactionType }}</p>
+              <p><strong>Delivered Amount:</strong> {{ transactionData.meta.delivered_amount / 1000000 }} XRP</p>
+              <p><strong>Destination:</strong> {{ transactionData.tx_json.Destination }}</p>
+              <p><strong>Date/Time:</strong> {{ transactionData.close_time_iso | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}
+              </p>
+            </div>
+          </div>
+
+          <div *ngIf="!transactionData">
+            <p>Loading transaction data...</p>
+          </div>
+        </div>
+
+        <div class="tabs"><a class="tab selected" title="Simple"
+          href="/transactions/706F925817BDA37076F71F2A20E7EFE1390FB1B973AF87C53E80DF2F05F0DFE9/simple">Simple</a><a
+          class="tab" title="Detailed"
+          href="/transactions/706F925817BDA37076F71F2A20E7EFE1390FB1B973AF87C53E80DF2F05F0DFE9/detailed">Detailed</a><a
+          class="tab" title="Raw"
+          href="/transactions/706F925817BDA37076F71F2A20E7EFE1390FB1B973AF87C53E80DF2F05F0DFE9/raw">Raw</a>
+        </div>
+        
       </div>
-    </div>
-
-    <div *ngIf="!transactionData">
-      <p>Loading transaction data...</p>
     </div>
   </mat-card>
 </div>

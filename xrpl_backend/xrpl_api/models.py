@@ -1,6 +1,16 @@
 from django.db import models
 
 class XrplPaymentData(models.Model):
+    """
+    A model representing XRPL payment data.
+
+    Attributes:
+        sender (str): The XRPL address of the sender.
+        receiver (str): The XRPL address of the receiver.
+        amount (Decimal): The amount of XRP sent.
+        transaction_hash (str): The unique hash for the XRPL transaction.
+        created_at (datetime): The timestamp when the record was created.
+    """
     sender = models.CharField(max_length=35)  # Sender's XRPL address
     receiver = models.CharField(max_length=35)  # Receiver's XRPL address
     amount = models.DecimalField(max_digits=20, decimal_places=6)  # Amount in XRP
@@ -13,9 +23,39 @@ class XrplPaymentData(models.Model):
     class Meta:
         db_table = 'xrpl_payment_data'
 
+
 class XrplAccountData(models.Model):
-    # account_data fields
-    objects = None
+    """
+    A model representing XRPL account data.
+
+    Attributes:
+        account (str): The unique XRPL account ID.
+        balance (Decimal): The account balance in drops.
+        flags (int): Flags indicating account settings (as an integer).
+        ledger_entry_type (str): The type of ledger entry (e.g., "AccountRoot").
+        owner_count (int): The number of owned objects (e.g., trust lines, offers).
+        previous_txn_id (str): The hash of the previous transaction affecting this account.
+        previous_txn_lgr_seq (int): The ledger sequence of the previous transaction.
+        sequence (int): The account's current sequence number.
+        index (str): The unique account index.
+
+        Flags (as booleans):
+            allow_trustline_clawback (bool): Whether trustline clawbacks are allowed.
+            default_ripple (bool): Whether rippling is enabled by default.
+            deposit_auth (bool): Whether deposit authorization is required.
+            disable_master_key (bool): Whether the master key is disabled.
+            disallow_incoming_check (bool): Whether incoming checks are disallowed.
+            global_freeze (bool): Whether the account is globally frozen.
+            no_freeze (bool): Whether the account cannot freeze trustlines.
+            password_spent (bool): Whether the password has been spent.
+            require_authorization (bool): Whether authorization is required for trustlines.
+            require_destination_tag (bool): Whether a destination tag is required.
+
+        Ledger-related:
+            ledger_hash (str): The hash of the ledger containing this account.
+            ledger_index (int): The ledger index containing this account.
+            validated (bool): Whether the account data has been validated.
+    """
     account = models.CharField(max_length=100, unique=True)  # Account ID
     balance = models.DecimalField(max_digits=20, decimal_places=0)  # Account balance
     flags = models.IntegerField()  # Flags (stored as an integer)
@@ -26,7 +66,7 @@ class XrplAccountData(models.Model):
     sequence = models.IntegerField()  # Sequence number
     index = models.CharField(max_length=255)  # Account index
 
-    # account_flags (stored as boolean fields)
+    # Account flags (stored as boolean fields)
     allow_trustline_clawback = models.BooleanField(default=False)
     default_ripple = models.BooleanField(default=False)
     deposit_auth = models.BooleanField(default=False)
@@ -49,7 +89,31 @@ class XrplAccountData(models.Model):
     class Meta:
         db_table = 'xrpl_account_data'
 
+
 class XrplLedgerEntryData(models.Model):
+    """
+    A model representing XRPL ledger entry data.
+
+    Attributes:
+        ledger_index (str): The unique index of the ledger entry.
+        close_time_iso (datetime): The ISO timestamp of the ledger's close time.
+        ctid (str): The CTID (Checksum Transaction ID) associated with the ledger.
+        hash (str): The unique hash of the ledger.
+        seq (int): The sequence number of the ledger.
+        ticket_count (int): The number of tickets in the ledger.
+        ledger_entry_type (str): The type of the ledger entry.
+        previous_fields_balance (int): The balance of the account before the last transaction.
+        previous_txn_id (str): The hash of the previous transaction affecting this ledger entry.
+        previous_txn_lgr_seq (int): The ledger sequence of the previous transaction.
+        account (str): The XRPL account associated with this ledger entry.
+        balance (int): The balance associated with the ledger entry.
+        flags (int): Flags indicating the state of the ledger entry.
+        owner_count (int): The count of owned objects.
+        transaction_index (int): The transaction index in the ledger.
+        transaction_result (str): The result of the transaction (e.g., "tesSUCCESS").
+        delivered_amount (int): The amount delivered in the transaction.
+        validated (bool): Whether the ledger entry is validated.
+    """
     ledger_index = models.CharField(max_length=64, unique=True)
     close_time_iso = models.DateTimeField()
     ctid = models.CharField(max_length=16)
@@ -75,7 +139,26 @@ class XrplLedgerEntryData(models.Model):
     class Meta:
         db_table = 'xrpl_ledger_entry_data'
 
+
 class XrplTransactionData(models.Model):
+    """
+    A model representing XRPL transaction data.
+
+    Attributes:
+        ledger_entry (ForeignKey): The ledger entry associated with this transaction.
+        account (str): The XRPL account initiating the transaction.
+        deliver_max (int): The maximum amount to deliver in the transaction.
+        destination (str): The destination account for the transaction.
+        fee (int): The fee for the transaction.
+        flags (int): Flags indicating transaction properties.
+        last_ledger_sequence (int): The last ledger sequence number for the transaction.
+        sequence (int): The sequence number of the transaction.
+        signing_pub_key (str): The signing public key for the transaction.
+        transaction_type (str): The type of the transaction (e.g., "Payment").
+        txn_signature (str): The transaction's signature.
+        date (datetime): The date and time of the transaction.
+        ledger_index (int): The ledger index associated with the transaction.
+    """
     ledger_entry = models.ForeignKey(XrplLedgerEntryData, on_delete=models.CASCADE, related_name='transactions')
     account = models.CharField(max_length=64)
     deliver_max = models.BigIntegerField()

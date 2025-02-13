@@ -1,4 +1,3 @@
-import xrpl
 import json
 import logging
 
@@ -7,7 +6,28 @@ from django.db import IntegrityError
 
 logger = logging.getLogger('xrpl_app')
 
+
 def save_account_data_to_databases(response, balance):
+    """
+    Save account data retrieved from XRPL to the database.
+
+    This function processes the response data from XRPL, validates the required fields,
+    and saves the account information along with its flags into the database.
+
+    Args:
+        response (dict): The XRPL response containing account information.
+        balance (str): The balance of the account.
+
+    Raises:
+        ValueError: If the response is missing required data or if there is a database integrity error.
+
+    Workflow:
+    1. Parse the response JSON into a Python dictionary.
+    2. Validate the presence of the required keys in the `account_data` and `account_flags`.
+    3. Create an instance of the `XrplAccountData` model and save it to the database.
+    4. Handle and log errors such as missing keys, database constraints, or unexpected exceptions.
+    """
+
     try:
         logger.info("Saving account to db")
 

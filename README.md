@@ -11,6 +11,8 @@ Perform the following to setup this project:
    7) pip install djangorestframework
    8) pip install django-cors-headers
    6) pip install xrpl-py
+   7) pip install redis
+   8) pip install tenacity
    8) node
    9) npm
    10) npm install -g @angular/cli

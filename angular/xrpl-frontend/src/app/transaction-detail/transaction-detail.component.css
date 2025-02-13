@@ -174,3 +174,19 @@ html, body {
     color: white;
     cursor: pointer;
   }
+
+.tabs {
+    border-top: 1px solid #343437;
+    margin: 8px auto 40px;
+    font-size: 14px;
+}
+
+* {
+    box-sizing: border-box;
+    outline: none !important;
+}
+
+div {
+    display: block;
+    unicode-bidi: isolate;
+}

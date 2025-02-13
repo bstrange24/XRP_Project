@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import XRPLAccount
+from .models import XrplAccountData # XRPLAccount
 
 class XRPLAccountSerializer(serializers.ModelSerializer):
     class Meta:
-        model = XRPLAccount
+        model = XrplAccountData
         fields = '__all__'

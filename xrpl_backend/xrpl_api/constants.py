@@ -17,3 +17,13 @@ CACHE_TIMEOUT_FOR_SERVER_INFO = 300  # 5 minutes
 CACHE_TIMEOUT_FOR_TRUST_LINE = 300  # 5 minutes
 CACHE_TIMEOUT_FOR_WALLET = 300  # Cache timeout in seconds (e.g., 5 minutes)
 CACHE_TIMEOUT_FOR_TRANSACTION_HISTORY = 300  # Cache timeout in seconds (e.g., 5 minutes)
+
+BASE_RESERVE = 2  # Base reserve in XRP; update if it changes
+
+# Constants for text
+ERROR_INITIALIZING_CLIENT = "Error initializing client."
+ERROR_CREATING_ACCOUNT_INFO_OBJECT = "Error creating Account Info object."
+XRPL_RESPONSE = "Raw XRPL response:"
+ERROR_IN_XRPL_RESPONSE = "Error in response from XRPL client"
+INVALID_WALLET_IN_REQUEST = 'Invalid wallet format passed in request.'
+ACCOUNT_IS_REQUIRED = 'Account address is required.'

@@ -1,5 +1,7 @@
-FAUCET_URL = "https://faucet.altnet.rippletest.net/accounts"
-JSON_RPC_URL = "https://s.altnet.rippletest.net:51234/"
+from django.conf import settings
+import logging
+
+logger = logging.getLogger('xrpl_app')
 
 # Constants for flags
 REQUIRE_DESTINATION_TAG_FLAG = 0x00010000  # 0x00010000: Require Destination Tag
@@ -21,9 +23,17 @@ CACHE_TIMEOUT_FOR_TRANSACTION_HISTORY = 300  # Cache timeout in seconds (e.g., 5
 BASE_RESERVE = 2  # Base reserve in XRP; update if it changes
 
 # Constants for text
-ERROR_INITIALIZING_CLIENT = "Error initializing client."
+ENTERING_FUNCTION_LOG = "Entering: {}"
+LEAVING_FUNCTION_LOG = "Leaving: {}"
+ERROR_INITIALIZING_CLIENT = "Failed to initialize XRPL client."
+ERROR_INITIALIZING_SERVER_INFO = "Error initializing server info."
 ERROR_CREATING_ACCOUNT_INFO_OBJECT = "Error creating Account Info object."
+ERROR_GETTING_ACCOUNT_INFO = "Error getting Account information."
 XRPL_RESPONSE = "Raw XRPL response:"
-ERROR_IN_XRPL_RESPONSE = "Error in response from XRPL client"
+ERROR_IN_XRPL_RESPONSE = "Error in response from XRPL client."
+ERROR_FETCHING_TRANSACTION_HISTORY = "Error fetching transaction history info."
+ERROR_FETCHING_TRANSACTION_STATUS = 'Error while checking transaction status.'
 INVALID_WALLET_IN_REQUEST = 'Invalid wallet format passed in request.'
 ACCOUNT_IS_REQUIRED = 'Account address is required.'
+INVALID_TRANSACTION_HASH = 'Invalid transaction hash.'
+PAYMENT_IS_UNSUCCESSFUL = "Payment response is unsuccessful"

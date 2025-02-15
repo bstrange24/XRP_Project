@@ -34,7 +34,7 @@ def save_account_data_to_databases(response, balance):
         # Parse the JSON string into Python dictionary
         json_string = json.dumps(response, indent=4)
         data = json.loads(json_string)
-
+        data= data['result']
         # Ensure required keys exist in the response data
         if 'account_data' not in data or 'account_flags' not in data:
             raise KeyError("Missing expected 'account_data' or 'account_flags' in the response.")

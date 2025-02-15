@@ -1,24 +1,48 @@
 from pathlib import Path
+import environ
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-bxy=gsw@&!fac-)r(-)w!ujha4^!8t46^!p2d-ej85aye#^8q9'
+
+# Initialize environment variables
+env = environ.Env()
+env.read_env(".env")  # Adjust path if needed
+
+# Debugging: Check if .env exists at the expected path
+env_path = os.path.join(BASE_DIR, ".env")
+if not os.path.exists(env_path):
+    raise FileNotFoundError(f".env file not found at: {env_path}")
+
+# Load .env file
+env.read_env(env_path)
+
+# Set database settings
+MY_DATABASES = {
+    "postgres": env.db("POSTGRES_DATABASE_URL"),
+    "oracle": env.db("ORACLE_DATABASE_URL"),
+}
+
+XRP_NETWORK = env("XRP_NETWORK", default="testnet")  # Use a default if not set
+APP_SECRET_KEY = env("APP_SECRET_KEY", default="")  # Use a default if not set
+XRPL_DEV_NETWORK_URL = env("XRPL_DEV_NETWORK_URL", default="")  # Use a default if not set
+XRPL_TEST_NETWORK_URL = env("XRPL_TEST_NETWORK_URL", default="")  # Use a default if not set
+XRPL_PROD_NETWORK_URL = env("XRPL_TEST_NETWORK_URL", default="")  # Use a default if not set
+XRP_FAUCET_URL = env("XRP_FAUCET_URL", default="")  # Use a default if not set
+XRP_ACCOUNT_DELETE_FEE_IN_DROPS = env("XRP_ACCOUNT_DELETE_FEE_IN_DROPS", default="10")  # Use a default if not set
+XRP_SEND_ACCOUNT_FEE_IN_DROPS = env("XRP_SEND_ACCOUNT_FEE_IN_DROPS", default="10")  # Use a default if not set
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -68,10 +92,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'xrpl_backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -79,10 +101,8 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -98,35 +118,28 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {message}',
+            'format': '{levelname} {asctime} [{module} - {funcName}:{lineno}] {message}',
             'style': '{',
         },
         'simple': {

@@ -55,7 +55,7 @@ urlpatterns = [
 
     # Endpoint to send payment and delete the sender's wallet account.
     # Example: http://127.0.0.1:8000/xrpl/send-payment-delete-wallet/?sender_seed=...&receiver=...&amount=10
-    path('send-payment-delete-wallet/', send_and_delete_wallet, name='send_payment'),
+    path('send-payment-delete-wallet/<str:wallet_address>/', send_and_delete_wallet, name='send_and_delete_wallet'),
 
     # Endpoint to retrieve trust lines for a wallet address.
     # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK

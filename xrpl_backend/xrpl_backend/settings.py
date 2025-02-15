@@ -36,6 +36,7 @@ XRPL_PROD_NETWORK_URL = env("XRPL_TEST_NETWORK_URL", default="")  # Use a defaul
 XRP_FAUCET_URL = env("XRP_FAUCET_URL", default="")  # Use a default if not set
 XRP_ACCOUNT_DELETE_FEE_IN_DROPS = env("XRP_ACCOUNT_DELETE_FEE_IN_DROPS", default="10")  # Use a default if not set
 XRP_SEND_ACCOUNT_FEE_IN_DROPS = env("XRP_SEND_ACCOUNT_FEE_IN_DROPS", default="10")  # Use a default if not set
+BLACK_HOLE_ADDRESS = env("BLACK_HOLE_ADDRESS", default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

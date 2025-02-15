@@ -1,4 +1,3 @@
-from django.conf import settings
 import logging
 
 logger = logging.getLogger('xrpl_app')
@@ -19,6 +18,8 @@ CACHE_TIMEOUT_FOR_SERVER_INFO = 300  # 5 minutes
 CACHE_TIMEOUT_FOR_TRUST_LINE = 300  # 5 minutes
 CACHE_TIMEOUT_FOR_WALLET = 300  # Cache timeout in seconds (e.g., 5 minutes)
 CACHE_TIMEOUT_FOR_TRANSACTION_HISTORY = 300  # Cache timeout in seconds (e.g., 5 minutes)
+
+asfDisableMaster = 1114112
 
 BASE_RESERVE = 2  # Base reserve in XRP; update if it changes
 

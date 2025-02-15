@@ -13,7 +13,7 @@ class XrplPaymentData(models.Model):
     """
     sender = models.CharField(max_length=35)  # Sender's XRPL address
     receiver = models.CharField(max_length=35)  # Receiver's XRPL address
-    amount = models.DecimalField(max_digits=20, decimal_places=6)  # Amount in XRP
+    amount = models.DecimalField(max_digits=20, decimal_places=8)  # Amount in XRP
     transaction_hash = models.CharField(max_length=64, unique=True)  # XRPL transaction hash
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -57,7 +57,7 @@ class XrplAccountData(models.Model):
             validated (bool): Whether the account data has been validated.
     """
     account = models.CharField(max_length=100, unique=True)  # Account ID
-    balance = models.DecimalField(max_digits=20, decimal_places=0)  # Account balance
+    balance = models.DecimalField(max_digits=20, decimal_places=8)  # Account balance
     flags = models.IntegerField()  # Flags (stored as an integer)
     ledger_entry_type = models.CharField(max_length=100)  # Ledger entry type (e.g., "AccountRoot")
     owner_count = models.IntegerField()  # Owner count

@@ -1423,4 +1423,4 @@ class TestGetWalletInfo(unittest.TestCase):
 #     # def test_get_param_with_no_data(self):
 #     #     request = self.factory.get('/test', {})
 #     #     result = get_request_param(request, 'nonexistent', function_name=self.function_name)
-#     #     self.assertIsNone(result)
+#     #     self.assertIsNone(result)z

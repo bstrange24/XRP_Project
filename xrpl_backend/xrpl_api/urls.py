@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import create_account, get_wallet_info, check_wallet_balance, account_set, delete_account, get_ledger_info, \
     get_xrp_reserves, get_account_trust_lines, get_account_offers, get_server_info, get_trust_line, set_trust_line, \
-    send_and_delete_wallet
+    send_and_delete_wallet, create_multiple_account
 from .views import get_transaction_history, get_transaction_history_with_pagination, check_transaction_status
 from .views import send_payment
 
@@ -14,6 +14,10 @@ urlpatterns = [
     # Endpoint for creating a new XRPL account.
     # Example: http://127.0.0.1:8000/xrpl/create-account/
     path('create-account/', create_account, name='create_account'),
+
+    # Endpoint for creating a new XRPL account.
+    # Example: http://127.0.0.1:8000/xrpl/create_multiple_account/
+    path('create-multiple-accounts/', create_multiple_account, name='create_multiple_account'),
 
     # Endpoint to fetch wallet information for a given wallet address.
     # Example: http://127.0.0.1:8000/xrpl/wallet-info/rMgaRbbZUBeoxwZevhv1mezuvA97eR4JHV/

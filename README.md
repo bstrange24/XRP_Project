@@ -1,5 +1,8 @@
 # XRP_Project
 
+Go here for xrpl documentation
+https://xrpl-py.readthedocs.io/en/stable/source/snippets.html
+
 Perform the following to setup this project:
 1) Download Git for repo interaction (Git Bash, Tortoise Git)
 2) Download repo from https://github.com/bstrange24/XRP_Project.git
@@ -14,6 +17,7 @@ Perform the following to setup this project:
    7) pip install redis
    8) pip install tenacity
    9) pip install django-environ
+   10) pip install environ
    8) node
    9) npm
    10) npm install -g @angular/cli

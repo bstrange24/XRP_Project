@@ -1,6 +1,5 @@
 from xrpl.models import ServerInfo
 import logging
-from xrpl_backend.xrpl_api.utils import get_xrpl_client
 
 logger = logging.getLogger('xrpl_app')
 

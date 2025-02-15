@@ -4,6 +4,7 @@ import re
 from decimal import Decimal
 
 import xrpl
+from django.db import transaction
 from django.apps import apps
 from django.core.cache import cache
 from django.http import JsonResponse
@@ -11,6 +12,7 @@ from xrpl import XRPLException
 from xrpl.clients import JsonRpcClient
 from xrpl.core.addresscodec import is_valid_classic_address, is_valid_xaddress
 from xrpl.core.keypairs import derive_keypair, derive_classic_address
+from xrpl.ledger import get_fee
 from xrpl.models import ServerInfo, Payment, AccountInfo, AccountSet, AccountTx, Tx, AccountDelete, TrustSet, \
     IssuedCurrencyAmount, Response
 from xrpl.utils import xrp_to_drops, drops_to_xrp
@@ -52,13 +54,8 @@ def is_valid_transaction_hash(transaction_hash: str) -> bool:
     Returns:
         bool: True if the transaction hash is valid, False otherwise.
     """
-    # Check if the transaction_hash is None
-    if transaction_hash is None:
-        return False
-
-    # Use a regular expression to validate the transaction hash format
-    # The regex pattern checks for exactly 64 hexadecimal characters
-    return bool(re.fullmatch(r"^[A-Fa-f0-9]{64}$", transaction_hash))
+    # Check if the transaction_hash matches the regex pattern
+    return bool(re.match(r"^[A-Fa-f0-9]{64}$", transaction_hash))
 
 
 def validate_xrp_wallet(address):
@@ -167,6 +164,10 @@ def get_account_reserves():
         # Convert the values to integers and return them
         return int(base_reserve), int(reserve_inc)
 
+    except KeyError as e:
+        # Log a specific error if the key is missing
+        logger.error(f"Missing expected key in server info response: {e}")
+        return None, None
     except Exception as e:
         # Log any exceptions that occur during the process
         logger.error(f"Error fetching server info: {e}")
@@ -272,19 +273,19 @@ def extract_request_data(request):
         ValueError: If `sender_seed` is missing or if `amount_xrp` is in an invalid format.
     """
     # Extract sender_seed from either query parameters or request body
-    sender_seed = request.GET.get('sender_seed') or request.data.get('sender_seed')
+    sender_seed = get_request_param(request, 'sender_seed')
     if not sender_seed:
         # Raise an error if sender_seed is missing (required field)
         raise ValueError("sender_seed is required")
 
     # Extract receiver_address from either query parameters or request body
-    receiver_address = request.GET.get('receiver') or request.data.get('receiver')
+    receiver_address = get_request_param(request, 'receiver')
 
     # Initialize amount_xrp as None (optional field)
     amount_xrp = None
 
     # Extract amount_str from either query parameters or request body
-    amount_str = request.GET.get('amount') or request.data.get('amount')
+    amount_str = get_request_param(request, 'amount')
     if amount_str:
         try:
             # Attempt to convert amount_str to a Decimal
@@ -372,69 +373,25 @@ def validate_request_data(sender_seed: str, receiver_address: str, amount_xrp: i
 
 def fetch_network_fee(client):
     """
-    Fetches the current network fee for XRP transactions from the XRPL server.
+       Efficiently fetches the current transaction fee from the XRPL ledger.
 
-    Args:
-        client (JsonRpcClient): The client object to communicate with the XRPL server.
-
-    Returns:
-        int: The network fee in drops (1 drop = 0.000001 XRP).
-
-    Raises:
-        ValueError: If there is an error fetching or processing the network fee.
-
-    This function performs the following steps:
-    - Sends a request to the XRPL server for server information.
-    - Extracts the base fee from the validated ledger in the response.
-    - Converts the extracted base fee from XRP to drops.
-    - Returns the converted fee.
-
-    If any error occurs during this process, it logs the error and raises a ValueError with an appropriate message.
-    """
-
+       Returns:
+           dict: A dictionary containing the fee information or an error message.
+       """
     try:
-        # Send a request to the XRPL server for server information
-        server_info = client.request(ServerInfo())
-
-        # Check if the response is valid
-        if not server_info:
-            raise ValueError("Error initializing server info.")
-
-        # Extract the base fee from the validated ledger in XRP units
-        raw_fee_xrp = Decimal(server_info.result['info']['validated_ledger']['base_fee_xrp'])
-
-        # Convert the base fee from XRP to drops (1 drop = 0.000001 XRP)
-        return xrp_to_drops(raw_fee_xrp)
-
-    except (KeyError, TypeError, AttributeError, ValueError) as e:
-        # Log the error and raise a ValueError with an appropriate message
-        logger.error(f"Failed to fetch network fee: {str(e)}")
-        raise ValueError("Failed to fetch network fee. Please try again.")
+        # Fetch transaction fee from the XRPL ledger
+        fee = get_fee(client)
+        logger.info(f"Transaction fee retrieved: {fee}")
+        return fee
+    except Exception as e:
+        logger.error(f"Error fetching transaction fee: {e}")
+        return {"status": "failure", "message": str(e)}
 
 
 def process_payment_response(payment_response, sender_address: str, receiver_address: str, amount_xrp: Decimal,
                              fee_drops: int):
-    """
-    Processes the response from a payment submission to the XRPL network.
-
-    Args:
-        payment_response (PaymentResponse): The response object from submitting a payment.
-        sender_address (str): The classic address of the sender.
-        receiver_address (str): The classic address of the receiver.
-        amount_xrp (Decimal): The amount sent in XRP.
-        fee_drops (int): The transaction fee in drops.
-
-    Returns:
-        dict: A dictionary representing the response to send back to the client.
-
-    This function processes the payment response from the XRPL network, checking its success and handling
-    various scenarios such as successful payments, missing data, errors, and internal exceptions.
-    """
     try:
-        # Check if the payment response was successful
-        if not payment_response or not hasattr(payment_response,
-                                               'is_successful') or not payment_response.is_successful():
-            raise ValueError(f"Payment response was unsuccessfully {payment_response}")
+        logger.debug(f"Payment response: {payment_response}")
 
         # Extract the transaction hash from the response
         transaction_hash = payment_response.result.get('hash')
@@ -447,65 +404,59 @@ def process_payment_response(payment_response, sender_address: str, receiver_add
         save_transaction(sender_address, receiver_address, amount_xrp, transaction_hash)
 
         # Update the balances of both sender and receiver accounts
-        update_account_balances(sender_address, receiver_address, amount_xrp)
+        update_sender_account_balances(sender_address, amount_xrp)
+        update_receiver_account_balances(receiver_address, amount_xrp)
 
         # Send a response to indicate successful payment
         return send_payment_response(transaction_hash, sender_address, receiver_address, amount_xrp, fee_drops)
     except (AttributeError, KeyError, TypeError, ValueError) as e:
         # Log critical error and handle it by sending an error response
-        logger.critical(f"Unexpected error in process_payment_response: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error in process_payment_response: {str(e)}", exc_info=True)
         return handle_error({'status': 'failure', 'message': f'Internal error: {str(e)}'}, 500, 'send_payment')
     except Exception as e:
         # Log critical error and handle it by sending an error response
-        logger.critical(f"Unexpected error in process_payment_response: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error in process_payment_response: {str(e)}", exc_info=True)
         return handle_error({'status': 'failure', 'message': f'{str(e)}'}, 500, 'send_payment')
 
 
-def update_account_balances(sender_address: str, receiver_address: str, amount_xrp: Decimal):
-    """
-    Updates the account balances for both the sender and the receiver after a payment transaction.
-
-    Args:
-        sender_address (str): The classic address of the sender.
-        receiver_address (str): The classic address of the receiver.
-        amount_xrp (Decimal): The amount sent in XRP.
-
-    Raises:
-        ValueError: If there is an issue with the balance or if the sender's account does not exist.
-
-    This function updates the balances for both the sender and receiver accounts after a successful payment
-    transaction. It checks that the sender has sufficient funds, updates their balance accordingly, fetches
-    or creates the receiver's account (if it doesn't already exist), and then updates their balance. If any errors
-    occur during this process, appropriate exceptions are raised with descriptive error messages.
-    """
+def update_sender_account_balances(sender_address: str, amount_xrp: Decimal):
     try:
-        # Fetch and update sender's account balance
-        sender_account = XrplAccountData.objects.get(account=sender_address)
-        if sender_account.balance < amount_xrp:
-            raise ValueError("Insufficient balance in sender's account.")
+        with transaction.atomic():  # Ensures the update is committed
+            sender_account = XrplAccountData.objects.select_for_update().get(account=sender_address)
 
-        sender_account.balance -= amount_xrp
-        sender_account.save()
+            if amount_xrp <= 0:
+                logger.warning(f"Skipping update: amount_xrp={amount_xrp}")
+                return
 
-        # Fetch or create receiver's account and update balance
-        receiver_account, created = XrplAccountData.objects.get_or_create(
-            account=receiver_address,
-            defaults={'balance': amount_xrp}
-        )
-        if not created:
-            receiver_account.balance += amount_xrp
-            receiver_account.save()
+            sender_account.balance -= amount_xrp
+            sender_account.save(update_fields=["balance"])  # Force update
 
     except XrplAccountData.DoesNotExist:
         logger.error(f"Sender account {sender_address} not found.")
         raise ValueError("Sender account does not exist.")
-
-    except ValueError as e:
-        logger.error(f"ValueError in update_account_balances: {str(e)}")
-        raise  # Re-raise for the calling function to handle
-
     except Exception as e:
-        logger.critical(f"Unexpected error updating account balances: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error updating account balances: {str(e)}", exc_info=True)
+        raise ValueError("An unexpected error occurred while updating balances.") from e
+
+
+def update_receiver_account_balances(receiver_address: str, amount_xrp: Decimal):
+    try:
+        with transaction.atomic():  # Ensures the update is committed
+            # Fetch or create receiver's account and update balance
+            receiver_account = XrplAccountData.objects.get(account=receiver_address)
+
+            if amount_xrp <= 0:
+                logger.warning(f"Skipping update: amount_xrp={amount_xrp}")
+                return
+
+            receiver_account.balance += amount_xrp
+            receiver_account.save()
+
+    except XrplAccountData.DoesNotExist:
+        logger.error(f"Sender account {receiver_address} not found.")
+        raise ValueError("Sender account does not exist.")
+    except Exception as e:
+        logger.error(f"Unexpected error updating account balances: {str(e)}", exc_info=True)
         raise ValueError("An unexpected error occurred while updating balances.") from e
 
 
@@ -997,6 +948,23 @@ def create_account_response(wallet_address, seed, xrp_balance, account_details):
     })
 
 
+def create_multiple_account_response(transactions):
+    """
+    Creates and returns a JSON response containing details of multiple newly created wallets.
+
+    Args:
+        transactions (list): A list of dictionaries, each representing a transaction that created a new wallet.
+
+    Returns:
+        JsonResponse: A JSON response object with the details of the created wallets.
+    """
+    return JsonResponse({
+        "status": "success",
+        "message": f"{len(transactions)} Wallets created.",
+        "transactions": transactions,
+    })
+
+
 def account_delete_tx_response(payment_response_hash, account_delete_response_hash):
     """
     Constructs a JSON response for the successful transfer of funds and deletion of an account.
@@ -1281,6 +1249,12 @@ def send_payment_response(transaction_hash, sender_address, receiver_address, am
         'fee_drops': fee_drops,
     })
 
+def delete_account_response(response):
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Account successfully black holed.',
+        'result': response.result,
+    })
 
 def save_transaction(sender: str, receiver: str, amount: Decimal, transaction_hash: str):
     """

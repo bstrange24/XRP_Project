@@ -12,6 +12,7 @@ class XrplApiConfig(AppConfig):
     XRP_ACCOUNT_DELETE_FEE_IN_DROPS = 10
     # Initialize as 10. This is only if there is a problem reading the value from the .env file
     XRP_SEND_ACCOUNT_FEE_IN_DROPS = 10 # Initialize as 10
+    BLACK_HOLE_ADDRESS = None
 
     logger.info("----------------- App started ----------------- ")
 
@@ -33,8 +34,10 @@ class XrplApiConfig(AppConfig):
 
         self.XRP_ACCOUNT_DELETE_FEE_IN_DROPS = settings.XRP_ACCOUNT_DELETE_FEE_IN_DROPS
         self.XRP_SEND_ACCOUNT_FEE_IN_DROPS = settings.XRP_SEND_ACCOUNT_FEE_IN_DROPS
+        self.BLACK_HOLE_ADDRESS = settings.BLACK_HOLE_ADDRESS
 
         logger.info(f"Using XRP URL: {self.JSON_RPC_URL}")
         logger.info(f"Using XRP FAUCET URL: {self.XRP_FAUCET_URL}")
         logger.info(f"XRP_ACCOUNT_DELETE_FEE_IN_DROPS: {self.XRP_ACCOUNT_DELETE_FEE_IN_DROPS}")
         logger.info(f"XRP_SEND_ACCOUNT_FEE_IN_DROPS: {self.XRP_SEND_ACCOUNT_FEE_IN_DROPS}")
+        logger.info(f"BLACK_HOLE_ADDRESS: {self.BLACK_HOLE_ADDRESS}")

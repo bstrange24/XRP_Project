@@ -1139,42 +1139,133 @@ class CreateAccountOfferView(View):
         wallet_address = get_request_param(request, 'wallet_address')
         if not wallet_address:
             raise ValueError(ACCOUNT_IS_REQUIRED)  # Raise an error if the wallet address is missing.
-        currency = request.GET.get("currency")
-        value = request.GET.get("value")
-        sender_seed = request.GET.get("sender_seed")
 
-        if not wallet_address or not currency or not value:
-            return JsonResponse({"error": "Missing parameters"}, status=400)
+        currency = request.GET.get("currency")
+        if not currency:
+            raise ValueError('currency is required')  # Raise an error if the wallet address is missing.
+
+        value = request.GET.get("value")
+        if not value:
+            raise ValueError('value is required')  # Raise an error if the wallet address is missing.
+
+        sender_seed = request.GET.get("sender_seed")
+        if not sender_seed:
+            raise ValueError('sender seed is required')  # Raise an error if the wallet address is missing.
 
         sender_wallet = Wallet.from_seed(sender_seed)
 
-        async with AsyncWebsocketClient("wss://s.altnet.rippletest.net:51233") as client:
+        xrpl_config = apps.get_app_config('xrpl_api')
+
+        async with AsyncWebsocketClient(xrpl_config.XRPL_WEB_SOCKET_NETWORK_URL) as client:
             we_want = create_issued_currency_the_user_wants(wallet_address, currency, value)
+            logger.info(f"We want: {we_want}")
             we_spend = create_amount_the_user_wants_to_spend()
+            logger.info(f"We spend: {we_spend}")
 
             proposed_quality = Decimal(we_spend["value"]) / Decimal(we_want["value"])
+            logger.info(f"Proposed quality: {proposed_quality}")
 
-            print("Requesting orderbook information...")
+            logger.info("Requesting orderbook information...")
 
             orderbook_info = await client.request(
                 create_book_offer(wallet_address, we_want, we_spend)
             )
 
-            offers = orderbook_info.result.get("offers", [])
-            want_amt = Decimal(we_want["value"])
-            running_total = Decimal(0)
+            logger.info(f"Orderbook:{orderbook_info.result}")
 
-            for o in offers:
-                if Decimal(o["quality"]) <= proposed_quality:
-                    running_total += Decimal(o.get("owner_funds", Decimal(0)))
-                    if running_total >= want_amt:
+            offers = orderbook_info.result.get("offers", [])
+            logger.info(f"Offers: {offers}")
+
+            want_amt = Decimal(we_want["value"])
+            logger.info(f"Want amount: {want_amt}")
+
+            running_total = Decimal(0)
+            if len(offers) == 0:
+                logger.info("No Offers in the matching book. Offer probably won't execute immediately.")
+            else:
+                for o in offers:
+                    if Decimal(o["quality"]) <= proposed_quality:
+                        logger.info(f"Matching Offer found, funded with {o.get('owner_funds')} "
+                              f"{we_want['currency']}")
+                        running_total += Decimal(o.get("owner_funds", Decimal(0)))
+                        if running_total >= want_amt:
+                            logger.info("Full Offer will probably fill")
+                            break
+                    else:
+                        # Offers are in ascending quality order, so no others after this
+                        # will match either
+                        logger.info("Remaining orders too expensive.")
                         break
+
+                logger.info(f"Total matched: {min(running_total, want_amt)} {we_want['currency']}")
+                if 0 < running_total < want_amt:
+                    logger.info(f"Remaining {want_amt - running_total} {we_want['currency']} "
+                          "would probably be placed on top of the order book.")
+
+            if running_total == 0:
+                # If part of the Offer was expected to cross, then the rest would be placed
+                # at the top of the order book. If none did, then there might be other
+                # Offers going the same direction as ours already on the books with an
+                # equal or better rate. This code counts how much liquidity is likely to be
+                # above ours.
+                #
+                # Unlike above, this time we check for Offers going the same direction as
+                # ours, so TakerGets and TakerPays are reversed from the previous
+                # book_offers request.
+
+                logger.info("Requesting second orderbook information...")
+                orderbook2_info = await client.request(
+                    BookOffers(
+                        taker=wallet_address,
+                        ledger_index="current",
+                        taker_gets=we_spend["currency"],
+                        taker_pays=we_want["currency"],
+                        limit=10,
+                    )
+                )
+                logger.info(f"Orderbook2: {orderbook2_info.result}")
+
+                # Since TakerGets/TakerPays are reversed, the quality is the inverse.
+                # You could also calculate this as 1 / proposed_quality.
+                offered_quality = Decimal(we_want["value"]) / Decimal(we_spend["value"])
+                logger.info(f"offered_quality: {offered_quality}")
+
+                tally_currency = we_spend["currency"]
+                logger.info(f"tally_currency: {tally_currency}")
+
+                if isinstance(tally_currency, XRP):
+                    tally_currency = f"drops of {tally_currency}"
+                logger.info(f"tally_currency after isinstance: {tally_currency}")
+
+                offers2 = orderbook2_info.result.get("offers", [])
+                logger.info(f"offers2: {offers2}")
+
+                running_total2 = Decimal(0)
+                if len(offers2) == 0:
+                    logger.info("No similar Offers in the book. Ours would be the first.")
+                else:
+                    for o in offers2:
+                        if Decimal(o["quality"]) <= offered_quality:
+                            logger.info(f"Existing offer found, funded with {o.get('owner_funds')} "
+                                  f"{tally_currency}")
+                            running_total2 += Decimal(o.get("owner_funds", Decimal(0)))
+                        else:
+                            logger.info("Remaining orders are below where ours would be placed.")
+                            break
+
+                    logger.info(f"Our Offer would be placed below at least {running_total2} "
+                          f"{tally_currency}")
+                    if 0 < running_total2 < want_amt:
+                        logger.info(f"Remaining {want_amt - running_total2} {tally_currency} "
+                              "will probably be placed on top of the order book.")
+
 
             tx = OfferCreate(
                 account=wallet_address,
                 taker_gets=we_spend["value"],
                 taker_pays=we_want["currency"].to_amount(we_want["value"]),
             )
+            logger.info(f"tx: {tx}")
 
             print("before autofill_and_sign...")
             signed_tx = await autofill_and_sign(tx, client, sender_wallet)
@@ -1182,40 +1273,85 @@ class CreateAccountOfferView(View):
             print("before process_offer...")
             result = await process_offer(signed_tx, client)
             print("after process_offer...")
-            # result = await submit_and_wait(signed_tx, client)
 
+            if result.is_successful():
+                logger.info(f"Transaction succeeded: "
+                      f"https://testnet.xrpl.org/transactions/{signed_tx.get_hash()}")
+            else:
+                raise Exception(f"Error sending transaction: {result}")
 
+            # Check metadata ------------------------------------------------------------
+            balance_changes = get_balance_changes(result.result["meta"])
+            logger.info(f"Balance Changes:{balance_changes}")
 
+            # Helper to convert an XRPL amount to a string for display
+            def amt_str(amt) -> str:
+                if isinstance(amt, str):
+                    return f"{drops_to_xrp(amt)} XRP"
+                else:
+                    return f"{amt['value']} {amt['currency']}.{amt['issuer']}"
+
+            offers_affected = 0
+            for affnode in result.result["meta"]["AffectedNodes"]:
+                if "ModifiedNode" in affnode:
+                    if affnode["ModifiedNode"]["LedgerEntryType"] == "Offer":
+                        # Usually a ModifiedNode of type Offer indicates a previous Offer that
+                        # was partially consumed by this one.
+                        offers_affected += 1
+                elif "DeletedNode" in affnode:
+                    if affnode["DeletedNode"]["LedgerEntryType"] == "Offer":
+                        # The removed Offer may have been fully consumed, or it may have been
+                        # found to be expired or unfunded.
+                        offers_affected += 1
+                elif "CreatedNode" in affnode:
+                    if affnode["CreatedNode"]["LedgerEntryType"] == "RippleState":
+                        logger.info("Created a trust line.")
+                    elif affnode["CreatedNode"]["LedgerEntryType"] == "Offer":
+                        offer = affnode["CreatedNode"]["NewFields"]
+                        logger.info(f"Created an Offer owned by {offer['Account']} with "
+                              f"TakerGets={amt_str(offer['TakerGets'])} and "
+                              f"TakerPays={amt_str(offer['TakerPays'])}.")
+
+            logger.info(f"Modified or removed {offers_affected} matching Offer(s)")
+
+            # Check balances ------------------------------------------------------------
+            logger.info("Getting address balances as of validated ledger...")
+            balances = await client.request(
+                AccountLines(
+                    account=wallet_address,
+                    ledger_index="validated",
+                )
+            )
+            logger.info(f"balances.result: {balances.result}")
+
+            # Check Offers --------------------------------------------------------------
+            logger.info(f"Getting outstanding Offers from {wallet_address} "
+                  f"as of validated ledger...")
+            acct_offers = await client.request(
+                AccountOffers(
+                    account=wallet_address,
+                    ledger_index="validated",
+                )
+            )
+            logger.info(f"acct_offers.result: {acct_offers.result}")
 
             response_data = {
                 "transaction_hash": signed_tx.get_hash(),
                 "orderbook_info": orderbook_info.result,
                 "transaction_status": "success" if result.is_successful() else "failed",
+                'acct_offers.result': acct_offers.result
             }
+            logger.info(f"response_data: {response_data}")
 
             return JsonResponse(response_data)
 
 # # @api_view(['GET'])
 # # @csrf_exempt  # Allow non-CSRF-protected requests (for testing)
 # # @sync_and_async_middleware
-# # @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
 # # async def create_account_offer(request):
 # def create_account_offer(request):
 #     # async with AsyncWebsocketClient("wss://s.altnet.rippletest.net:51233") as client:
-#     wallet_address = get_request_param(request, 'wallet_address')
-#     if not wallet_address:
-#         raise ValueError(ACCOUNT_IS_REQUIRED)  # Raise an error if the wallet address is missing.
 #
-#     currency = get_request_param(request, 'currency')
-#     value = get_request_param(request, 'value')
-#
-#     we_want = create_issued_currency_the_user_wants(wallet_address, currency, value)
-#     we_spend = create_amount_the_user_wants_to_spend()
-#
-#     proposed_quality = Decimal(we_spend["value"]) / Decimal(we_want["value"])
-#     client = get_xrpl_client()
-#     # Look up Offers. -----------------------------------------------------------
-#     # To buy TST, look up Offers where "TakerGets" is TST:
 #     print("Requesting orderbook information...")
 #     # orderbook_info = await get_xrpl_client().request(
 #     #     create_book_offer(wallet_address, we_want, we_spend)

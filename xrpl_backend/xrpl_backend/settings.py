@@ -30,10 +30,26 @@ MY_DATABASES = {
 
 XRP_NETWORK = env("XRP_NETWORK", default="testnet")  # Use a default if not set
 APP_SECRET_KEY = env("APP_SECRET_KEY", default="")  # Use a default if not set
+
+XRP_DEV_FAUCET_URL = env("XRP_DEV_FAUCET_URL", default="")  # Use a default if not set
 XRPL_DEV_NETWORK_URL = env("XRPL_DEV_NETWORK_URL", default="")  # Use a default if not set
+XRPL_DEV_WEB_SOCKET_NETWORK_URL = env("XRPL_DEV_WEB_SOCKET_NETWORK_URL", default="")  # Use a default if not set
+XRPL_DEV_CLIO_NETWORK_URL = env("XRPL_DEV_CLIO_NETWORK_URL", default="")  # Use a default if not set
+XRPL_DEV_CLIO_WEB_SOCKET_NETWORK_URL = env("XRPL_DEV_CLIO_WEB_SOCKET_NETWORK_URL", default="")  # Use a default if not set
+
+XRP_TEST_FAUCET_URL = env("XRP_TEST_FAUCET_URL", default="")  # Use a default if not set
 XRPL_TEST_NETWORK_URL = env("XRPL_TEST_NETWORK_URL", default="")  # Use a default if not set
-XRPL_PROD_NETWORK_URL = env("XRPL_TEST_NETWORK_URL", default="")  # Use a default if not set
-XRP_FAUCET_URL = env("XRP_FAUCET_URL", default="")  # Use a default if not set
+XRPL_TEST_WEB_SOCKET_NETWORK_URL = env("XRPL_TEST_WEB_SOCKET_NETWORK_URL", default="")  # Use a default if not set
+
+XRPL_TEST_LABS_NETWORK_URL = env("XRPL_TEST_LABS_NETWORK_URL", default="")  # Use a default if not set
+XRPL_TEST_LABS_WEB_SOCKET_NETWORK_URL = env("XRPL_TEST_LABS_WEB_SOCKET_NETWORK_URL", default="")  # Use a default if not set
+XRPL_TEST_CLIO_NETWORK_URL = env("XRPL_TEST_CLIO_NETWORK_URL", default="")  # Use a default if not set
+XRPL_TEST_CLIO_WEB_SOCKET_NETWORK_URL = env("XRPL_TEST_CLIO_WEB_SOCKET_NETWORK_URL", default="")  # Use a default if not set
+
+XRP_PROD_FAUCET_URL = env("XRP_PROD_FAUCET_URL", default="")  # Use a default if not set
+XRPL_PROD_NETWORK_URL = env("XRPL_PROD_NETWORK_URL", default="")  # Use a default if not set
+XRPL_PROD_WEB_SOCKET_NETWORK_URL = env("XRPL_PROD_WEB_SOCKET_NETWORK_URL", default="")  # Use a default if not set
+
 XRP_ACCOUNT_DELETE_FEE_IN_DROPS = env("XRP_ACCOUNT_DELETE_FEE_IN_DROPS", default="10")  # Use a default if not set
 XRP_SEND_ACCOUNT_FEE_IN_DROPS = env("XRP_SEND_ACCOUNT_FEE_IN_DROPS", default="10")  # Use a default if not set
 BLACK_HOLE_ADDRESS = env("BLACK_HOLE_ADDRESS", default='')

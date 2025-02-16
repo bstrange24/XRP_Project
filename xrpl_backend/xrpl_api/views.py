@@ -1,46 +1,63 @@
 import json
 import logging
+import time
+from decimal import Decimal
 
 import xrpl
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import JsonResponse
+from django.utils.decorators import sync_and_async_middleware, method_decorator
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from tenacity import retry, wait_exponential, stop_after_attempt
 from xrpl import XRPLException
 from django.apps import apps
+from xrpl.asyncio.clients import AsyncWebsocketClient
+from xrpl.asyncio.transaction import (
+    autofill_and_sign,
+    submit_and_wait,
+)
+
 from xrpl.core import addresscodec
-from xrpl.models import AccountLines, AccountOffers, ServerInfo, SetRegularKey, AccountSetAsfFlag, AccountInfo, \
-    AccountSet
+from xrpl.models import AccountLines, ServerInfo, AccountSetAsfFlag, AccountSet, BookOffers, XRP, OfferCreate, \
+    AccountOffers, IssuedCurrency
 from xrpl.models.requests import Ledger
-from xrpl.transaction import sign_and_submit
 from xrpl.transaction import submit_and_wait
-from xrpl.utils import xrp_to_drops
+from xrpl.utils import xrp_to_drops, drops_to_xrp, get_balance_changes
 from xrpl.wallet import Wallet
 from xrpl.wallet import generate_faucet_wallet
 
-from .accounts.account_data import get_account_reserves
+from .accounts.account_utils import get_account_reserves, get_account_details, account_set_tx_response, \
+    create_multiple_account_response, create_account_response, create_wallet_info_response, \
+    create_wallet_balance_response, prepare_account_set_tx, prepare_account_tx, prepare_account_tx_with_pagination, \
+    account_tx_with_pagination_response, prepare_account_data, delete_account_response, \
+    create_account_delete_transaction, account_delete_tx_response, account_reserves_response, check_check_entries, \
+    prepare_regular_key, prepare_account_offers, create_account_offers_response
 from .constants import ERROR_INITIALIZING_CLIENT, RETRY_BACKOFF, MAX_RETRIES, PAGINATION_PAGE_SIZE, \
     CACHE_TIMEOUT_FOR_WALLET, CACHE_TIMEOUT, CACHE_TIMEOUT_FOR_SERVER_INFO, \
     XRPL_RESPONSE, ERROR_IN_XRPL_RESPONSE, INVALID_WALLET_IN_REQUEST, ACCOUNT_IS_REQUIRED, \
     ERROR_FETCHING_TRANSACTION_HISTORY, INVALID_TRANSACTION_HASH, ERROR_FETCHING_TRANSACTION_STATUS, \
     ERROR_INITIALIZING_SERVER_INFO, PAYMENT_IS_UNSUCCESSFUL, ERROR_GETTING_ACCOUNT_INFO, ENTERING_FUNCTION_LOG, \
-    LEAVING_FUNCTION_LOG, asfDisableMaster
+    LEAVING_FUNCTION_LOG, asfDisableMaster, ERROR_FETCHING_ACCOUNT_OFFERS, ERROR_FETCHING_XRP_RESERVES, \
+    RESERVES_NOT_FOUND
+from .currency.currency_util import create_issued_currency_the_user_wants, create_amount_the_user_wants_to_spend, \
+    create_book_offer
 from .db_operations import save_account_data_to_databases
+from .escrows.escrows_util import check_escrow_entries
+from .payments.payments_util import create_payment_transaction, process_payment_response, check_pay_channel_entries
+from .ledger.ledger import ledger_info_response, check_account_ledger_entries, check_ripple_state_entries, \
+    calculate_last_ledger_sequence
+from .transactions.transactions_util import prepare_tx, transaction_status_response, transaction_history_response
+from .trust_lines.trust_line_util import trust_line_response, create_trust_set_transaction, create_trust_set_response
 from .utils import get_xrpl_client, handle_error, \
     build_flags, is_valid_xrpl_seed, get_request_param, validate_xrp_wallet, is_valid_transaction_hash, \
-    get_account_details, get_cached_data, \
-    parse_boolean_param, prepare_account_set_tx, account_set_tx_response, prepare_account_tx, \
-    prepare_account_tx_with_pagination, prepare_tx, \
-    account_tx_with_pagination_response, transaction_status_response, extract_request_data, \
-    validate_request_data, fetch_network_fee, create_payment_transaction, process_payment_response, \
-    prepare_account_data, prepare_account_delete, delete_account_response, create_account_delete_transaction, \
-    account_delete_tx_response, server_info_response, account_reserves_response, trust_line_response, \
-    create_trust_set_transaction, create_trust_set_response, create_account_response, convert_drops_to_xrp, \
-    create_wallet_info_response, create_wallet_balance_response, transaction_history_response, validate_xrpl_response, \
-    create_multiple_account_response
+    get_cached_data, parse_boolean_param, extract_request_data, \
+    validate_request_data, fetch_network_fee, convert_drops_to_xrp, \
+    validate_xrpl_response, total_execution_time_in_millis, process_offer
 
 logger = logging.getLogger('xrpl_app')
 
@@ -51,7 +68,7 @@ class AccountInfoPagination(PageNumberPagination):
 
 @api_view(['POST'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-def create_multiple_account(request):
+def create_multiple_accounts(request):
     """
     This function handles the creation of multiple XRPL accounts. It performs the following steps:
 
@@ -68,8 +85,8 @@ def create_multiple_account(request):
     Error handling is implemented to catch and log exceptions, ensuring a proper response is returned.
     Logging is used to track function entry, exit, and key processing steps.
     """
-
-    function_name = 'create_multiple_account'
+    start_time = time.time()  # Capture the start time
+    function_name = 'create_multiple_accounts'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function
 
     try:
@@ -106,6 +123,11 @@ def create_multiple_account(request):
 
             # Save account data to databases
             save_account_data_to_databases(account_details, str(xrp_balance))
+
+            account_details['result']['account_data']['seed'] = new_wallet.seed
+            account_details['result']['account_data']['private_key'] = new_wallet.private_key
+            account_details['result']['account_data']['public_key'] = new_wallet.public_key
+
             transactions.append(account_details['result']['account_data'])
 
         logger.debug(f"Wallets created: {transactions}")
@@ -113,10 +135,10 @@ def create_multiple_account(request):
         return create_multiple_account_response(transactions)
     except Exception as e:
         # Catch any exceptions that occur during the process. Handle error and return response
-        return handle_error({'status': 'failure', 'message': str(e)}, status_code=500, function_name=function_name)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
     finally:
         # Log leaving the function regardless of success or failure
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
@@ -143,6 +165,7 @@ def create_account(request):
     Returns:
         Response: JSON response containing either the created account details or error information.
     """
+    start_time = time.time()  # Capture the start time
     function_name = 'create_account'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function
 
@@ -179,10 +202,11 @@ def create_account(request):
         return create_account_response(new_wallet.address, new_wallet.seed, xrp_balance, account_details)
     except Exception as e:
         # Catch any exceptions that occur during the process. Handle error and return response
-        return handle_error({'status': 'failure', 'message': str(e)}, status_code=500, function_name=function_name)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
+
     finally:
         # Log leaving the function regardless of success or failure
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
@@ -203,7 +227,7 @@ def get_wallet_info(request, wallet_address):
 
         If an error occurs at any step, an appropriate error response is returned.
         """
-
+    start_time = time.time()  # Capture the start time
     function_name = 'get_wallet_info'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -255,11 +279,10 @@ def get_wallet_info(request, wallet_address):
 
     except (xrpl.XRPLException, Exception) as e:
         # Catch any exceptions that occur during the process
-        # Handle error and return a JSON response with an error message
         return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
 
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
@@ -279,7 +302,7 @@ def check_wallet_balance(request, wallet_address):
 
     If an error occurs at any step, an appropriate error response is returned.
     """
-
+    start_time = time.time()  # Capture the start time
     function_name = 'check_wallet_balance'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -323,7 +346,7 @@ def check_wallet_balance(request, wallet_address):
         # Handle error and return a JSON response with an error message
         return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
@@ -345,7 +368,7 @@ def account_set(request):
 
     If an error occurs at any step, an appropriate error response is returned.
     """
-
+    start_time = time.time()  # Capture the start time
     function_name = 'account_set'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -391,10 +414,9 @@ def account_set(request):
 
     except (xrpl.XRPLException, Exception) as e:
         # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
-        return handle_error({'status': 'failure', 'message': f"{str(e)}"},
-                            status_code=500, function_name=function_name)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
@@ -416,7 +438,7 @@ def get_transaction_history(request, wallet_address, previous_transaction_id):
 
     If any step fails, an error is logged, and an error response is returned.
     """
-
+    start_time = time.time()  # Capture the start time
     function_name = 'get_transaction_history'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -466,10 +488,9 @@ def get_transaction_history(request, wallet_address, previous_transaction_id):
 
     except (xrpl.XRPLException, Exception) as e:
         # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
-        return handle_error({'status': 'failure', 'message': f"{str(e)}"},
-                            status_code=500, function_name=function_name)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
@@ -490,7 +511,7 @@ def get_transaction_history_with_pagination(request, wallet_address):
 
     If any step fails, an error response is logged and returned.
     """
-
+    start_time = time.time()  # Capture the start time
     function_name = 'get_transaction_history_with_pagination'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -549,10 +570,9 @@ def get_transaction_history_with_pagination(request, wallet_address):
 
     except Exception as e:
         # Handle any exceptions that occur during the process
-        return handle_error({'status': 'failure', 'message': f"{str(e)}"},
-                            status_code=500, function_name=function_name)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
@@ -572,7 +592,7 @@ def check_transaction_status(request, tx_hash):
     Error handling is implemented to manage XRPL-related errors, network issues, or unexpected failures.
     Logging is used to trace function entry, exit, and key processing steps.
     """
-
+    start_time = time.time()  # Capture the start time
     function_name = 'check_transaction_status'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -608,10 +628,10 @@ def check_transaction_status(request, tx_hash):
 
     except (xrpl.XRPLException, Exception) as e:
         # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
-        return handle_error({'status': 'failure', 'message': f"{str(e)}"},
-                            status_code=500, function_name=function_name)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
+
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['POST'])
@@ -634,7 +654,7 @@ def send_payment(request):
 
     If an error occurs at any stage, a detailed failure response is logged and returned.
     """
-
+    start_time = time.time()  # Capture the start time
     function_name = 'send_payment'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -672,163 +692,182 @@ def send_payment(request):
 
     except (xrpl.XRPLException, Exception) as e:
         # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
-        return handle_error({'status': 'failure', 'message': str(e)}, 500, function_name)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
 
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['DELETE'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-def delete_account(request, wallet_address):
+def black_hole_xrp(request, wallet_address):
     """
-        Deletes an XRP account by setting its regular key to a black hole address and disabling the master key.
-
-        This function validates the wallet address and sender's seed, then constructs and submits a SetRegularKey
-        transaction to set the regular key of the account to a black hole address. Afterward, an AccountSet transaction
-        is created to disable the master key, effectively blackholing the account.
-
-        The account will only be deleted if the XRP balance is zero. If the balance is non-zero, an exception is raised.
-
-        Args:
-            request (HttpRequest): The HTTP request object containing parameters.
-            wallet_address (str): The address of the wallet to be deleted.
-
-        Raises:
-            XRPLException: If the wallet address is invalid, the balance is non-zero, or any other XRPL-related issue occurs.
-            ValueError: If the sender seed is invalid.
-
-        Returns:
-            Response: A JSON response indicating the success or failure of the delete operation.
-        """
-
-    function_name = 'delete_account'
-    logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+    Function to perform the 'black hole' operation on an XRP account. This involves:
+    - Setting the account's regular key to a black hole address.
+    - Disabling the master key, making the account inaccessible.
+    """
+    start_time = time.time()  # Capture the start time
+    function_name = 'black_hole_xrp'
+    logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering function
 
     try:
-        # Validate the provided wallet address format
+        # Validate the provided wallet address.
         if not wallet_address or not validate_xrp_wallet(wallet_address):
             raise XRPLException(INVALID_WALLET_IN_REQUEST)
 
-        # Extract the sender's seed from the request parameters
-        sender_seed, _, _  = extract_request_data(request)
+        # Extract the sender's seed from the request.
+        sender_seed, _, _ = extract_request_data(request)
         if not is_valid_xrpl_seed(sender_seed):
             raise ValueError('Sender seed is invalid.')
 
-        # Initialize the XRPL client for ledger operations
+        # Initialize the XRPL client for further operations.
         client = get_xrpl_client()
         if not client:
             raise ConnectionError(ERROR_INITIALIZING_CLIENT)
 
-        # Prepare account data
-        account_info_request = prepare_account_data(wallet_address)
-
-        # Request account information from XRPL
+        # Prepare and send request to get the account info from the ledger.
+        account_info_request = prepare_account_data(wallet_address, True)
         response = client.request(account_info_request)
+
+        # Validate the response from the account info request.
         is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
         if not is_valid:
             raise XRPLException(ERROR_FETCHING_TRANSACTION_STATUS)
 
-        # Log the raw response for detailed debugging
+        # Log the raw response for debugging.
         logger.debug(XRPL_RESPONSE)
         logger.debug(json.dumps(response, indent=4, sort_keys=True))
 
-        # # Extract balance from the response, converting drops to XRP
-        account_data = response
-        balance = int(account_data['account_data']['Balance']) / 1_000_000  # Convert drops to XRP
+        # Get black hole address from the environment configuration.s
+        xrpl_config = apps.get_app_config('xrpl_api')
 
-        # Check if the balance is zero before proceeding with deletion
-        balance = 0
-        if balance == 0:
-            xrpl_config = apps.get_app_config('xrpl_api')
-            # Construct SetRegularKey transaction
-            tx_regulary_key = SetRegularKey(
-                account=wallet_address,
-                regular_key=xrpl_config.BLACK_HOLE_ADDRESS
-            )
+        # Prepare a transaction to set the account's regular key to the black hole address.
+        tx_regular_key = prepare_regular_key(wallet_address, xrpl_config.BLACK_HOLE_ADDRESS)
 
-            wallet = Wallet.from_seed(sender_seed)
+        # Get wallet from the sender's seed and submit the SetRegularKey transaction.
+        wallet = Wallet.from_seed(sender_seed)
+        submit_tx_regular = submit_and_wait(transaction=tx_regular_key, client=client, wallet=wallet)
+        submit_tx_regular = submit_tx_regular.result
 
-            # Sign and submit the transaction
-            submit_tx_regular = submit_and_wait(transaction=tx_regulary_key, client=client, wallet=wallet)
-            submit_tx_regular = submit_tx_regular.result
-            logger.info("Submitted a SetRegularKey tx.")
-            logger.info(f"Result: {submit_tx_regular['meta']['TransactionResult']}")
-            logger.info(f"Tx content: {submit_tx_regular}")
+        # Log the result of the SetRegularKey transaction.
+        logger.info("Submitted a SetRegularKey tx.")
+        logger.info(f"Result: {submit_tx_regular['meta']['TransactionResult']}")
+        logger.info(f"Tx content: {submit_tx_regular}")
 
+        # Prepare a transaction to disable the master key on the account.
+        tx_disable_master_key = AccountSet(
+            account=wallet_address,
+            set_flag=AccountSetAsfFlag.ASF_DISABLE_MASTER
+        )
 
-            # Construct AccountSet transaction w/ asfDisableMaster flag
-            # This permanently blackholes an account!
-            tx_disable_master_key = AccountSet(
-                account=wallet_address,
-                set_flag=AccountSetAsfFlag.ASF_DISABLE_MASTER
-            )
+        # Submit the transaction to disable the master key.
+        submit_tx_disable = submit_and_wait(transaction=tx_disable_master_key, client=client, wallet=wallet)
+        submit_tx_disable = submit_tx_disable.result
 
-            # Sign and submit the transaction
-            submit_tx_disable = submit_and_wait(transaction=tx_disable_master_key, client=client, wallet=wallet)
-            submit_tx_disable = submit_tx_disable.result
-            logger.info("Submitted a DisableMasterKey tx.")
-            logger.info(f"Result: {submit_tx_disable['meta']['TransactionResult']}")
-            logger.info(f"Tx content: {submit_tx_disable}")
+        # Log the result of the DisableMasterKey transaction.
+        logger.info("Submitted a DisableMasterKey tx.")
+        logger.info(f"Result: {submit_tx_disable['meta']['TransactionResult']}")
+        logger.info(f"Tx content: {submit_tx_disable}")
 
-            # Verify Account Settings
-            get_acc_flag = AccountInfo(
-                account=wallet_address
-            )
-            response = client.request(get_acc_flag)
+        # Prepare a request to check the account's flags after the transaction.
+        get_acc_flag = prepare_account_data(wallet_address, True)
+        response = client.request(get_acc_flag)
 
-            if response.result['account_data']['Flags'] & asfDisableMaster:
-                logger.info(f"Account {wallet_address}'s master key has been disabled, account is blackholed.")
-            else:
-                logger.info(f"Account {wallet_address}'s master key is still enabled, account is NOT blackholed")
-
-            return delete_account_response(response)
+        # Verify if the master key has been successfully disabled.
+        if response.result['account_data']['Flags'] & asfDisableMaster:
+            logger.info(f"Account {wallet_address}'s master key has been disabled, account is black holed.")
         else:
-            raise XRPLException('XRP balance is not zero. Unable to delete wallet.')
+            logger.info(f"Account {wallet_address}'s master key is still enabled, account is NOT black holed")
+
+        # Return the response indicating the account status after the operation.
+        return delete_account_response(response)
+
     except (xrpl.XRPLException, Exception) as e:
-        # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
-        return handle_error({'status': 'failure', 'message': f"{str(e)}"},
-                            status_code=500, function_name=function_name)
+        # Handle exceptions (e.g., XRPL errors, connection issues) and return an error response.
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        # Log when the function exits.
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['POST'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
 def send_and_delete_wallet(request, wallet_address):
+    """
+    Handles the process of sending XRP from a wallet and then deleting the wallet.
+    The function validates the wallet, checks for any associated ledger entries,
+    processes a payment, and deletes the wallet from the ledger.
+
+    Args:
+    - request: The HTTP request object that contains the data for the operation.
+    - wallet_address: The address of the wallet to be processed.
+
+    Returns:
+    - JsonResponse with transaction status.
+    """
+    start_time = time.time()  # Capture the start time of the function execution.
     function_name = "send_and_delete_wallet"
-    logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+    logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function.
 
     try:
+        # Step 1: Validate the provided wallet address format.
         if not wallet_address or not validate_xrp_wallet(wallet_address):
             raise ValueError(INVALID_WALLET_IN_REQUEST)
 
+        # Step 2: Extract sender seed from the request data.
         sender_seed, _, _ = extract_request_data(request)
         if not is_valid_xrpl_seed(sender_seed):
             raise ValueError('Sender seed is invalid.')
 
+        # Step 3: Initialize the XRPL client.
         client = get_xrpl_client()
         if not client:
             raise ValueError(ERROR_INITIALIZING_CLIENT)
 
+        # Step 4: Prepare the sender wallet using the extracted seed.
         sender_wallet = Wallet.from_seed(sender_seed)
-        account_info_request = prepare_account_data(sender_wallet.classic_address)
 
+        # Step 5: Prepare the request to fetch account data for the sender.
+        account_info_request = prepare_account_data(sender_wallet.classic_address, False)
+
+        # Step 6: Check if the wallet is present in the ledger and has valid ledger entries.
+        valid_address, account_objects = check_account_ledger_entries(sender_wallet.classic_address)
+        if not valid_address:
+            raise ValueError("Wallet not found on ledger. Unable to delete wallet")
+
+        # Step 7: Check if there are any escrow, payment channels, Ripple state, or check entries
+        # that prevent the wallet from being deleted.
+        if not check_escrow_entries(account_objects):
+            raise ValueError("Wallet has an escrow. Unable to delete wallet")
+
+        if not check_pay_channel_entries(account_objects):
+            raise ValueError("Wallet has payment channels. Unable to delete wallet")
+
+        if not check_ripple_state_entries(account_objects):
+            raise ValueError("Wallet has Ripple state entries. Unable to delete wallet")
+
+        if not check_check_entries(account_objects):
+            raise ValueError("Wallet has check entries. Unable to delete wallet")
+
+        # Step 8: Fetch account information and validate response.
         account_info_response = client.request(account_info_request)
         if not account_info_response or not account_info_response.is_successful():
             raise ValueError(ERROR_IN_XRPL_RESPONSE)
 
+        # Step 9: Get the balance of the sender's account.
         balance = int(account_info_response.result['account_data']['Balance'])
         base_reserve, reserve_increment = get_account_reserves()
         if base_reserve is None or reserve_increment is None:
             raise ValueError("Failed to retrieve reserve requirements from the XRPL.")
 
-        drops = xrp_to_drops(base_reserve)
-        transferable_amount = int(balance) - int(drops)
+        drops = xrp_to_drops(base_reserve)  # Convert base reserve from XRP to drops.
+        transferable_amount = int(balance) - int(drops)  # Calculate the transferable amount.
 
+        # Step 10: Check if there is enough balance to cover the transaction fees.
         if transferable_amount <= 0:
             raise ValueError("Insufficient balance to cover the reserve and fees.")
 
+        # Step 11: Create and submit the payment transaction.
         payment_tx = create_payment_transaction(sender_wallet.classic_address, wallet_address, transferable_amount, 0,
                                                 True)
         payment_response = submit_and_wait(payment_tx, client, sender_wallet)
@@ -836,225 +875,623 @@ def send_and_delete_wallet(request, wallet_address):
         if not payment_response or not payment_response.is_successful():
             raise ValueError(PAYMENT_IS_UNSUCCESSFUL)
 
-        account_delete_tx = create_account_delete_transaction(sender_wallet.classic_address, wallet_address)
+        # Step 12: Calculate the appropriate LastLedgerSequence for the account delete transaction.
+        last_ledger_sequence = calculate_last_ledger_sequence(client, buffer_time=60)
+
+        # Step 13: Create and submit the account delete transaction.
+        account_delete_tx = create_account_delete_transaction(sender_wallet.classic_address, wallet_address,
+                                                              last_ledger_sequence)
         account_delete_response = submit_and_wait(account_delete_tx, client, sender_wallet)
 
         if not account_delete_response or not account_delete_response.is_successful():
             raise ValueError("Account delete transaction failed.")
 
+        # Step 14: Return the response containing the hashes of the payment and account delete transactions.
         return account_delete_tx_response(payment_response.result['hash'], account_delete_response.result['hash'])
+
     except Exception as e:
-        return JsonResponse({"status": "failure", "message": f"{str(e)}"}, status=500)
+        # Step 15: Handle any exceptions that occurred during the process.
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
+
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        # Step 16: Log when the function exits, including the total execution time.
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
 def get_ledger_info(request):
+    """
+    Retrieve ledger information from the XRP Ledger based on the provided `ledger_index` or `ledger_hash`.
+
+    This function handles the following steps:
+    1. Extracts query parameters (`ledger_index` and `ledger_hash`) from the request.
+    2. Checks the cache for previously fetched ledger info to avoid redundant API calls.
+    3. Prepares a ledger request based on the provided parameters.
+    4. Initializes the XRPL client to interact with the XRP Ledger.
+    5. Sends the request to the XRP Ledger and validates the response.
+    6. Logs the raw response for debugging purposes.
+    7. Formats the response data for the API response.
+    8. Caches the formatted response to improve performance on subsequent requests.
+    9. Handles any exceptions that occur during execution.
+    10. Logs the total execution time of the function.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing query parameters.
+
+    Returns:
+        JsonResponse: A JSON response containing the ledger information or an error message.
+    """
+    start_time = time.time()  # Capture the start time of the function execution.
     function_name = 'get_ledger_info'
-    logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+    logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function.
 
     try:
-        # Retrieve ledger index or hash from query parameters
+        # Step 1: Retrieve the `ledger_index` and `ledger_hash` query parameters from the request.
         ledger_index = get_request_param(request, 'ledger_index')
         ledger_hash = get_request_param(request, 'ledger_hash')
 
-        # Attempt to fetch from cache before making an API call
+        # Step 2: Check the cache for previously fetched ledger info to avoid redundant API calls.
         cache_key = f"ledger_info_{ledger_index}_{ledger_hash or ''}"
         cached_data = get_cached_data(cache_key, 'get_ledger_info_function', function_name)
         if cached_data:
-            return JsonResponse(cached_data)
+            return JsonResponse(cached_data)  # Return the cached data if available.
 
-        # Prepare the Ledger request based on whether hash or index is provided
+        # Step 3: Prepare the ledger request based on whether a ledger index or ledger hash is provided.
         if ledger_hash:
-            ledger_request = Ledger(ledger_hash=ledger_hash)
+            ledger_request = Ledger(ledger_hash=ledger_hash)  # Create a Ledger request using the hash.
         else:
-            ledger_request = Ledger(ledger_index=ledger_index)
+            ledger_request = Ledger(ledger_index=ledger_index)  # Create a Ledger request using the index.
 
-        # Initialize and use the XRPL client to fetch ledger information
+        # Step 4: Initialize the XRPL client to make the request to the XRP Ledger.
         client = get_xrpl_client()
         if not client:
-            raise ValueError(ERROR_INITIALIZING_CLIENT)
+            raise ValueError(ERROR_INITIALIZING_CLIENT)  # Raise an error if the client initialization fails.
 
+        # Step 5: Send the request to the XRP Ledger and capture the response.
         response = client.request(ledger_request)
+        is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
 
-        # Check if the ledger request was successful
-        if response and response.is_successful():
-            # Log the raw response for detailed debugging
-            logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(response.result, indent=4, sort_keys=True))
+        # If the response is not valid, raise an exception to indicate an issue.
+        if not is_valid:
+            raise XRPLException(ERROR_FETCHING_XRP_RESERVES)
 
-            logger.info(f"Successfully retrieved ledger info for {ledger_index}/{ledger_hash}")
+        # Log the raw response for detailed debugging and analysis.
+        logger.debug(XRPL_RESPONSE)
+        logger.debug(json.dumps(response, indent=4, sort_keys=True))
 
-            # Format the response data
-            response_data = server_info_response(response)
+        logger.info(f"Successfully retrieved ledger info for {ledger_index}/{ledger_hash}")
 
-            # Cache the response to reduce future server load
-            cache.set(cache_key, response_data, CACHE_TIMEOUT)
+        # Step 7: Format the response data to make it suitable for the response.
+        response_data = ledger_info_response(response, 'Ledger information successfully retrieved.')
 
-            return response_data
-        else:
-            # Log error and return failure response if the request wasn't successful
-            logger.error(f"Failed to retrieve ledger info: {response.result}")
-            raise ValueError('Error retrieving ledger info.')
+        # Step 8: Cache the formatted response to improve performance on subsequent requests.
+        cache.set(cache_key, response_data, CACHE_TIMEOUT)
+
+        return response_data  # Return the formatted response data.
     except Exception as e:
-        # Catch any unexpected errors and return them in the response
+        # Step 10: Catch any unexpected errors and return a failure response with the error message.
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
 
-        return JsonResponse({'status': 'failure', 'message': f"Error fetching ledger info: {e}"}, status=500)
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        # Step 11: Log the execution time and when the function exits.
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
 def get_xrp_reserves(request):
+    """
+    Retrieve XRP reserve information for a given wallet address from the XRP Ledger.
+
+    This function performs the following steps:
+    1. Extracts the `wallet_address` query parameter (wallet address) from the request.
+    2. Initializes the XRPL client to interact with the XRP Ledger.
+    3. Requests server information from the XRP Ledger to fetch reserve details.
+    4. Validates the response to ensure it contains the required data.
+    5. Extracts the base reserve (`reserve_base_xrp`) and incremental reserve (`reserve_inc_xrp`) from the response.
+    6. Logs the raw response for debugging purposes.
+    7. Returns the formatted reserve information for the specified wallet address.
+    8. Handles any exceptions that occur during execution.
+    9. Logs the total execution time of the function.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the `account` query parameter.
+
+    Returns:
+        JsonResponse: A JSON response containing the XRP reserve information or an error message.
+    """
+    start_time = time.time()  # Capture the start time of the function execution.
     function_name = 'get_xrp_reserves'
-    logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+    logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function.
 
     try:
-        # Extract wallet address
-        wallet_address = get_request_param(request, 'account')
+        # Step 1: Extract the wallet address from the request query parameters.
+        wallet_address = get_request_param(request, 'wallet_address')
         if not wallet_address:
-            raise ValueError(ACCOUNT_IS_REQUIRED)
+            raise ValueError(ACCOUNT_IS_REQUIRED)  # Raise an error if the wallet address is missing.
 
-        # Initialize XRPL client
+        # Step 2: Initialize the XRPL client to interact with the XRP Ledger.
         client = get_xrpl_client()
         if not client:
-            raise XRPLException(ERROR_INITIALIZING_CLIENT)
+            raise XRPLException(ERROR_INITIALIZING_CLIENT)  # Raise an error if client initialization fails.
 
-        # Request server info
+        # Step 3: Request server information from the XRP Ledger to fetch reserve details.
         server_info_request = ServerInfo()
         if not server_info_request:
-            raise ERROR_INITIALIZING_SERVER_INFO
+            raise ERROR_INITIALIZING_SERVER_INFO  # Raise an error if the server info request fails.
 
         server_information_response = client.request(server_info_request)
 
-        if not server_information_response or not server_information_response.is_successful():
-            logger.error(f"Failed to fetch server info: {server_information_response.result}")
-            raise RuntimeError("Error fetching server information.")
+        # Step 4: Validate the response to ensure it contains the required data.
+        is_valid, response = validate_xrpl_response(server_information_response, required_keys=["info"])
+        if not is_valid:
+            raise XRPLException(ERROR_FETCHING_XRP_RESERVES)  # Raise an error if the response is invalid.
 
-        # Log raw response for debugging
+        # Step 5: Log the raw response for debugging purposes.
         logger.debug(XRPL_RESPONSE)
         logger.debug(json.dumps(server_information_response.result, indent=4, sort_keys=True))
 
-        # Extract reserve information
+        # Step 6: Extract reserve information from the validated ledger data.
         ledger_info = server_information_response.result.get('info', {}).get('validated_ledger', {})
-        reserve_base = ledger_info.get('reserve_base_xrp')
-        reserve_inc = ledger_info.get('reserve_inc_xrp')
+        reserve_base = ledger_info.get('reserve_base_xrp')  # Base reserve in XRP.
+        reserve_inc = ledger_info.get('reserve_inc_xrp')  # Incremental reserve in XRP.
 
+        # Step 7: Ensure that both reserve values are present in the response.
         if reserve_base is None or reserve_inc is None:
             logger.error(f"Reserve info missing in response: {server_information_response.result}")
-            raise KeyError("Error fetching reserve information. Reserves not found.")
+            raise KeyError(RESERVES_NOT_FOUND)  # Raise an error if reserve information is missing.
 
         logger.info(f"Successfully fetched XRP reserve information for {wallet_address}.")
+
+        # Step 8: Format and return the reserve information.
         return account_reserves_response(server_information_response, reserve_base, reserve_inc)
 
     except Exception as e:
-        logger.error(f"Error fetching XRP reserves: {str(e)}")
-        return JsonResponse({'status': 'failure', 'message': f"Error fetching XRP reserves: {e}"}, status=500)
+        # Step 9: Catch any unexpected errors and return a failure response with the error message.
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
 
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
-
-
-@api_view(['GET'])
-@retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-def get_account_offers(request):
-    function_name = 'get_account_offers'
-    logger.info(ENTERING_FUNCTION_LOG.format(function_name))
-
-    try:
-        wallet_address = get_request_param(request, 'account')
-        if not wallet_address:
-            raise ValueError(ACCOUNT_IS_REQUIRED)
-
-        client = get_xrpl_client()
-        if not client:
-            raise ConnectionError(ERROR_INITIALIZING_CLIENT)
-
-        account_offers_request = AccountOffers(account=wallet_address)
-
-        response = client.request(account_offers_request)
-
-        if response and response.is_successful():
-            # Log the raw response for detailed debugging
-            logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(response.result, indent=4, sort_keys=True))
-
-            # Extract the offers from the response
-            # offers = response.result.get("offers", [])
-            logger.info(f"Successfully fetched offers for account {wallet_address}.")
-
-            # Prepare and return the response with the offers
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Offers fetched successfully.',
-                'result': response.result,
-            })
-        else:
-            # If the request failed, log the error and return a failure response
-            logger.error(f"Failed to fetch offers for account {wallet_address}: {response.result}")
-            raise ConnectionError(ERROR_IN_XRPL_RESPONSE)
-
-    except Exception as e:
-        # Handle any unexpected errors that occur during the process
-        return JsonResponse({'status': 'failure', 'message': f"Error fetching offers: {e}"}, status=500)
-    finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        # Step 10: Log the total execution time and when the function exits.
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
 def get_server_info(request):
+    """
+    Retrieve server information from the XRP Ledger, including details about the server's state and configuration.
+
+    This function performs the following steps:
+    1. Checks the cache for previously fetched server information to avoid redundant API calls.
+    2. Prepares a request to fetch server information from the XRP Ledger.
+    3. Initializes the XRPL client to interact with the XRP Ledger.
+    4. Sends the request to the XRP Ledger and validates the response.
+    5. Logs the raw response for debugging purposes.
+    6. Caches the server information to improve performance on subsequent requests.
+    7. Returns the formatted server information.
+    8. Handles any exceptions that occur during execution.
+    9. Logs the total execution time of the function.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: A JSON response containing the server information or an error message.
+    """
+    start_time = time.time()  # Capture the start time to track the execution duration.
     function_name = 'get_server_info'
-    logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+    logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log function entry.
 
     try:
+        # Step 1: Check the cache for previously fetched server information.
         cache_key = "server_info"
         cached_data = get_cached_data(cache_key, 'get_server_info', function_name)
         if cached_data:
+            # If cached data is available, return it to avoid redundant API calls.
             return JsonResponse(cached_data)
 
+        # Step 2: Prepare a request to fetch server information from the XRP Ledger.
         server_info_request = ServerInfo()
         if not server_info_request:
+            # If the request cannot be initialized, raise an error.
             raise ERROR_INITIALIZING_SERVER_INFO
 
-        # Initialize and use the XRPL client to fetch ledger information
+        # Step 3: Initialize the XRPL client to interact with the XRP Ledger.
         client = get_xrpl_client()
         if not client:
+            # If the client is not initialized, raise an error.
             raise ConnectionError(ERROR_INITIALIZING_CLIENT)
 
+        # Step 4: Send the request to the XRP Ledger and validate the response.
         response = client.request(server_info_request)
-        if response and response.is_successful():
-            # Log the raw response for detailed debugging
-            logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(response.result, indent=4, sort_keys=True))
+        is_valid, response = validate_xrpl_response(response, required_keys=["info"])
+        if not is_valid:
+            # If the response is not valid, raise an exception to indicate an issue.
+            raise XRPLException(ERROR_FETCHING_ACCOUNT_OFFERS)
 
-            server_info = response.result
+        # Step 5: Log the raw response for detailed debugging.
+        logger.debug(XRPL_RESPONSE)
+        logger.debug(json.dumps(response, indent=4, sort_keys=True))
 
-            # Cache the server information for future requests to reduce server load
-            cache.set('server_info', server_info, timeout=CACHE_TIMEOUT_FOR_SERVER_INFO)
+        # Step 6: Cache the server information to improve performance on subsequent requests.
+        cache.set('server_info', response, timeout=CACHE_TIMEOUT_FOR_SERVER_INFO)
 
-            logger.info("Successfully fetched server information.")
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Server info fetched successfully.',
-                'server_info': server_info
-            })
-        else:
-            raise ConnectionError(ERROR_IN_XRPL_RESPONSE)
+        # Step 7: Log the successful fetching of server information.
+        logger.info("Successfully fetched ledger information.")
+
+        # Step 8: Return the formatted server information.
+        return ledger_info_response(response, 'Server info fetched successfully.')
 
     except Exception as e:
-        # Handle any unexpected errors during the process
-        return JsonResponse({'status': 'failure', 'message': f"Error fetching server info: {e}"}, status=500)
+        # Step 9: Handle any unexpected errors that occur during the process.
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
+
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        # Step 10: Log when the function exits, including the total execution time.
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CreateAccountOfferView(View):
+    async def get(self, request):
+        wallet_address = get_request_param(request, 'wallet_address')
+        if not wallet_address:
+            raise ValueError(ACCOUNT_IS_REQUIRED)  # Raise an error if the wallet address is missing.
+        currency = request.GET.get("currency")
+        value = request.GET.get("value")
+        sender_seed = request.GET.get("sender_seed")
+
+        if not wallet_address or not currency or not value:
+            return JsonResponse({"error": "Missing parameters"}, status=400)
+
+        sender_wallet = Wallet.from_seed(sender_seed)
+
+        async with AsyncWebsocketClient("wss://s.altnet.rippletest.net:51233") as client:
+            we_want = create_issued_currency_the_user_wants(wallet_address, currency, value)
+            we_spend = create_amount_the_user_wants_to_spend()
+
+            proposed_quality = Decimal(we_spend["value"]) / Decimal(we_want["value"])
+
+            print("Requesting orderbook information...")
+
+            orderbook_info = await client.request(
+                create_book_offer(wallet_address, we_want, we_spend)
+            )
+
+            offers = orderbook_info.result.get("offers", [])
+            want_amt = Decimal(we_want["value"])
+            running_total = Decimal(0)
+
+            for o in offers:
+                if Decimal(o["quality"]) <= proposed_quality:
+                    running_total += Decimal(o.get("owner_funds", Decimal(0)))
+                    if running_total >= want_amt:
+                        break
+
+            tx = OfferCreate(
+                account=wallet_address,
+                taker_gets=we_spend["value"],
+                taker_pays=we_want["currency"].to_amount(we_want["value"]),
+            )
+
+            print("before autofill_and_sign...")
+            signed_tx = await autofill_and_sign(tx, client, sender_wallet)
+            print("after autofill_and_sign...")
+            print("before process_offer...")
+            result = await process_offer(signed_tx, client)
+            print("after process_offer...")
+            # result = await submit_and_wait(signed_tx, client)
+
+
+
+
+            response_data = {
+                "transaction_hash": signed_tx.get_hash(),
+                "orderbook_info": orderbook_info.result,
+                "transaction_status": "success" if result.is_successful() else "failed",
+            }
+
+            return JsonResponse(response_data)
+
+# # @api_view(['GET'])
+# # @csrf_exempt  # Allow non-CSRF-protected requests (for testing)
+# # @sync_and_async_middleware
+# # @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
+# # async def create_account_offer(request):
+# def create_account_offer(request):
+#     # async with AsyncWebsocketClient("wss://s.altnet.rippletest.net:51233") as client:
+#     wallet_address = get_request_param(request, 'wallet_address')
+#     if not wallet_address:
+#         raise ValueError(ACCOUNT_IS_REQUIRED)  # Raise an error if the wallet address is missing.
+#
+#     currency = get_request_param(request, 'currency')
+#     value = get_request_param(request, 'value')
+#
+#     we_want = create_issued_currency_the_user_wants(wallet_address, currency, value)
+#     we_spend = create_amount_the_user_wants_to_spend()
+#
+#     proposed_quality = Decimal(we_spend["value"]) / Decimal(we_want["value"])
+#     client = get_xrpl_client()
+#     # Look up Offers. -----------------------------------------------------------
+#     # To buy TST, look up Offers where "TakerGets" is TST:
+#     print("Requesting orderbook information...")
+#     # orderbook_info = await get_xrpl_client().request(
+#     #     create_book_offer(wallet_address, we_want, we_spend)
+#     # )
+#     orderbook_info = client.request(
+#         create_book_offer(wallet_address, we_want, we_spend)
+#     )
+#
+#     logger.info(f"Orderbook:{orderbook_info.result}")
+#
+#     offers = orderbook_info.result.get("offers", [])
+#     want_amt = Decimal(we_want["value"])
+#     running_total = Decimal(0)
+#     if len(offers) == 0:
+#         logger.info("No Offers in the matching book. Offer probably won't execute immediately.")
+#     else:
+#         for o in offers:
+#             if Decimal(o["quality"]) <= proposed_quality:
+#                 logger.info(f"Matching Offer found, funded with {o.get('owner_funds')} "f"{we_want['currency']}")
+#                 running_total += Decimal(o.get("owner_funds", Decimal(0)))
+#                 if running_total >= want_amt:
+#                     logger.info("Full Offer will probably fill")
+#                     break
+#             else:
+#                 # Offers are in ascending quality order, so no others after this
+#                 # will match either
+#                 logger.info("Remaining orders too expensive.")
+#                 break
+#
+#         logger.info(f"Total matched: {min(running_total, want_amt)} {we_want['currency']}")
+#
+#         if 0 < running_total < want_amt:
+#             logger.info((f"Remaining {want_amt - running_total} {we_want['currency']} "
+#                   "would probably be placed on top of the order book."))
+#
+#     if running_total == 0:
+#
+#         logger.info("Requesting second orderbook information...")
+#
+#         # orderbook2_info = await get_xrpl_client().request(
+#         #     create_book_offer(wallet_address, we_spend["currency"], we_want["currency"])
+#         # )
+#
+#         orderbook2_info = client.request(
+#             create_book_offer(wallet_address, we_spend["currency"], we_want["currency"])
+#         )
+#         logger.info(f"Orderbook2:{orderbook2_info.result}")
+#
+#
+#         # Since TakerGets/TakerPays are reversed, the quality is the inverse.
+#         # You could also calculate this as 1 / proposed_quality.
+#         offered_quality = Decimal(we_want["value"]) / Decimal(we_spend["value"])
+#
+#         tally_currency = we_spend["currency"]
+#         if isinstance(tally_currency, XRP):
+#             tally_currency = f"drops of {tally_currency}"
+#
+#         offers2 = orderbook2_info.result.get("offers", [])
+#         running_total2 = Decimal(0)
+#         if len(offers2) == 0:
+#             print("No similar Offers in the book. Ours would be the first.")
+#         else:
+#             for o in offers2:
+#                 if Decimal(o["quality"]) <= offered_quality:
+#                     logger.info(f"Existing offer found, funded with {o.get('owner_funds')} "
+#                           f"{tally_currency}")
+#                     running_total2 += Decimal(o.get("owner_funds", Decimal(0)))
+#                 else:
+#                     logger.info("Remaining orders are below where ours would be placed.")
+#                     break
+#
+#             logger.info(f"Our Offer would be placed below at least {running_total2} "
+#                   f"{tally_currency}")
+#             if 0 < running_total2 < want_amt:
+#                 logger.info(f"Remaining {want_amt - running_total2} {tally_currency} "
+#                       "will probably be placed on top of the order book.")
+#
+#     # Send OfferCreate transaction ----------------------------------------------
+#
+#     # For this tutorial, we already know that TST is pegged to
+#     # XRP at a rate of approximately 10:1 plus spread, so we use
+#     # hard-coded TakerGets and TakerPays amounts.
+#
+#     tx = OfferCreate(
+#         account=wallet_address,
+#         taker_gets=we_spend["value"],
+#         taker_pays=we_want["currency"].to_amount(we_want["value"]),
+#     )
+#
+#     # Sign and autofill the transaction (ready to submit)
+#     # signed_tx = await autofill_and_sign(tx, client, wallet_address)
+#     signed_tx = autofill_and_sign(tx, client, wallet_address)
+#     logger.info("Transaction:", signed_tx)
+#
+#     # Submit the transaction and wait for response (validated or rejected)
+#     logger.info("Sending OfferCreate transaction...")
+#     # result = await submit_and_wait(signed_tx, client)
+#     result = submit_and_wait(signed_tx, client)
+#     if result.is_successful():
+#         logger.info(f"Transaction succeeded: "
+#               f"https://testnet.xrpl.org/transactions/{signed_tx.get_hash()}")
+#     else:
+#         raise Exception(f"Error sending transaction: {result}")
+#
+#     # Check metadata ------------------------------------------------------------
+#     balance_changes = get_balance_changes(result.result["meta"])
+#     logger.info(f"Our Offer would be placed below at least {balance_changes} ")
+#
+#     # For educational purposes the transaction metadata is analyzed manually in the
+#     # following section. However, there is also a get_order_book_changes(metadata)
+#     # utility function available in the xrpl library, which is generally the easier
+#     # and preferred choice for parsing the metadata and computing orderbook changes.
+#
+#     # Helper to convert an XRPL amount to a string for display
+#     def amt_str(amt) -> str:
+#         if isinstance(amt, str):
+#             return f"{drops_to_xrp(amt)} XRP"
+#         else:
+#             return f"{amt['value']} {amt['currency']}.{amt['issuer']}"
+#
+#     offers_affected = 0
+#     for affnode in result.result["meta"]["AffectedNodes"]:
+#         if "ModifiedNode" in affnode:
+#             if affnode["ModifiedNode"]["LedgerEntryType"] == "Offer":
+#                 # Usually a ModifiedNode of type Offer indicates a previous Offer that
+#                 # was partially consumed by this one.
+#                 offers_affected += 1
+#         elif "DeletedNode" in affnode:
+#             if affnode["DeletedNode"]["LedgerEntryType"] == "Offer":
+#                 # The removed Offer may have been fully consumed, or it may have been
+#                 # found to be expired or unfunded.
+#                 offers_affected += 1
+#         elif "CreatedNode" in affnode:
+#             if affnode["CreatedNode"]["LedgerEntryType"] == "RippleState":
+#                 print("Created a trust line.")
+#             elif affnode["CreatedNode"]["LedgerEntryType"] == "Offer":
+#                 offer = affnode["CreatedNode"]["NewFields"]
+#                 print(f"Created an Offer owned by {offer['Account']} with "
+#                       f"TakerGets={amt_str(offer['TakerGets'])} and "
+#                       f"TakerPays={amt_str(offer['TakerPays'])}.")
+#
+#     print(f"Modified or removed {offers_affected} matching Offer(s)")
+#
+#     # Check balances ------------------------------------------------------------
+#     print("Getting address balances as of validated ledger...")
+#     # balances = await client.request(
+#     #     AccountLines(
+#     #         account=wallet_address,
+#     #         ledger_index="validated",
+#     #     )
+#     # )
+#     balances = client.request(
+#         AccountLines(
+#             account=wallet_address,
+#             ledger_index="validated",
+#         )
+#     )
+#     logger.info(balances.result)
+#
+#     # Check Offers --------------------------------------------------------------
+#     print(f"Getting outstanding Offers from {wallet_address} "
+#           f"as of validated ledger...")
+#     # acct_offers = await client.request(
+#     #     AccountOffers(
+#     #         account=wallet_address,
+#     #         ledger_index="validated",
+#     #     )
+#     # )
+#     acct_offers = client.request(
+#         AccountOffers(
+#             account=wallet_address,
+#             ledger_index="validated",
+#         )
+#     )
+#     logger.info(acct_offers.result)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@api_view(['GET'])
+@retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
+def get_account_offers(request):
+    """
+    Retrieve account offers (open orders) for a given wallet address from the XRP Ledger.
+
+    This function performs the following steps:
+    1. Extracts the `wallet_address` query parameter from the request.
+    2. Initializes the XRPL client to interact with the XRP Ledger.
+    3. Prepares and sends a request to fetch account offers for the specified wallet address.
+    4. Validates the response to ensure it contains the required data.
+    5. Logs the raw response for debugging purposes.
+    6. Extracts the offers from the response data.
+    7. Logs the number of offers found or if no offers are present.
+    8. Returns the formatted response containing the account offers.
+    9. Handles any exceptions that occur during execution.
+    10. Logs the total execution time of the function.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the `wallet_address` query parameter.
+
+    Returns:
+        JsonResponse: A JSON response containing the account offers or an error message.
+    """
+    start_time = time.time()  # Capture the start time to track the execution duration.
+    function_name = 'get_account_offers'
+    logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log function entry.
+
+    try:
+        # Step 1: Retrieve the wallet address from the query parameters in the request.
+        wallet_address = get_request_param(request, 'wallet_address')
+        if not wallet_address:
+            # If wallet address is missing, raise an error and return failure.
+            raise ValueError(ACCOUNT_IS_REQUIRED)
+
+        # Step 2: Initialize the XRPL client to interact with the XRPL network.
+        client = get_xrpl_client()
+        if not client:
+            # If the client is not initialized, raise an error and return failure.
+            raise ConnectionError(ERROR_INITIALIZING_CLIENT)
+
+        # Step 3: Prepare the request for fetching account offers using the wallet address.
+        account_offers_request = prepare_account_offers(wallet_address)
+        # Send the request to the XRPL client to get the account offers.
+        response = client.request(account_offers_request)
+
+        # Step 4: Validate the response from XRPL to ensure it's successful and contains expected data.
+        is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
+        if not is_valid:
+            # If the response is not valid, raise an exception to indicate an issue.
+            raise XRPLException(ERROR_FETCHING_ACCOUNT_OFFERS)
+
+        # Step 5: Log the raw response for debugging purposes (useful for detailed inspection).
+        logger.debug(XRPL_RESPONSE)
+        logger.debug(json.dumps(response, indent=4, sort_keys=True))
+
+        # Step 6: Extract the offers from the response data.
+        offers = response.get("offers", [])
+
+        # Step 7: Log the number of offers found and return the response with the offer data.
+        if offers:
+            # If offers are found, log how many were found.
+            logger.info(f"Found {len(offers)} offers for wallet {wallet_address}.")
+        else:
+            # If no offers are found, log this information.
+            logger.info(f"No offers found for wallet {wallet_address}.")
+
+        # Step 8: Log the successful fetching of offers for the account.
+        logger.info(f"Successfully fetched offers for account {wallet_address}.")
+
+        # Step 9: Prepare and return the response containing the offers.
+        return create_account_offers_response(response, offers)
+
+    except Exception as e:
+        # Step 10: Handle unexpected errors that might occur during the execution.
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
+
+    finally:
+        # Step 11: Log when the function exits, including the total execution time.
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
 def get_account_trust_lines(request):
+    start_time = time.time()  # Capture the start time
     function_name = 'get_account_trust_lines'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -1092,18 +1529,18 @@ def get_account_trust_lines(request):
         return trust_line_response(response)
 
     except Exception as e:
-        logger.error(f"Error fetching trust lines for {wallet_address}: {e}")
-        return JsonResponse({'status': 'failure', 'message': f"Error fetching trust lines: {e}"}, status=500)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
 
     finally:
         if client and hasattr(client, 'close'):
             client.close()  # Ensure client connection is properly closed
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['GET'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
 def get_trust_line(request):
+    start_time = time.time()  # Capture the start time
     function_name = 'get_trust_line'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -1137,14 +1574,15 @@ def get_trust_line(request):
 
     except Exception as e:
         # Handle any unexpected errors that occur during the process
-        return JsonResponse({'status': 'failure', 'message': f"Error fetching trust lines: {e}"}, status=500)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @api_view(['POST'])
 @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
 def set_trust_line(request):
+    start_time = time.time()  # Capture the start time
     function_name = 'set_trust_line'
     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
@@ -1248,9 +1686,7 @@ def set_trust_line(request):
             return JsonResponse({'status': 'failure', 'message': error_message}, status=500)
 
     except Exception as e:
-        error_message = f"Unexpected error: {str(e)}"
-        logger.error(error_message)
-        return JsonResponse({'status': 'failure', 'message': error_message}, status=500)
+        return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
 
     finally:
-        logger.info(LEAVING_FUNCTION_LOG.format(function_name))
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))

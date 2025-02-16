@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import create_account, get_wallet_info, check_wallet_balance, account_set, delete_account, get_ledger_info, \
+from .views import create_account, get_wallet_info, check_wallet_balance, account_set, get_ledger_info, \
     get_xrp_reserves, get_account_trust_lines, get_account_offers, get_server_info, get_trust_line, set_trust_line, \
-    send_and_delete_wallet, create_multiple_account
+    send_and_delete_wallet, black_hole_xrp, create_multiple_accounts, CreateAccountOfferView
 from .views import get_transaction_history, get_transaction_history_with_pagination, check_transaction_status
 from .views import send_payment
 
@@ -17,7 +17,7 @@ urlpatterns = [
 
     # Endpoint for creating a new XRPL account.
     # Example: http://127.0.0.1:8000/xrpl/create_multiple_account/
-    path('create-multiple-accounts/', create_multiple_account, name='create_multiple_account'),
+    path('create-multiple-accounts/', create_multiple_accounts, name='create_multiple_account'),
 
     # Endpoint to fetch wallet information for a given wallet address.
     # Example: http://127.0.0.1:8000/xrpl/wallet-info/rMgaRbbZUBeoxwZevhv1mezuvA97eR4JHV/
@@ -31,13 +31,20 @@ urlpatterns = [
     # Example: http://127.0.0.1:8000/xrpl/account-set/?sender_seed=...&require_destination_tag=false
     path("account-set/", account_set, name="account_set"),
 
-    # Endpoint to delete an account and transfer its remaining XRP balance to another wallet.
-    # Example: http://127.0.0.1:8000/xrpl/delete-account/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/
-    path('delete-account/<str:wallet_address>/', delete_account, name='delete_account'),
+    # Endpoint to blackhole all XRP in a wallet.
+    # Example: http://127.0.0.1:8000/xrpl/black_hole_xrp/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/
+    path('black_hole_xrp/<str:wallet_address>/', black_hole_xrp, name='delete_account'),
 
     # Endpoint to get active offers on an account.
-    # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?account=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
     path('get-account-offers/', get_account_offers, name='get_account_offers'),
+
+    # Endpoint to get create an offer on an account.
+    # Example: http://127.0.0.1:8000/xrpl/create-account-offer/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    # path('create-account-offer/', create_account_offer, name='create_account_offer'),
+
+    path("create-account-offer/", CreateAccountOfferView.as_view(), name="create_account_offer"),
+
 
     # Endpoint to retrieve the transaction history for a wallet address.
     # Example: http://127.0.0.1:8000/xrpl/transaction-history/rQGijrV8XYRseZAfjFvC9cDxxr58h9SvMY/...
@@ -70,12 +77,12 @@ urlpatterns = [
     # Example: http://127.0.0.1:8000/xrpl/get-ledger-info/?ledger_hash=<ledger_hash>
     path('get-ledger-info/', get_ledger_info, name='get_ledger_info'),
 
-    # Endpoint to get server information like version, uptime, and server status.
+    # Endpoint to get ledger information like version, uptime, and ledger status.
     # Example: http://127.0.0.1:8000/xrpl/get-server-info/
     path('get-server-info/', get_server_info, name='get_server_info'),
 
     # Endpoint to fetch the reserve requirements for accounts on the XRPL.
-    # Example: http://127.0.0.1:8000/xrpl/get-xrp-reserves/?account=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    # Example: http://127.0.0.1:8000/xrpl/get-xrp-reserves/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
     path('get-xrp-reserves/', get_xrp_reserves, name='get_xrp_reserves'),
 
     # Endpoint to retrieve all trust lines for a specific account.

@@ -1167,7 +1167,7 @@ class TestGetWalletInfo(unittest.TestCase):
 #         mock_client = MagicMock()
 #         mock_json_rpc_client.return_value = mock_client
 #
-#         # Mock server info response
+#         # Mock ledger info response
 #         mock_server_info = MagicMock()
 #         mock_server_info.result = {
 #             'info': {
@@ -1262,7 +1262,7 @@ class TestGetWalletInfo(unittest.TestCase):
 #         mock_client = MagicMock()
 #         mock_get_xrpl_client.return_value = mock_client
 #
-#         # Mock server info response
+#         # Mock ledger info response
 #         mock_server_info = MagicMock()
 #         mock_server_info.result = {
 #             'info': {

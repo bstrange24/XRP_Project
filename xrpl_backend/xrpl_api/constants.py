@@ -25,16 +25,19 @@ BASE_RESERVE = 2  # Base reserve in XRP; update if it changes
 
 # Constants for text
 ENTERING_FUNCTION_LOG = "Entering: {}"
-LEAVING_FUNCTION_LOG = "Leaving: {}"
+LEAVING_FUNCTION_LOG = "Leaving: {}. Total execution time in ms: {}"
 ERROR_INITIALIZING_CLIENT = "Failed to initialize XRPL client."
-ERROR_INITIALIZING_SERVER_INFO = "Error initializing server info."
+ERROR_INITIALIZING_SERVER_INFO = "Error initializing ledger info."
 ERROR_CREATING_ACCOUNT_INFO_OBJECT = "Error creating Account Info object."
 ERROR_GETTING_ACCOUNT_INFO = "Error getting Account information."
 XRPL_RESPONSE = "Raw XRPL response:"
 ERROR_IN_XRPL_RESPONSE = "Error in response from XRPL client."
 ERROR_FETCHING_TRANSACTION_HISTORY = "Error fetching transaction history info."
 ERROR_FETCHING_TRANSACTION_STATUS = 'Error while checking transaction status.'
+ERROR_FETCHING_ACCOUNT_OFFERS = 'Error while fetching account offers.'
+ERROR_FETCHING_XRP_RESERVES = 'Error while fetching XRP reserves.'
 INVALID_WALLET_IN_REQUEST = 'Invalid wallet format passed in request.'
+RESERVES_NOT_FOUND = 'Reserves not found.'
 ACCOUNT_IS_REQUIRED = 'Account address is required.'
 INVALID_TRANSACTION_HASH = 'Invalid transaction hash.'
 PAYMENT_IS_UNSUCCESSFUL = "Payment response is unsuccessful"

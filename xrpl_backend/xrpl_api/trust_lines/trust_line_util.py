@@ -1,5 +1,15 @@
 from django.http import JsonResponse
-from xrpl.models import TrustSet, IssuedCurrencyAmount
+from xrpl.models import TrustSet, IssuedCurrencyAmount, Tx
+import time
+
+def wait_for_validation(client, tx_hash, max_retries=10, delay=1):
+    for _ in range(max_retries):
+        time.sleep(delay)
+        tx_response = client.request(Tx(transaction=tx_hash))
+        if tx_response.result.get('validated'):
+            return tx_response
+    return None
+
 
 def create_trust_set_transaction(currency, limit_drops, wallet_address, sender_wallet, sequence_number, fee):
     """

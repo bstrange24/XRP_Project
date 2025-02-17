@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.apps import apps
 from rest_framework.decorators import api_view
 from tenacity import retry, wait_exponential, stop_after_attempt
-from xrpl import XRPLException
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.asyncio.transaction import autofill_and_sign
 
@@ -17,9 +16,10 @@ from xrpl.models import XRP
 from xrpl.utils import drops_to_xrp, get_balance_changes
 from xrpl.wallet import Wallet
 
-from ..accounts.account_utils import prepare_account_lines_for_offer, prepare_account_offers, create_account_offers_response
+from ..accounts.account_utils import prepare_account_lines_for_offer, prepare_account_offers, \
+    create_account_offers_response, create_get_account_offers_response
 from ..constants import ACCOUNT_IS_REQUIRED, ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, RETRY_BACKOFF, MAX_RETRIES, \
-    ERROR_INITIALIZING_CLIENT, ERROR_FETCHING_ACCOUNT_OFFERS, XRPL_RESPONSE
+    ERROR_INITIALIZING_CLIENT, XRPL_RESPONSE
 from ..currency.currency_util import create_issued_currency_the_user_wants, \
     create_amount_the_user_wants_to_spend
 from ..offers.account_offers_util import process_offer, create_book_offer, create_offer
@@ -31,6 +31,12 @@ logger = logging.getLogger('xrpl_app')
 
 @method_decorator(csrf_exempt, name="dispatch")
 class AccountOffer(View):
+
+    async def post(self, request, *args, **kwargs):
+        return await self.create_offer(request)
+
+    async def get(self, request, *args, **kwargs):
+        return await self.create_offer(request)
 
     async def create_offer(self, request):
         start_time = time.time()  # Capture the start time
@@ -165,8 +171,7 @@ class AccountOffer(View):
 
                 is_valid, response = validate_xrpl_response(result, required_keys=["meta"])
                 if not is_valid:
-                    logger.error(f"Creating order book failed for: {wallet_address}: {result}")
-                    raise Exception('Creating order book failed.')
+                    raise Exception(response)
                 else:
                     logger.info(f"Transaction succeeded:")
                     logger.info(f"{xrpl_config.XRPL_WEB_SOCKET_NETWORK_URL}{signed_tx.get_hash()}")
@@ -215,7 +220,7 @@ class AccountOffer(View):
                 acct_offers = await client.request(prepare_account_offers(wallet_address))
                 logger.info(f"Account Offers result: {acct_offers.result}")
 
-                response_data = create_account_offers_response(signed_tx, orderbook_info, result, acct_offers)
+                response_data = create_account_offers_response(orderbook_info, result, acct_offers)
                 logger.info(f"response_data: {response_data}")
 
                 return response_data
@@ -277,8 +282,7 @@ class AccountOffer(View):
             # Step 4: Validate the response from XRPL to ensure it's successful and contains expected data.
             is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
             if not is_valid:
-                # If the response is not valid, raise an exception to indicate an issue.
-                raise XRPLException(ERROR_FETCHING_ACCOUNT_OFFERS)
+                raise Exception(response)
 
             # Step 5: Log the raw response for debugging purposes (useful for detailed inspection).
             logger.debug(XRPL_RESPONSE)
@@ -299,7 +303,7 @@ class AccountOffer(View):
             logger.info(f"Successfully fetched offers for account {wallet_address}.")
 
             # Step 9: Prepare and return the response containing the offers.
-            return create_account_offers_response(response, offers)
+            return create_get_account_offers_response(response)
 
         except Exception as e:
             # Step 10: Handle unexpected errors that might occur during the execution.

@@ -67,7 +67,7 @@ class Transactions(View):
             response = client.request(account_tx_request)
             is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
             if not is_valid:
-                raise XRPLException(ERROR_FETCHING_TRANSACTION_STATUS)
+                raise Exception(response)
 
             # Log the raw response for detailed debugging
             logger.debug(XRPL_RESPONSE)
@@ -140,7 +140,7 @@ class Transactions(View):
                 response = client.request(account_tx_request)
                 is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
                 if not is_valid:
-                    raise XRPLException(ERROR_FETCHING_TRANSACTION_STATUS)
+                    raise Exception(response)
 
                 # Log the raw response for detailed debugging
                 logger.debug(XRPL_RESPONSE)
@@ -220,7 +220,7 @@ class Transactions(View):
             response = client.request(tx_request)
             is_valid, result = validate_xrpl_response(response, required_keys=["validated"])
             if not is_valid:
-                raise XRPLException(ERROR_FETCHING_TRANSACTION_STATUS)
+                raise Exception(result)
 
             # Log the raw response for detailed debugging
             logger.debug(XRPL_RESPONSE)

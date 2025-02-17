@@ -52,11 +52,12 @@ def transaction_status_response(response, tx_hash):
     """
     # Log successful retrieval of transaction status
     logger.info(f"Transaction status retrieved successfully for hash: {tx_hash}")
+    logger.info(f"Transaction type: {response.result['tx_json']['TransactionType']}")
 
     # Prepare and return a JSON response for the transaction status
     return JsonResponse({
         'status': 'success',
-        'message': 'Payment successfully sent.',
+        'message': f"{response.result['tx_json']['TransactionType']}",
         'result': response.result,  # Corrected from 'response.result' to 'result'
     })
 

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import re
 import time
@@ -257,7 +258,7 @@ def extract_request_data(request):
 def validate_xrpl_response(response: Response, required_keys=None):
     # Ensure response is an instance of xrpl Response
     if not isinstance(response, Response):
-        return False, {"error": "Invalid response object type"}
+        return False, f"Invalid response object type"
 
     # Check if response is successful
     if not response.is_successful():
@@ -269,24 +270,24 @@ def validate_xrpl_response(response: Response, required_keys=None):
 
     # Ensure response.result is a valid dictionary
     if not isinstance(response.result, dict):
-        return False, {"error": f"Invalid response format. 'result' should be a dictionary {response}"}
+        return False, f"Invalid response format. 'result' should be a dictionary {response}"
 
     if not response and response.status != 'success':
-        return False, {"error": f"Response status is unsuccessful {response}"}
+        return False, f"Response status is unsuccessful {response}"
 
     # Validate required keys in response.result
     if required_keys:
         missing_keys = [key for key in required_keys if key not in response.result]
         if missing_keys:
-            return False, {"error": f"Missing required fields: {missing_keys}"}
+            return False, f"Missing required fields: {missing_keys} in response"
 
     # Check if "info" is present and has a value
     if response.result.get("info"):
         return True, response.result
 
     # Check if "validated" is present and is False
-    if not response.result.get("validated"):
-        return False, {"error": f"Transaction is not valid on the ledger {response.result}"}
+    # if not response.result.get("validated"):
+    #     return False, f"Transaction is not valid on the ledger {response.result}"
 
     return True, response.result  # Valid response
 
@@ -322,17 +323,11 @@ def validate_request_data(sender_seed: str, receiver_address: str, amount_xrp: i
         raise ValueError("Sender seed is invalid.")
 
 
-def fetch_network_fee(client):
-    """
-       Efficiently fetches the current transaction fee from the XRPL ledger.
-
-       Returns:
-           dict: A dictionary containing the fee information or an error message.
-       """
+async def fetch_network_fee(client):
     try:
-        # Fetch transaction fee from the XRPL ledger
-        fee = get_fee(client)
-        logger.info(f"Transaction fee retrieved: {fee}")
+        # Run the synchronous get_fee function in a separate thread
+        fee = await asyncio.to_thread(get_fee, client)
+        logger.info(f"Network fee in drops: {fee}")
         return fee
     except Exception as e:
         logger.error(f"Error fetching transaction fee: {e}")

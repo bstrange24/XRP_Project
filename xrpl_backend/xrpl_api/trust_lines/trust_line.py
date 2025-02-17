@@ -12,8 +12,10 @@ from xrpl.models import AccountLines, Fee
 from xrpl.transaction import submit
 from xrpl.wallet import Wallet
 
-from .trust_line_util import trust_line_response, create_trust_set_transaction, create_trust_set_response
-from ..accounts.account_utils import create_account_lines_response, prepare_account_lines
+from .trust_line_util import trust_line_response, create_trust_set_transaction, create_trust_set_response, \
+    wait_for_validation
+from ..accounts.account_utils import create_account_lines_response, prepare_account_lines, \
+    prepare_account_lines_for_offer
 from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, XRPL_RESPONSE, ERROR_FETCHING_TRANSACTION_STATUS, \
     MISSING_REQUEST_PARAMETERS
@@ -92,7 +94,7 @@ class TrustLine(View):
                 # Validate the response to ensure it contains the expected fields
                 is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
                 if not is_valid:
-                    raise XRPLException(ERROR_FETCHING_TRANSACTION_STATUS)
+                    raise Exception(response)
 
                 # Log the raw response for debugging purposes
                 logger.debug(XRPL_RESPONSE)
@@ -100,7 +102,7 @@ class TrustLine(View):
 
                 # Check if the "lines" field exists in the response. If not, raise an error.
                 if "lines" not in response:
-                    raise XRPLException('Account lines not found')
+                    raise Exception('Account lines not found')
 
                 # Add the fetched account lines to the account_lines list
                 account_lines.extend(response["lines"])
@@ -178,7 +180,8 @@ class TrustLine(View):
 
             # Prepare an AccountLines request to retrieve trust lines for the account.
             # The request will be sent to the XRPL network to fetch the trust lines for the specified wallet address.
-            account_lines_request = AccountLines(account=wallet_address)
+            account_lines_request = prepare_account_lines_for_offer(wallet_address)
+            # account_lines_request = AccountLines(account=wallet_address)
 
             # Initialize the XRPL client to communicate with the XRP ledger and fetch the required information.
             # If the client can't be initialized, raise an exception.
@@ -189,13 +192,9 @@ class TrustLine(View):
             # Send the AccountLines request to the XRPL network.
             # The response contains the trust lines for the wallet address.
             response = client.request(account_lines_request)
-
-            # Validate the response to ensure it contains the expected fields.
-            # If the response is not valid, log the error and raise an exception.
             is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
             if not is_valid:
-                logger.error(f"Failed to fetch trust lines for {wallet_address}: {response}")
-                raise XRPLException('Error fetching trust lines.')
+                raise Exception(response)
 
             # Log the raw response for debugging purposes.
             # This helps in analyzing the response content and troubleshooting issues.
@@ -220,34 +219,10 @@ class TrustLine(View):
             # Log the total execution time of the function to monitor performance.
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
     @api_view(['POST'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def set_trust_line(self):
-        """
-        This function is responsible for setting a trust line for a specific wallet address on the XRP Ledger (XRPL).
-        The trust line defines the amount of a certain currency that an account is willing to accept from another account.
-
-        The function performs the following actions:
-        1. Extracts the required parameters (sender seed, wallet address, currency, and limit) from the request data.
-        2. Converts the limit to drops if the currency is XRP.
-        3. Initializes the XRPL client to communicate with the XRP Ledger.
-        4. Creates a wallet from the sender's seed.
-        5. Fetches the current sequence number for the sender's account.
-        6. Retrieves the current network fee.
-        7. Constructs a TrustSet transaction with the necessary details.
-        8. Signs the transaction using the sender's wallet.
-        9. Submits the signed transaction to the XRPL network.
-        10. Returns a success response if the transaction is successfully processed.
-
-        If any errors occur during the process, they are caught, logged, and a failure response is returned.
-
-        Args:
-            self (Request): The HTTP request object containing parameters like sender_seed, wallet_address, currency, and limit.
-
-        Returns:
-            Response: A JSON response indicating whether the trust line was successfully set.
-        """
-
         # Capture the start time to calculate the total execution time of the function
         start_time = time.time()
         function_name = 'set_trust_line'
@@ -297,8 +272,7 @@ class TrustLine(View):
             response = client.request(Fee())
             is_valid, response = validate_xrpl_response(response, required_keys=["drops"])
             if not is_valid:
-                logger.error(f"Failed to fetch fees for {wallet_address}: {response}")
-                raise XRPLException('Error fetching fees.')
+                raise Exception(response)
 
             logger.info(f"Trust lines response: {response}")
 
@@ -319,12 +293,18 @@ class TrustLine(View):
             response = submit(signed_tx, client)
             is_valid, response = validate_xrpl_response(response, required_keys=["tx_json"])
             if not is_valid:
-                logger.error(f"Failed to fetch fees for {wallet_address}: {response}")
-                raise XRPLException('Error fetching fees.')
+                raise Exception(response)
 
             logger.info(f"Trust lines response: {response}")
 
+            tx_hash = response['tx_json']['hash']
+            validated_tx_response = wait_for_validation(client, tx_hash)
+
+            if not validated_tx_response or not validated_tx_response.result.get('validated'):
+                raise Exception("Transaction not validated in time")
+
             # Log the success and return the response to indicate that the trust line was set successfully.
+            logger.info(f"Transaction validated in ledger: {validated_tx_response.result['ledger_index']}")
             logger.info(f"Trust line set successfully for account {wallet_address}")
             return create_trust_set_response(response, wallet_address, currency, limit)
 

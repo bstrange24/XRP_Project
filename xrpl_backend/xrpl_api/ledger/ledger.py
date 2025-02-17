@@ -75,8 +75,7 @@ class LedgerInteraction(View):
             response = client.request(server_info_request)
             is_valid, response = validate_xrpl_response(response, required_keys=["info"])
             if not is_valid:
-                # If the response is not valid, raise an exception to indicate an issue.
-                raise XRPLException(ERROR_FETCHING_ACCOUNT_OFFERS)
+                raise Exception(response)
 
             # Step 5: Log the raw response for detailed debugging.
             logger.debug(XRPL_RESPONSE)
@@ -154,10 +153,8 @@ class LedgerInteraction(View):
             # Step 5: Send the request to the XRP Ledger and capture the response.
             response = client.request(ledger_request)
             is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
-
-            # If the response is not valid, raise an exception to indicate an issue.
             if not is_valid:
-                raise XRPLException(ERROR_FETCHING_XRP_RESERVES)
+                raise Exception(response)
 
             # Log the raw response for detailed debugging and analysis.
             logger.debug(XRPL_RESPONSE)
@@ -230,7 +227,7 @@ class LedgerInteraction(View):
             # Step 4: Validate the response to ensure it contains the required data.
             is_valid, response = validate_xrpl_response(server_information_response, required_keys=["info"])
             if not is_valid:
-                raise XRPLException(ERROR_FETCHING_XRP_RESERVES)  # Raise an error if the response is invalid.
+                raise Exception(response)
 
             # Step 5: Log the raw response for debugging purposes.
             logger.debug(XRPL_RESPONSE)

@@ -17,7 +17,8 @@ from django.apps import apps
 
 from ..accounts.account_utils import get_account_details, create_multiple_account_response, \
     create_account_response, create_wallet_info_response, get_account_reserves, create_wallet_balance_response, \
-    prepare_account_set_tx, account_set_tx_response, prepare_account_data, prepare_regular_key, delete_account_response
+    prepare_account_set_tx, account_set_tx_response, prepare_account_data, prepare_regular_key, delete_account_response, \
+    account_config_settings
 from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, CACHE_TIMEOUT_FOR_WALLET, ERROR_GETTING_ACCOUNT_INFO, \
     INVALID_WALLET_IN_REQUEST, CACHE_TIMEOUT, XRPL_RESPONSE, ERROR_FETCHING_TRANSACTION_STATUS, asfDisableMaster
@@ -316,6 +317,45 @@ class Accounts(View):
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
+
+    @api_view(['GET'])
+    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
+    def get_account_config(self, account):
+        start_time = time.time()  # Capture the start time
+        function_name = 'get_account_config'
+        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+
+        try:
+            # Validate the provided wallet address
+            if not account or not validate_xrp_wallet(account):
+                raise XRPLException(INVALID_WALLET_IN_REQUEST)
+
+            # Initialize the XRPL client
+            client = get_xrpl_client()
+            if not client:
+                raise Exception(ERROR_INITIALIZING_CLIENT)
+
+            request = prepare_account_data(account, False)
+            response = client.request(request)
+            is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
+            if not is_valid:
+                raise Exception(response)
+
+            # Log the raw response for detailed debugging
+            logger.debug(XRPL_RESPONSE)
+            logger.debug(json.dumps(response, indent=4, sort_keys=True))
+
+            return account_config_settings(response)
+
+        except (xrpl.XRPLException, Exception) as e:
+            # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
+            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
+                                function_name=function_name)
+        finally:
+            logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
+
+
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def config_account(self):
@@ -369,12 +409,13 @@ class Accounts(View):
 
             # Submit and wait for the transaction to be included in a ledger
             response = submit_and_wait(account_set_tx, client, sender_wallet)
-            if not response or not response.is_successful():
-                raise XRPLException('Error submit_and_wait return none.')
+            is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
+            if not is_valid:
+                raise Exception(response)
 
             # Log the raw response for detailed debugging
             logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(response.result, indent=4, sort_keys=True))
+            logger.debug(json.dumps(response, indent=4, sort_keys=True))
 
             # Handle the transaction response
             return account_set_tx_response(response, sender_address)
@@ -420,7 +461,7 @@ class Accounts(View):
             # Validate the response from the account info request.
             is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
             if not is_valid:
-                raise XRPLException(ERROR_FETCHING_TRANSACTION_STATUS)
+                raise Exception(response)
 
             # Log the raw response for debugging.
             logger.debug(XRPL_RESPONSE)

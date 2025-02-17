@@ -281,9 +281,9 @@ def account_set_tx_response(response, sender_address):
     return JsonResponse({
         'status': 'success',
         'message': 'Successfully updated account settings.',
-        'transaction_hash': response.result['hash'],  # Corrected from 'response.result' to 'response.result["hash"]'
+        'transaction_hash': response['hash'],  # Corrected from 'response.result' to 'response.result["hash"]'
         'account': sender_address,
-        'result': response.result
+        'result': response
     })
 
 
@@ -362,8 +362,8 @@ def account_delete_tx_response(account_delete_response_result, payment_response)
         'message': 'Funds transferred and account deleted successfully.',
         'account_delete_response': account_delete_response_result,
         'payment_response': payment_response,
-        'payment_response_hash':payment_response['hash'],
-        'account_delete_response_hash':account_delete_response_result['hash']
+        'payment_response_hash': payment_response['hash'],
+        'account_delete_response_hash': account_delete_response_result['hash']
     })
 
 
@@ -429,35 +429,22 @@ def create_account_response(wallet_address, seed, xrp_balance, account_details):
     })
 
 
-def create_account_offers_response(response, offers):
-    """
-    Creates a JSON response with the result of fetching offers.
+def create_account_offers_response(orderbook_info, result, acct_offers):
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Offers successfully created.',
+        'result': result.result,
+        'orderbook_info': orderbook_info.result,
+        'acct_offers': acct_offers.result,
+    })
 
-    Args:
-        response (Response): The original XRPL response object.
-        offers (list): A list of offers fetched for the account.
 
-    Returns:
-        JsonResponse: The formatted JSON response containing the offers.
-    """
-    # try:
-    # Convert the response to a dictionary to make it JSON serializable
-    # response_dict = response.result if hasattr(response, 'result') else {}
-
-    # Return the JSON response
+def create_get_account_offers_response(response):
     return JsonResponse({
         'status': 'success',
         'message': 'Offers fetched successfully.',
-        'offers': offers,
         'result': response,
     })
-
-    # except Exception as e:
-    #     # Handle any potential issues with the response or offer formatting
-    #     return JsonResponse({
-    #         'status': 'failure',
-    #         'message': f"Error fetching offers: {str(e)}"
-    #     }, status=500)
 
 
 def create_multiple_account_response(transactions):
@@ -515,6 +502,14 @@ def create_account_lines_response(paginated_transactions, paginator):
     })
 
 
+def account_config_settings(response):
+    return JsonResponse({
+        "status": "success",
+        "message": "Account configuration retrieved successfully.",
+        "result": response,
+    })
+
+
 def prepare_account_tx_with_pagination(sender_address, marker):
     """
     Prepares an AccountTx transaction for the XRPL with pagination parameters.
@@ -569,15 +564,16 @@ def prepare_account_lines(wallet_address, marker):
     return AccountLines(
         account=wallet_address,
         limit=100,
-        marker=marker
+        marker=marker,
+        ledger_index="validated",
     )
 
 
 def prepare_account_lines_for_offer(wallet_address):
     return AccountLines(
-                    account=wallet_address,
-                    ledger_index="validated",
-                )
+        account=wallet_address,
+        ledger_index="validated",
+    )
 
 
 def prepare_account_tx(sender_address):

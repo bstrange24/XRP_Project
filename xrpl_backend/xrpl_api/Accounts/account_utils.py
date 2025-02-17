@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.http import JsonResponse
 from xrpl.models import ServerInfo, AccountDelete, AccountInfo, AccountTx, AccountSet, AccountObjects, SetRegularKey, \
-    AccountOffers
+    AccountOffers, AccountLines
 import logging
 
 from django.db import transaction
@@ -15,7 +15,6 @@ from ..utils import get_xrpl_client
 logger = logging.getLogger('xrpl_app')
 
 
-# Function to query account objects for a given account
 def get_account_objects(account: str):
     # Query Account Objects
     account_objects_request = AccountObjects(account=account)
@@ -28,7 +27,6 @@ def get_account_objects(account: str):
     return account_objects_response.result.get('account_objects', [])
 
 
-# Function to check for Check entries (CheckCreate)
 def check_check_entries(account_objects):
     # Filter check entries
     check_entries = [entry for entry in account_objects if entry.get('LedgerEntryType') == 'Check']
@@ -123,6 +121,7 @@ def update_receiver_account_balances(receiver_address: str, amount_xrp: Decimal)
         logger.error(f"Unexpected error updating account balances: {str(e)}", exc_info=True)
         raise ValueError("An unexpected error occurred while updating balances.") from e
 
+
 def get_account_details(client, wallet_address: str):
     """
     Retrieves details for a specified XRP Ledger (XRPL) wallet address using an XRPL client.
@@ -197,6 +196,7 @@ def prepare_account_data(sender_address, black_hole):
             strict=True,  # Enforce strict validation of the address format
         )
 
+
 def prepare_regular_key(wallet_address, black_hole_address):
     return SetRegularKey(
         account=wallet_address,
@@ -226,6 +226,7 @@ def prepare_account_delete(sender_address):
         fee="12",
     )
 
+
 def account_reserves_response(server_information_response, reserve_base, reserve_inc):
     """
     Creates a JSON response for successfully fetching XRP reserves.
@@ -246,6 +247,7 @@ def account_reserves_response(server_information_response, reserve_base, reserve
         'owner_reserve': reserve_inc,  # Include the incremental reserve amount per account in drops
         'result': server_information_response.result  # Include the result from the XRPL ledger information query
     })
+
 
 def account_set_tx_response(response, sender_address):
     """
@@ -353,37 +355,17 @@ def account_tx_with_pagination_response(paginated_transactions, count, num_pages
         "current_page": paginated_transactions.number,
     })
 
-def account_delete_tx_response(payment_response_hash, account_delete_response_hash):
-    """
-    Constructs a JSON response for the successful transfer of funds and deletion of an account.
 
-    Args:
-        payment_response_hash (str): The hash of the transaction that transferred funds.
-        account_delete_response_hash (str): The hash of the transaction that deleted the account.
-
-    Returns:
-        JsonResponse: A Django JsonResponse object containing details of both transactions.
-
-    This function prepares a JSON response indicating that funds have been successfully transferred and an account has been deleted.
-    It takes two arguments:
-    - `payment_response_hash`: The hash of the transaction that transferred funds.
-    - `account_delete_response_hash`: The hash of the transaction that deleted the account.
-
-    The function returns a Django JsonResponse object with keys for 'status', 'message', 'payment_tx_hash', and 'account_delete_tx_hash'.
-    - 'status' indicates the outcome of the operations ('success').
-    - 'message' provides a brief description of the operation result.
-    - 'payment_tx_hash' contains the hash of the transaction that transferred funds.
-    - 'account_delete_tx_hash' contains the hash of the transaction that deleted the account.
-
-    This allows for a consistent format to inform clients about whether the operations were successfully completed and provide additional details if needed.
-    """
-    # Prepare and return a JSON response indicating successful transfer of funds and deletion of an account
+def account_delete_tx_response(account_delete_response_result, payment_response):
     return JsonResponse({
         'status': 'success',
         'message': 'Funds transferred and account deleted successfully.',
-        'payment_tx_hash': payment_response_hash,
-        'account_delete_tx_hash': account_delete_response_hash
+        'account_delete_response': account_delete_response_result,
+        'payment_response': payment_response,
+        'payment_response_hash':payment_response['hash'],
+        'account_delete_response_hash':account_delete_response_result['hash']
     })
+
 
 def create_wallet_info_response(base_reserve, reserve_increment, account_details):
     """
@@ -494,6 +476,7 @@ def create_multiple_account_response(transactions):
         "transactions": transactions,
     })
 
+
 def create_account_delete_transaction(sender_address: str, receiver_address: str, last_ledger_sequence: str):
     """
     Creates a transaction to delete an account on the XRP Ledger.
@@ -519,6 +502,18 @@ def create_account_delete_transaction(sender_address: str, receiver_address: str
         destination=receiver_address,
         last_ledger_sequence=int(last_ledger_sequence)  # Set the custom LastLedgerSequence
     )
+
+
+def create_account_lines_response(paginated_transactions, paginator):
+    return JsonResponse({
+        "status": "success",
+        "message": "Account Lines successfully retrieved.",
+        "account_lines": list(paginated_transactions),
+        "total_account_lines": paginator.count,
+        "pages": paginator.num_pages,
+        "current_page": paginated_transactions.number,
+    })
+
 
 def prepare_account_tx_with_pagination(sender_address, marker):
     """
@@ -547,6 +542,7 @@ def prepare_account_tx_with_pagination(sender_address, marker):
         marker=marker,
     )
 
+
 def prepare_account_set_tx(sender_address, flags):
     """
     Prepares an AccountSet transaction for the XRPL.
@@ -567,6 +563,21 @@ def prepare_account_set_tx(sender_address, flags):
         account=sender_address,
         flags=flags
     )
+
+
+def prepare_account_lines(wallet_address, marker):
+    return AccountLines(
+        account=wallet_address,
+        limit=100,
+        marker=marker
+    )
+
+
+def prepare_account_lines_for_offer(wallet_address):
+    return AccountLines(
+                    account=wallet_address,
+                    ledger_index="validated",
+                )
 
 
 def prepare_account_tx(sender_address):
@@ -594,7 +605,9 @@ s
         limit=100  # Increase limit to fetch more transactions at once, reducing the need for multiple requests
     )
 
+
 def prepare_account_offers(wallet_address):
     return AccountOffers(
-        account=wallet_address
+        account=wallet_address,
+        ledger_index="validated",
     )

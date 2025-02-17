@@ -41,3 +41,4 @@ RESERVES_NOT_FOUND = 'Reserves not found.'
 ACCOUNT_IS_REQUIRED = 'Account address is required.'
 INVALID_TRANSACTION_HASH = 'Invalid transaction hash.'
 PAYMENT_IS_UNSUCCESSFUL = "Payment response is unsuccessful"
+MISSING_REQUEST_PARAMETERS = "Missing required parameters."

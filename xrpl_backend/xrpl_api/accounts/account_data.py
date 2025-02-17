@@ -1,6 +1,8 @@
 from xrpl.models import ServerInfo
 import logging
 
+from ..utils import get_xrpl_client
+
 logger = logging.getLogger('xrpl_app')
 
 def get_account_reserves():

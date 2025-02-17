@@ -18,11 +18,11 @@ def create_amount_the_user_wants_to_spend():
         "value": xrp_to_drops(25 * 10 * 1.15),
     }
 
-def create_book_offer(wallet_address, we_want, we_spend):
-    return BookOffers(
-        taker=wallet_address,
-        ledger_index="current",
-        taker_gets=we_want["currency"],
-        taker_pays=we_spend["currency"],
-        limit=10,
-    )
+# def create_book_offer(wallet_address, we_want, we_spend):
+#     return BookOffers(
+#         taker=wallet_address,
+#         ledger_index="current",
+#         taker_gets=we_want["currency"],
+#         taker_pays=we_spend["currency"],
+#         limit=10,
+#     )

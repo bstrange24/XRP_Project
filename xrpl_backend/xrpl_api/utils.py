@@ -16,7 +16,7 @@ from xrpl.models import Response
 from xrpl.utils import xrp_to_drops, drops_to_xrp
 
 from .constants import BASE_RESERVE, REQUIRE_DESTINATION_TAG_FLAG, DISABLE_MASTER_KEY_FLAG, \
-    ENABLE_REGULAR_KEY_FLAG, INVALID_WALLET_IN_REQUEST
+    ENABLE_REGULAR_KEY_FLAG, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS
 
 logger = logging.getLogger('xrpl_app')
 
@@ -36,6 +36,7 @@ def handle_error(error_message, status_code, function_name):
     logger.error(error_message)
     logger.error(f"Leaving: {function_name}")
     return JsonResponse(error_message, status=status_code)
+
 
 def total_execution_time_in_millis(start_time):
     end_time = time.time()  # Capture the end time
@@ -110,11 +111,6 @@ def is_valid_xrpl_seed(seed: str) -> bool:
 
     except XRPLException:
         return False  # The seed was invalid, an exception was raised during the derivation process.
-
-# Ensure this function runs properly in Django's event loop
-async def process_offer(signed_tx, client):
-    result = await submit_and_wait(signed_tx, client)
-    return result
 
 
 def get_xrpl_client() -> JsonRpcClient:
@@ -259,18 +255,6 @@ def extract_request_data(request):
 
 
 def validate_xrpl_response(response: Response, required_keys=None):
-    """
-    Validates an XRPL response by checking success status, error fields, and required keys.
-
-    Args:
-        response (Response): The XRPL response object to validate.
-        required_keys (list, optional): A list of keys that must exist in response.result.
-
-    Returns:
-        tuple: (bool, dict) where:
-            - bool indicates if the response is valid
-            - dict contains the result if valid, or error details if invalid
-    """
     # Ensure response is an instance of xrpl Response
     if not isinstance(response, Response):
         return False, {"error": "Invalid response object type"}
@@ -285,7 +269,10 @@ def validate_xrpl_response(response: Response, required_keys=None):
 
     # Ensure response.result is a valid dictionary
     if not isinstance(response.result, dict):
-        return False, {"error": "Invalid response format. 'result' should be a dictionary."}
+        return False, {"error": f"Invalid response format. 'result' should be a dictionary {response}"}
+
+    if not response and response.status != 'success':
+        return False, {"error": f"Response status is unsuccessful {response}"}
 
     # Validate required keys in response.result
     if required_keys:
@@ -298,55 +285,10 @@ def validate_xrpl_response(response: Response, required_keys=None):
         return True, response.result
 
     # Check if "validated" is present and is False
-    if response.result.get("validated") == "False":
-        return False, {"error": "Transaction is not valid on the ledger."}
+    if not response.result.get("validated"):
+        return False, {"error": f"Transaction is not valid on the ledger {response.result}"}
 
     return True, response.result  # Valid response
-
-
-# def validate_xrpl_response(response: Response, required_keys=None):
-#     """
-#     Validates an XRPL response by checking success status, error fields, and required keys.
-#
-#     Args:
-#         response (Response): The XRPL response object to validate.
-#         required_keys (list, optional): A list of keys that must exist in response.result.
-#
-#     Returns:
-#         tuple: (bool, dict) where:
-#             - bool indicates if the response is valid
-#             - dict contains the result if valid, or error details if invalid
-#     """
-#     # Ensure response is an instance of xrpl Response
-#     if not isinstance(response, Response):
-#         return False, {"error": "Invalid response object type"}
-#
-#     # Check if response is successful
-#     if not response.is_successful():
-#         return False, {
-#             "error": response.result.get("error", "Unknown error"),
-#             "error_code": response.result.get("error_code"),
-#             "error_message": response.result.get("error_message", "No additional details."),
-#         }
-#
-#     # Ensure response.result is a valid dictionary
-#     if not isinstance(response.result, dict):
-#         return False, {"error": "Invalid response format. 'result' should be a dictionary."}
-#
-#     # Validate required keys in response.result
-#     if required_keys:
-#         missing_keys = [key for key in required_keys if key not in response.result]
-#         if missing_keys:
-#             return False, {"error": f"Missing required fields: {missing_keys}"}
-#
-#     if response.result["info"]:
-#         return True, response.result
-#
-#     # Check if ledger index is validated for transaction finality
-#     if response.result["validated"] == "False":
-#         return False, {"error": "Transaction is not valid on the ledger."}
-#
-#     return True, response.result  # Valid response
 
 
 def validate_request_data(sender_seed: str, receiver_address: str, amount_xrp: int) -> None:
@@ -369,7 +311,7 @@ def validate_request_data(sender_seed: str, receiver_address: str, amount_xrp: i
 
     # Check if all required parameters are provided
     if not all([sender_seed, receiver_address, amount_xrp]):
-        raise ValueError("Missing required parameters.")
+        raise ValueError(MISSING_REQUEST_PARAMETERS)
 
     # Validate the receiver's classic address
     if not is_valid_classic_address(receiver_address):

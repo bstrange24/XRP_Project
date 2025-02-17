@@ -3,6 +3,21 @@
 Go here for xrpl documentation
 https://xrpl-py.readthedocs.io/en/stable/source/snippets.html
 
+https://xrpl.org/docs/references/protocol/transactions/types/accountdelete
+
+Ripple¹	Testnet	https://s.altnet.rippletest.net:51234/	wss://s.altnet.rippletest.net:51233/	Testnet public server
+XRPL Labs	Testnet	https://testnet.xrpl-labs.com/	wss://testnet.xrpl-labs.com/	Testnet public server with CORS support
+Ripple¹	Testnet (Clio)	https://clio.altnet.rippletest.net:51234/	wss://clio.altnet.rippletest.net:51233/	Testnet public server with Clio
+
+
+Ripple¹	Devnet	https://s.devnet.rippletest.net:51234/	wss://s.devnet.rippletest.net:51233/	Devnet public server
+Ripple¹	Devnet (Clio)	https://clio.devnet.rippletest.net:51234/	wss://clio.devnet.rippletest.net:51233/	Devnet public server with Clio
+
+
+Ripple¹	Sidechain-Devnet	https://sidechain-net2.devnet.rippletest.net:51234/	wss://sidechain-net2.devnet.rippletest.net:51233/	Sidechain Devnet to test cross-chain bridge features. Devnet serves as the locking chain while this sidechain serves as the issuing chain.
+XRPL Labs	Xahau Testnet	https://xahau-test.net/	wss://xahau-test.net/	Hooks-enabled Xahau Testnet
+
+
 Perform the following to setup this project:
 1) Download Git for repo interaction (Git Bash, Tortoise Git)
 2) Download repo from https://github.com/bstrange24/XRP_Project.git

@@ -45,7 +45,7 @@ def create_trust_set_response(response, account, currency, limit):
     return JsonResponse({
         'status': 'success',  # Indicate that the operation was successful
         'message': 'Trust line set successfully.',  # Provide a success message
-        'result': response.result,  # Include the result from the XRPL transaction
+        'result': response,  # Include the result from the XRPL transaction
         'account': account,  # Include the account address that had the trust line set
         'currency': currency,  # Include the currency code for the trust line
         'limit': limit,  # Include the limit for the trust line in drops
@@ -66,5 +66,5 @@ def trust_line_response(response):
     return JsonResponse({
         'status': 'success',  # Indicate that the operation was successful
         'message': 'Trust lines fetched successfully.',  # Provide a success message
-        'results': response.result  # Include the results from the XRPL transaction
+        'results': response  # Include the results from the XRPL transaction
     })

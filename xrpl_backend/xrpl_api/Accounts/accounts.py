@@ -2,12 +2,13 @@ import json
 import logging
 import time
 
-import xrpl
 from django.http import JsonResponse
 from django.views import View
 from rest_framework.decorators import api_view
+from rest_framework.status import is_success
 from tenacity import wait_exponential, stop_after_attempt, retry
-from xrpl import XRPLException
+from xrpl.account import does_account_exist
+from xrpl.asyncio.clients import XRPLRequestFailureException
 from xrpl.core import addresscodec
 from xrpl.models import AccountSet, AccountSetAsfFlag
 from xrpl.transaction import submit_and_wait
@@ -21,9 +22,11 @@ from ..accounts.account_utils import get_account_details, create_multiple_accoun
     account_config_settings
 from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, CACHE_TIMEOUT_FOR_WALLET, ERROR_GETTING_ACCOUNT_INFO, \
-    INVALID_WALLET_IN_REQUEST, CACHE_TIMEOUT, XRPL_RESPONSE, ERROR_FETCHING_TRANSACTION_STATUS, asfDisableMaster
+    INVALID_WALLET_IN_REQUEST, CACHE_TIMEOUT, XRPL_RESPONSE, asfDisableMaster
 from ..db_operations import save_account_data_to_databases
-from ..utils import get_request_param, get_xrpl_client, convert_drops_to_xrp, handle_error, \
+from ..errors.error_handling import handle_engine_result, handle_error, process_transaction_error
+from ..transactions.transactions_util import prepare_tx
+from ..utils import get_request_param, get_xrpl_client, convert_drops_to_xrp, \
     total_execution_time_in_millis, get_cached_data, validate_xrp_wallet, parse_boolean_param, build_flags, \
     extract_request_data, is_valid_xrpl_seed, validate_xrpl_response
 
@@ -61,7 +64,7 @@ class Accounts(View):
             # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
             client = get_xrpl_client()
             if not client:
-                raise XRPLException(ERROR_INITIALIZING_CLIENT)
+                raise Exception(ERROR_INITIALIZING_CLIENT)
 
             transactions = []
 
@@ -69,12 +72,12 @@ class Accounts(View):
                 # Generate a new wallet using the faucet. Check if new wallet is successfully created. Raise exception if wallet creation fails
                 new_wallet = generate_faucet_wallet(client, debug=True)
                 if not new_wallet:
-                    raise XRPLException('Error creating new wallet.')
+                    raise Exception('Error creating new wallet.')
 
                 # Retrieve account details. Check if account details are successfully retrieved. Raise exception if details retrieval fails
                 account_details = get_account_details(client, new_wallet.address)
                 if not account_details:
-                    raise XRPLException('Error retrieving account details.')
+                    raise Exception('Error retrieving account details.')
 
                 # Log the classic address and X-address
                 logger.debug(f"Classic address: {new_wallet.address}")
@@ -139,17 +142,17 @@ class Accounts(View):
             # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
             client = get_xrpl_client()
             if not client:
-                raise XRPLException(ERROR_INITIALIZING_CLIENT)
+                raise Exception(ERROR_INITIALIZING_CLIENT)
 
             # Generate a new wallet using the faucet. Check if new wallet is successfully created. Raise exception if wallet creation fails
             new_wallet = generate_faucet_wallet(client, debug=True)
             if not new_wallet:
-                raise XRPLException('Error creating new wallet.')
+                raise Exception('Error creating new wallet.')
 
             # Retrieve account details. Check if account details are successfully retrieved. Raise exception if details retrieval fails
             account_details = get_account_details(client, new_wallet.address)
             if not account_details:
-                raise XRPLException('Error retrieving account details.')
+                raise Exception('Error retrieving account details.')
 
             # Log the classic address and X-address
             logger.debug(f"Classic address: {new_wallet.address}")
@@ -178,7 +181,7 @@ class Accounts(View):
 
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_account_info(self, wallet_address):
+    def get_account_info(self, account):
         """
             Retrieves detailed information about a given XRP wallet.
 
@@ -199,12 +202,12 @@ class Accounts(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         # Validate the provided wallet address
-        if not wallet_address or not validate_xrp_wallet(wallet_address):
-            raise XRPLException(INVALID_WALLET_IN_REQUEST)
+        if not account or not validate_xrp_wallet(account):
+            raise Exception(INVALID_WALLET_IN_REQUEST)
 
         # Create a unique cache key for this wallet. Check if data is already cached
-        cache_key = f"get_wallet_info:{wallet_address}"
-        cached_data = get_cached_data(cache_key, wallet_address, function_name)
+        cache_key = f"get_wallet_info:{account}"
+        cached_data = get_cached_data(cache_key, account, function_name)
         if cached_data:
             # Return cached data if available
             return JsonResponse(cached_data)
@@ -214,13 +217,13 @@ class Accounts(View):
             client = get_xrpl_client()
             if not client:
                 # Raise an exception if client initialization fails
-                raise XRPLException(ERROR_INITIALIZING_CLIENT)
+                raise Exception(ERROR_INITIALIZING_CLIENT)
 
             # Fetch account details from the XRPL
-            account_details = get_account_details(client, wallet_address)
+            account_details = get_account_details(client, account)
             if not account_details:
                 # Raise an exception if fetching account details fails
-                raise XRPLException(ERROR_GETTING_ACCOUNT_INFO)
+                raise Exception(ERROR_GETTING_ACCOUNT_INFO)
 
             # Extract the actual account data from the response
             account_data = account_details['result']['account_data']
@@ -232,10 +235,10 @@ class Accounts(View):
             base_reserve, reserve_increment = get_account_reserves()
             if base_reserve is None or reserve_increment is None:
                 # Raise an exception if reserve data retrieval fails
-                raise XRPLException('Failed to fetch reserve data.')
+                raise Exception('Failed to fetch reserve data.')
 
             logger.info(
-                f"Account found: {wallet_address}, Balance: {balance}, Base Reserve: {base_reserve}, Reserve Increment: {reserve_increment}")  # Log the fetched information
+                f"Account found: {account}, Balance: {balance}, Base Reserve: {base_reserve}, Reserve Increment: {reserve_increment}")
 
             # Cache the response to speed up future requests for this wallet
             # Store the account data in the cache
@@ -244,7 +247,7 @@ class Accounts(View):
             # Return a JSON response with the wallet information
             return create_wallet_info_response(base_reserve, reserve_increment, account_details)
 
-        except (xrpl.XRPLException, Exception) as e:
+        except Exception as e:
             # Catch any exceptions that occur during the process
             return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
                                 function_name=function_name)
@@ -255,7 +258,7 @@ class Accounts(View):
 
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def check_account_balance(self, wallet_address):
+    def check_account_balance(self, account):
         """
         Checks the XRP balance of a given wallet address.
 
@@ -275,12 +278,12 @@ class Accounts(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         # Validate the provided wallet address
-        if not wallet_address or not validate_xrp_wallet(wallet_address):
-            raise XRPLException(INVALID_WALLET_IN_REQUEST)
+        if not account or not validate_xrp_wallet(account):
+            raise Exception(INVALID_WALLET_IN_REQUEST)
 
         # Check if the balance information is already cached
-        cache_key = f"check_wallet_balance:{wallet_address}"
-        cached_data = get_cached_data(cache_key, wallet_address, function_name)
+        cache_key = f"check_wallet_balance:{account}"
+        cached_data = get_cached_data(cache_key, account, function_name)
         if cached_data:
             # Return cached data if available
             return JsonResponse(cached_data)
@@ -289,19 +292,19 @@ class Accounts(View):
             # Initialize the XRPL client to query the ledger
             client = get_xrpl_client()
             if not client:
-                raise XRPLException(ERROR_INITIALIZING_CLIENT)
+                raise Exception(ERROR_INITIALIZING_CLIENT)
 
             # Fetch account details from the XRPL
-            account_details = get_account_details(client, wallet_address)
+            account_details = get_account_details(client, account)
             if not account_details:
                 # Raise an exception if fetching account details fails
-                raise XRPLException(ERROR_GETTING_ACCOUNT_INFO)
+                raise Exception(ERROR_GETTING_ACCOUNT_INFO)
 
             # Convert the balance from drops to XRP
             balance_in_xrp = convert_drops_to_xrp(account_details['result']["account_data"]["Balance"])
 
             # Log the successful balance check
-            logger.info(f"Balance for address {wallet_address} retrieved successfully: {balance_in_xrp} XRP")
+            logger.info(f"Balance for address {account} retrieved successfully: {balance_in_xrp} XRP")
 
             # Cache the balance for future queries to reduce network load
             cache.set(cache_key, account_details, CACHE_TIMEOUT)
@@ -309,7 +312,7 @@ class Accounts(View):
             # Return a JSON response with the wallet information
             return create_wallet_balance_response(balance_in_xrp)
 
-        except (xrpl.XRPLException, Exception) as e:
+        except Exception as e:
             # Catch any exceptions that occur during the process
             # Handle error and return a JSON response with an error message
             return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
@@ -328,7 +331,7 @@ class Accounts(View):
         try:
             # Validate the provided wallet address
             if not account or not validate_xrp_wallet(account):
-                raise XRPLException(INVALID_WALLET_IN_REQUEST)
+                raise Exception(INVALID_WALLET_IN_REQUEST)
 
             # Initialize the XRPL client
             client = get_xrpl_client()
@@ -347,7 +350,7 @@ class Accounts(View):
 
             return account_config_settings(response)
 
-        except (xrpl.XRPLException, Exception) as e:
+        except Exception as e:
             # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
             return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
                                 function_name=function_name)
@@ -355,26 +358,9 @@ class Accounts(View):
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
-
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def config_account(self):
-        """
-        Handles an AccountSet transaction on the XRPL (XRP Ledger).
-
-        Steps:
-        1. Extract and validate request parameters, including sender's seed and account settings.
-        2. Parse boolean parameters for account settings (require destination tag, disable master key, enable regular key).
-        3. Generate the sender's wallet address from the provided seed.
-        4. Construct transaction flags based on the requested settings.
-        5. Prepare an AccountSet transaction using the provided account settings.
-        6. Initialize the XRPL client and verify a successful connection.
-        7. Submit the transaction and wait for it to be processed.
-        8. Log and handle the transaction response.
-        9. Return a JSON response containing the transaction details.
-
-        If an error occurs at any step, an appropriate error response is returned.
-        """
         start_time = time.time()  # Capture the start time
         function_name = 'account_set'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
@@ -405,22 +391,42 @@ class Accounts(View):
             # Initialize the XRPL client
             client = get_xrpl_client()
             if not client:
-                raise XRPLException(ERROR_INITIALIZING_CLIENT)
+                raise Exception(ERROR_INITIALIZING_CLIENT)
 
             # Submit and wait for the transaction to be included in a ledger
             response = submit_and_wait(account_set_tx, client, sender_wallet)
-            is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
-            if not is_valid:
-                raise Exception(response)
+            logger.info(f"response.is_successful(): {response.is_successful()}")
+            print(f"response.is_successful(): {response.is_successful()}")
+
+            if not response or not response.is_successful():
+                process_transaction_error(response)
+
+            # Create a Transaction request to see transaction
+            tx_response = client.request(prepare_tx(response.result["hash"]))
+
+            # Check validated field on the transaction
+            logger.info(f"Validated: {tx_response.result["validated"]}")
+            print(f"Validated: {tx_response.result["validated"]}")
+            if not tx_response.result["validated"]:
+                process_transaction_error(response)
+
+            response_result = response.result
+            logger.info(f"TransactionResult: {response_result["meta"]["TransactionResult"]}")
+            logger.info(f"TransactionHash: {response_result["hash"]}")
+            print("TransactionResult:", response_result["meta"]["TransactionResult"])
+            print("TransactionHash: ", response_result["hash"])
+
+            if response_result["meta"]["TransactionResult"] != 'tesSUCCESS':
+                process_transaction_error(response)
 
             # Log the raw response for detailed debugging
             logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(response, indent=4, sort_keys=True))
+            logger.debug(json.dumps(response_result, indent=4, sort_keys=True))
 
             # Handle the transaction response
-            return account_set_tx_response(response, sender_address)
+            return account_set_tx_response(response_result, sender_address)
 
-        except (xrpl.XRPLException, Exception) as e:
+        except Exception as e:
             # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
             return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
         finally:
@@ -429,20 +435,15 @@ class Accounts(View):
 
     @api_view(['DELETE'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def black_hole_xrp(self, wallet_address):
-        """
-        Function to perform the 'black hole' operation on an XRP account. This involves:
-        - Setting the account's regular key to a black hole address.
-        - Disabling the master key, making the account inaccessible.
-        """
+    def black_hole_xrp(self, account):
         start_time = time.time()  # Capture the start time
         function_name = 'black_hole_xrp'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering function
 
         try:
             # Validate the provided wallet address.
-            if not wallet_address or not validate_xrp_wallet(wallet_address):
-                raise XRPLException(INVALID_WALLET_IN_REQUEST)
+            if not account or not validate_xrp_wallet(account):
+                raise Exception(INVALID_WALLET_IN_REQUEST)
 
             # Extract the sender's seed from the request.
             sender_seed, _, _ = extract_request_data(self)
@@ -454,64 +455,79 @@ class Accounts(View):
             if not client:
                 raise ConnectionError(ERROR_INITIALIZING_CLIENT)
 
+            if not does_account_exist(account, client):
+                raise XRPLRequestFailureException('Account does not exist on the ledger.')
+
             # Prepare and send request to get the account info from the ledger.
-            account_info_request = prepare_account_data(wallet_address, True)
-            response = client.request(account_info_request)
+            account_info_request = prepare_account_data(account, True)
+            account_info_response = client.request(account_info_request)
 
-            # Validate the response from the account info request.
-            is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
-            if not is_valid:
-                raise Exception(response)
-
-            # Log the raw response for debugging.
-            logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(response, indent=4, sort_keys=True))
+            logger.debug(f"account_info_response:\n{json.dumps(account_info_response.result, indent=4, sort_keys=True)}")
+            logger.info(f"account_info_response is_successful(): {account_info_response.is_successful()} Validated: {account_info_response.result["validated"]}")
 
             # Get black hole address from the environment configuration.s
             xrpl_config = apps.get_app_config('xrpl_api')
 
             # Prepare a transaction to set the account's regular key to the black hole address.
-            tx_regular_key = prepare_regular_key(wallet_address, xrpl_config.BLACK_HOLE_ADDRESS)
+            tx_regular_key = prepare_regular_key(account, xrpl_config.BLACK_HOLE_ADDRESS)
 
             # Get wallet from the sender's seed and submit the SetRegularKey transaction.
             wallet = Wallet.from_seed(sender_seed)
             submit_tx_regular = submit_and_wait(transaction=tx_regular_key, client=client, wallet=wallet)
-            submit_tx_regular = submit_tx_regular.result
 
-            # Log the result of the SetRegularKey transaction.
-            logger.info("Submitted a SetRegularKey tx.")
-            logger.info(f"Result: {submit_tx_regular['meta']['TransactionResult']}")
-            logger.info(f"Tx content: {submit_tx_regular}")
+            logger.debug(f"submit_tx_regular:\n{json.dumps(submit_tx_regular.result, indent=4, sort_keys=True)}")
+            logger.info(f"submit_tx_regular is_successful(): {submit_tx_regular.is_successful()} Validated: {submit_tx_regular.result["validated"]}")
+            logger.info(f"TransactionResult: {submit_tx_regular.result["meta"]["TransactionResult"]} submit_tx_regular: {submit_tx_regular.result["hash"]}")
+
+            if not submit_tx_regular or not submit_tx_regular.is_successful() or submit_tx_regular.result["meta"]["TransactionResult"] != 'tesSUCCESS':
+                process_transaction_error(submit_tx_regular)
+
+            tx_response = client.request(prepare_tx(submit_tx_regular.result["hash"]))
+
+            logger.debug(f"tx_response:\n{json.dumps(tx_response.result, indent=4, sort_keys=True)}")
+            logger.info(f"tx_response is_successful(): {tx_response.is_successful()} Validated: {tx_response.result["validated"]}")
+            logger.info(f"TransactionResult: {tx_response.result["meta"]["TransactionResult"]} tx_response: {tx_response.result["hash"]}")
+
+            if not tx_response.result["validated"]:
+                process_transaction_error(tx_response)
 
             # Prepare a transaction to disable the master key on the account.
             tx_disable_master_key = AccountSet(
-                account=wallet_address,
+                account=account,
                 set_flag=AccountSetAsfFlag.ASF_DISABLE_MASTER
             )
-
-            # Submit the transaction to disable the master key.
             submit_tx_disable = submit_and_wait(transaction=tx_disable_master_key, client=client, wallet=wallet)
-            submit_tx_disable = submit_tx_disable.result
 
-            # Log the result of the DisableMasterKey transaction.
-            logger.info("Submitted a DisableMasterKey tx.")
-            logger.info(f"Result: {submit_tx_disable['meta']['TransactionResult']}")
-            logger.info(f"Tx content: {submit_tx_disable}")
+            logger.debug(f"submit_tx_disable:\n{json.dumps(submit_tx_disable.result, indent=4, sort_keys=True)}")
+            logger.info(f"submit_tx_disable is_successful(): {submit_tx_disable.is_successful()} Validated: {submit_tx_disable.result["validated"]}")
+            logger.info(f"TransactionResult: {submit_tx_disable.result["meta"]["TransactionResult"]} submit_tx_disable: {submit_tx_disable.result["hash"]}")
+
+            if not submit_tx_disable or not submit_tx_disable.is_successful() or submit_tx_disable.result["meta"]["TransactionResult"] != 'tesSUCCESS':
+                process_transaction_error(submit_tx_disable)
+
+            tx_response = client.request(prepare_tx(submit_tx_disable.result["hash"]))
+
+            logger.debug(f"tx_response\n{json.dumps(tx_response.result, indent=4, sort_keys=True)}")
+            logger.info(f"tx_response is_successful(): {tx_response.is_successful()} Validated: {tx_response.result["validated"]}")
+            logger.info(f"TransactionResult: {tx_response.result["meta"]["TransactionResult"]} tx_response: {tx_response.result["hash"]}")
+
+            if not tx_response.result["validated"] or tx_response.result["meta"]["TransactionResult"] != 'tesSUCCESS':
+                process_transaction_error(tx_response)
 
             # Prepare a request to check the account's flags after the transaction.
-            get_acc_flag = prepare_account_data(wallet_address, True)
+            get_acc_flag = prepare_account_data(account, True)
             response = client.request(get_acc_flag)
 
             # Verify if the master key has been successfully disabled.
             if response.result['account_data']['Flags'] & asfDisableMaster:
-                logger.info(f"Account {wallet_address}'s master key has been disabled, account is black holed.")
+                logger.info(f"Account {account}'s master key has been disabled, account is black holed.")
             else:
-                logger.info(f"Account {wallet_address}'s master key is still enabled, account is NOT black holed")
+                logger.info(f"Account {account}'s master key is still enabled, account is NOT black holed")
 
             # Return the response indicating the account status after the operation.
             return delete_account_response(response)
 
-        except (xrpl.XRPLException, Exception) as e:
+        except Exception as e:
             # Handle exceptions (e.g., XRPL errors, connection issues) and return an error response.
             return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
         finally:

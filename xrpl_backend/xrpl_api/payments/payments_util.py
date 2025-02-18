@@ -10,8 +10,8 @@ from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.models import Payment, Ledger, ServerInfo, AccountObjects
 
 from ..accounts.account_utils import update_sender_account_balances, update_receiver_account_balances
+from ..errors.error_handling import handle_error
 from ..models import XrplPaymentData
-from ..utils import handle_error
 
 logger = logging.getLogger('xrpl_app')
 

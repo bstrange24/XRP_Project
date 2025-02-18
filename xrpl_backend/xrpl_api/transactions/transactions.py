@@ -15,7 +15,8 @@ from ..accounts.account_utils import prepare_account_tx, prepare_account_tx_with
 from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, XRPL_RESPONSE, ERROR_FETCHING_TRANSACTION_STATUS, \
     INVALID_WALLET_IN_REQUEST, ERROR_FETCHING_TRANSACTION_HISTORY, INVALID_TRANSACTION_HASH
-from ..utils import get_xrpl_client, handle_error, total_execution_time_in_millis, \
+from ..errors.error_handling import handle_error
+from ..utils import get_xrpl_client, total_execution_time_in_millis, \
     validate_xrpl_response, validate_xrp_wallet, is_valid_transaction_hash
 
 logger = logging.getLogger('xrpl_app')
@@ -23,9 +24,11 @@ logger = logging.getLogger('xrpl_app')
 
 class Transactions(View):
 
+    #### Need new error handling
+    ####
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_transaction_history(self, wallet_address, previous_transaction_id):
+    def get_transaction_history(self, account, previous_transaction_id):
         """
         Retrieves the transaction history for a given XRP wallet address and searches for a specific transaction.
 
@@ -48,7 +51,7 @@ class Transactions(View):
 
         try:
             # Validate the provided wallet address
-            if not wallet_address or not validate_xrp_wallet(wallet_address):
+            if not account or not validate_xrp_wallet(account):
                 raise XRPLException(INVALID_WALLET_IN_REQUEST)
 
             # Validate the format of the transaction hash
@@ -61,7 +64,7 @@ class Transactions(View):
                 raise XRPLException(ERROR_INITIALIZING_CLIENT)
 
             # Prepare an AccountTx request to fetch transactions for the given account
-            account_tx_request = prepare_account_tx(wallet_address)
+            account_tx_request = prepare_account_tx(account)
 
             # Send the request to XRPL to get transaction history
             response = client.request(account_tx_request)
@@ -97,9 +100,11 @@ class Transactions(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+    #### Need new error handling
+    ####
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_transaction_history_with_pagination(request, wallet_address):
+    def get_transaction_history_with_pagination(request, account):
         """
         Retrieves the transaction history for a given XRP wallet address with pagination support.
 
@@ -121,7 +126,7 @@ class Transactions(View):
 
         try:
             # Validate the provided wallet address
-            if not wallet_address or not validate_xrp_wallet(wallet_address):
+            if not account or not validate_xrp_wallet(account):
                 raise XRPLException(INVALID_WALLET_IN_REQUEST)
 
             # Initialize the XRPL client for querying transactions
@@ -134,7 +139,7 @@ class Transactions(View):
 
             # Loop to fetch all transactions for the account, using pagination through 'marker'
             while True:
-                account_tx_request = prepare_account_tx_with_pagination(wallet_address, marker)
+                account_tx_request = prepare_account_tx_with_pagination(account, marker)
 
                 # Send the request to XRPL to get transaction history
                 response = client.request(account_tx_request)
@@ -169,7 +174,7 @@ class Transactions(View):
             paginated_transactions = paginator.get_page(page)
 
             # Log successful transaction history fetch
-            logger.info(f"Transaction history fetched for address: {wallet_address}")
+            logger.info(f"Transaction history fetched for address: {account}")
             return account_tx_with_pagination_response(paginated_transactions, paginator.count, paginator.num_pages)
 
         except Exception as e:
@@ -179,6 +184,10 @@ class Transactions(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
+
+#### Need new error handling
+####
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def check_transaction_status(request, tx_hash):

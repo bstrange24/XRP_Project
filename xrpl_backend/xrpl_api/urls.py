@@ -23,11 +23,11 @@ urlpatterns = [
 
     # Endpoint to fetch wallet information for a given wallet address.
     # Example: http://127.0.0.1:8000/xrpl/wallet-info/rMgaRbbZUBeoxwZevhv1mezuvA97eR4JHV/
-    path('account-info/<str:wallet_address>/', Accounts.get_account_info, name='get_account_info'),
+    path('account-info/<str:account>/', Accounts.get_account_info, name='get_account_info'),
 
     # Endpoint to check the balance of a given wallet address.
     # Example: http://127.0.0.1:8000/xrpl/check-wallet-balance/rQGijrV8XYRseZAfjFvC9cDxxr58h9SvMY/
-    path("check-account-balance/<str:wallet_address>/", Accounts.check_account_balance, name="check_account_balance"),
+    path("check-account-balance/<str:account>/", Accounts.check_account_balance, name="check_account_balance"),
 
     # Endpoint to update account settings on the XRPL.
     # Example: http://127.0.0.1:8000/xrpl/config-account/?sender_seed=...&require_destination_tag=false
@@ -39,7 +39,7 @@ urlpatterns = [
 
     # Endpoint to blackhole all XRP in a wallet.
     # Example: http://127.0.0.1:8000/xrpl/black_hole_xrp/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/
-    path('black_hole_xrp/<str:wallet_address>/', Accounts.black_hole_xrp, name='delete_account'),
+    path('black_hole_xrp/<str:account>/', Accounts.black_hole_xrp, name='delete_account'),
 
     # Endpoint to get active offers on an account.
     # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
@@ -51,12 +51,12 @@ urlpatterns = [
 
     # Endpoint to retrieve the transaction history for a wallet address.
     # Example: http://127.0.0.1:8000/xrpl/transaction-history/rQGijrV8XYRseZAfjFvC9cDxxr58h9SvMY/...
-    path("transaction-history/<str:wallet_address>/<str:previous_transaction_id>/", Transactions.get_transaction_history,
+    path("transaction-history/<str:account>/<str:previous_transaction_id>/", Transactions.get_transaction_history,
          name="get_transaction_history"),
 
     # Endpoint to fetch transaction history with pagination.
     # Example: http://127.0.0.1:8000/xrpl/transaction-history-with-pag/rQGijrV8XYRseZAfjFvC9cDxxr58h9SvMY/
-    path("transaction-history-with-pag/<str:wallet_address>/", Transactions.get_transaction_history_with_pagination,
+    path("transaction-history-with-pag/<str:account>/", Transactions.get_transaction_history_with_pagination,
          name="get_transaction_history_with_pagination"),
 
     # Endpoint to check the status of a specific transaction.
@@ -70,10 +70,6 @@ urlpatterns = [
     # Endpoint to send payment and delete the sender's wallet account.
     # Example: http://127.0.0.1:8000/xrpl/send-payment-delete-wallet/?sender_seed=...&receiver=...&amount=10
     path('send-payment-delete-account/', Payments.as_view(), name='send_payment_and_delete_account'),
-
-    # Endpoint to retrieve trust lines for a wallet address.
-    # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
-    path('get-trust-line/', TrustLine.get_trust_line, name='get_trust_line'),
 
     # Endpoint to retrieve detailed information about a specific ledger.
     # Example: http://127.0.0.1:8000/xrpl/get-ledger-info/?ledger_index=validated
@@ -97,4 +93,12 @@ urlpatterns = [
     # POST http://localhost:8000/set-trust-line/
     # Body: {"sender_seed": "...", "account": "...", "currency": "USD", "limit": 1000}
     path('set-trust-line/', TrustLine.set_trust_line, name='set_trust_line'),
+
+    # Endpoint to retrieve trust lines for a wallet address.
+    # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    path('get-trust-line/', TrustLine.get_trust_line, name='get_trust_line'),
+
+    # Endpoint to remove a trust lines for a wallet address.
+    # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    path('remove-trust-line/', TrustLine.remove_trust_line, name='remove_trust_line'),
 ]

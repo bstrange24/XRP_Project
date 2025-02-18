@@ -8,19 +8,18 @@ from django.views import View
 from rest_framework.decorators import api_view
 from tenacity import wait_exponential, stop_after_attempt, retry
 from xrpl import XRPLException
-from xrpl.models import AccountLines, Fee
+from xrpl.models import AccountLines, Fee, IssuedCurrencyAmount, TrustSet
 from xrpl.transaction import submit
 from xrpl.wallet import Wallet
 
 from .trust_line_util import trust_line_response, create_trust_set_transaction, create_trust_set_response, \
     wait_for_validation
 from ..accounts.account_utils import create_account_lines_response, prepare_account_lines, \
-    prepare_account_lines_for_offer
+    prepare_account_lines_for_offer, prepare_account_data
 from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
-    ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, XRPL_RESPONSE, ERROR_FETCHING_TRANSACTION_STATUS, \
-    MISSING_REQUEST_PARAMETERS
-from ..utils import get_request_param, get_xrpl_client, handle_error, total_execution_time_in_millis, \
-    validate_xrpl_response
+    ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, XRPL_RESPONSE, MISSING_REQUEST_PARAMETERS
+from ..errors.error_handling import handle_engine_result, handle_error
+from ..utils import get_request_param, get_xrpl_client, total_execution_time_in_millis, validate_xrpl_response
 
 logger = logging.getLogger('xrpl_app')
 
@@ -70,8 +69,8 @@ class TrustLine(View):
         try:
             # Extract wallet address from request parameters
             # The wallet address is required to fetch account lines. If not provided, raise an error.
-            wallet_address = get_request_param(self, 'wallet_address')
-            if not wallet_address:
+            account = get_request_param(self, 'account')
+            if not account:
                 raise ValueError("Account is required.")
 
             # Initialize the XRPL client to interact with the XRPL network.
@@ -86,15 +85,20 @@ class TrustLine(View):
             # Loop to fetch all account lines for the account, using pagination via 'marker'
             while True:
                 # Prepare the account lines request with the current marker (for pagination)
-                account_lines_request = prepare_account_lines(wallet_address, marker)
+                account_lines_request = prepare_account_lines(account, marker)
 
                 # Send the request to XRPL to fetch account lines
-                response = client.request(account_lines_request)
+                response1 = client.request(account_lines_request)
 
                 # Validate the response to ensure it contains the expected fields
-                is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
+                is_valid, response = validate_xrpl_response(response1, required_keys=["validated"])
                 if not is_valid:
                     raise Exception(response)
+
+                # Handle the engine result
+                engine_result = response1.result.get("engine_result")
+                engine_result_message = response1.result.get("engine_result_message", "No additional details")
+                handle_engine_result(engine_result, engine_result_message)
 
                 # Log the raw response for debugging purposes
                 logger.debug(XRPL_RESPONSE)
@@ -126,7 +130,7 @@ class TrustLine(View):
             paginated_transactions = paginator.get_page(page)
 
             # Log that the account lines have been successfully fetched
-            logger.info(f"Account Lines fetched for address: {wallet_address}")
+            logger.info(f"Account Lines fetched for address: {account}")
 
             # Return the paginated response to the client
             return create_account_lines_response(paginated_transactions, paginator)
@@ -140,6 +144,8 @@ class TrustLine(View):
             # Log the total execution time of the function for monitoring purposes
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+    #### Need new error handling
+    ####
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def get_trust_line(self):
@@ -174,14 +180,14 @@ class TrustLine(View):
         try:
             # Extract wallet address from request parameters
             # The wallet address is essential to fetch the trust lines for the specified account.
-            wallet_address = get_request_param(self, 'wallet_address')
-            if not wallet_address:
+            account = get_request_param(self, 'account')
+            if not account:
                 raise ValueError("Account is required.")
 
             # Prepare an AccountLines request to retrieve trust lines for the account.
             # The request will be sent to the XRPL network to fetch the trust lines for the specified wallet address.
-            account_lines_request = prepare_account_lines_for_offer(wallet_address)
-            # account_lines_request = AccountLines(account=wallet_address)
+            account_lines_request = prepare_account_lines_for_offer(account)
+            # account_lines_request = AccountLines(account=account)
 
             # Initialize the XRPL client to communicate with the XRP ledger and fetch the required information.
             # If the client can't be initialized, raise an exception.
@@ -191,10 +197,15 @@ class TrustLine(View):
 
             # Send the AccountLines request to the XRPL network.
             # The response contains the trust lines for the wallet address.
-            response = client.request(account_lines_request)
-            is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
+            response1 = client.request(account_lines_request)
+            is_valid, response = validate_xrpl_response(response1, required_keys=["validated"])
             if not is_valid:
                 raise Exception(response)
+
+            # Handle the engine result
+            engine_result = response1.result.get("engine_result")
+            engine_result_message = response1.result.get("engine_result_message", "No additional details")
+            handle_engine_result(engine_result, engine_result_message)
 
             # Log the raw response for debugging purposes.
             # This helps in analyzing the response content and troubleshooting issues.
@@ -204,7 +215,7 @@ class TrustLine(View):
             # Extract trust lines from the response.
             # If no trust lines are found, an empty list is returned.
             trust_lines = response.get('lines', [])
-            logger.info(f"Successfully fetched trust lines for account {wallet_address}. Trust lines: {trust_lines}")
+            logger.info(f"Successfully fetched trust lines for account {account}. Trust lines: {trust_lines}")
 
             # Return the trust lines in a structured response.
             return trust_line_response(response)
@@ -219,7 +230,8 @@ class TrustLine(View):
             # Log the total execution time of the function to monitor performance.
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+    #### Need new error handling
+    ####
     @api_view(['POST'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def set_trust_line(self):
@@ -232,17 +244,17 @@ class TrustLine(View):
             # Extract the parameters from the request data.
             # These parameters are necessary to create and submit a TrustSet transaction.
             sender_seed = get_request_param(self, 'sender_seed')
-            wallet_address = get_request_param(self, 'wallet_address')
+            account = get_request_param(self, 'account')
             currency = get_request_param(self, 'currency')
             limit = get_request_param(self, 'limit')
 
             # If any of the required parameters are missing, raise an error.
-            if not sender_seed or not wallet_address or not currency or not limit:
+            if not sender_seed or not account or not currency or not limit:
                 raise ValueError(MISSING_REQUEST_PARAMETERS)
 
             # Log the received parameters for debugging and verification.
             logger.info(
-                f"Received parameters - sender_seed: {sender_seed}, wallet_address: {wallet_address}, currency: {currency}, limit: {limit}")
+                f"Received parameters - sender_seed: {sender_seed}, wallet_address: {account}, currency: {currency}, limit: {limit}")
 
             # If the currency is XRP, convert the limit into drops (the smallest unit of XRP).
             limit_drops = xrpl.utils.xrp_to_drops(limit) if currency == "XRP" else limit
@@ -269,11 +281,12 @@ class TrustLine(View):
 
             # Fetch the current network fee to include in the transaction.
             # The network fee is used to pay for processing the transaction.
-            response = client.request(Fee())
-            is_valid, response = validate_xrpl_response(response, required_keys=["drops"])
+            response1 = client.request(Fee())
+            is_valid, response = validate_xrpl_response(response1, required_keys=["drops"])
             if not is_valid:
                 raise Exception(response)
 
+            logger.info(f"Trust lines response1: {response1}")
             logger.info(f"Trust lines response: {response}")
 
             # Extract the minimum fee from the response.
@@ -281,7 +294,7 @@ class TrustLine(View):
             logger.info(f"Fetched network fee: {fee}")
 
             # Create a TrustSet transaction with the extracted parameters, including the fee and sequence number.
-            trust_set_tx = create_trust_set_transaction(currency, limit_drops, wallet_address,
+            trust_set_tx = create_trust_set_transaction(currency, limit_drops, account,
                                                         sender_wallet.classic_address, sequence_number, fee)
             logger.info(f"Created TrustSet transaction: {trust_set_tx}")
 
@@ -290,29 +303,130 @@ class TrustLine(View):
             logger.info(f"Signed transaction: {signed_tx}")
 
             # Submit the signed transaction to the XRPL network.
-            response = submit(signed_tx, client)
-            is_valid, response = validate_xrpl_response(response, required_keys=["tx_json"])
+            response1 = submit(signed_tx, client)
+            is_valid, response = validate_xrpl_response(response1, required_keys=["tx_json"])
             if not is_valid:
                 raise Exception(response)
+
+            # is_successful, message = check_engine_result(response1, "meta")
+            # if not is_successful:
+            #     raise Exception(message)
 
             logger.info(f"Trust lines response: {response}")
 
             tx_hash = response['tx_json']['hash']
             validated_tx_response = wait_for_validation(client, tx_hash)
 
+            # is_successful, message = check_engine_result(response1, "meta")
+            # if not is_successful:
+            #     raise Exception(message)
+
             if not validated_tx_response or not validated_tx_response.result.get('validated'):
                 raise Exception("Transaction not validated in time")
 
             # Log the success and return the response to indicate that the trust line was set successfully.
             logger.info(f"Transaction validated in ledger: {validated_tx_response.result['ledger_index']}")
-            logger.info(f"Trust line set successfully for account {wallet_address}")
-            return create_trust_set_response(response, wallet_address, currency, limit)
+            logger.info(f"Trust line set successfully for account {account}")
+            return create_trust_set_response(response, account, currency, limit)
 
         except Exception as e:
             # Handle any exceptions by logging the error and returning a failure response.
             return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
                                 function_name=function_name)
 
+        finally:
+            # Log the total execution time for performance monitoring purposes.
+            logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
+    #### Need new error handling
+    ####
+    @api_view(['POST'])
+    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
+    def remove_trust_line(self):
+        # Capture the start time to calculate the total execution time of the function
+        start_time = time.time()
+        function_name = 'remove_trust_line'
+        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+
+        try:
+            # Extract the parameters from the request data.
+            # These parameters are necessary to create and submit a TrustSet transaction.
+            sender_seed = get_request_param(self, 'sender_seed')
+            account = get_request_param(self, 'account')
+            currency_code = get_request_param(self, 'currency_code')
+            issuer = get_request_param(self, 'issuer')
+
+            # If any of the required parameters are missing, raise an error.
+            if not sender_seed or not account or not currency_code or not issuer:
+                raise ValueError(MISSING_REQUEST_PARAMETERS)
+
+            # Log the received parameters for debugging and verification.
+            logger.info(
+                f"Received parameters - sender_seed: {sender_seed}, wallet_address: {account}, currency: {currency_code}, issuer: {issuer}")
+
+            # Initialize the XRPL client to interact with the XRP ledger.
+            # If the client cannot be initialized, raise an exception.
+            client = get_xrpl_client()
+            if not client:
+                raise ConnectionError(ERROR_INITIALIZING_CLIENT)
+
+            # Load the wallet using the secret key
+            sender_wallet = Wallet.from_secret(sender_seed)
+            # Fetch account info to get the current sequence number
+            account_info = client.request(prepare_account_data(account, False))
+            is_valid, response = validate_xrpl_response(account_info, required_keys=["account_data"])
+            if not is_valid:
+                raise Exception(response)
+
+            sequence = account_info.result["account_data"]["Sequence"]
+
+            # Fetch the current fee from the XRPL network
+            fee_info = client.request(Fee())
+            is_valid, response = validate_xrpl_response(fee_info, required_keys=["drops"])
+            if not is_valid:
+                raise Exception(response)
+
+            fee = fee_info.result["drops"]["open_ledger_fee"]
+
+            # Create a TrustSet transaction to remove the trust line by setting the limit to 0
+            trust_set_tx = TrustSet(
+                account=account,
+                limit_amount=IssuedCurrencyAmount(
+                    currency=currency_code,
+                    issuer=issuer,
+                    value=int(0)
+                ),
+                sequence=sequence,
+                fee=fee,
+            )
+
+            # Sign the transaction with the sender's wallet.
+            signed_tx = xrpl.transaction.sign(trust_set_tx, sender_wallet)
+            logger.info(f"Signed transaction: {signed_tx}")
+
+            # Submit the signed transaction to the XRPL network.
+            response = submit(signed_tx, client)
+
+            # Check the transaction response
+            if response.is_successful():
+                logger.info(f"Trust line for {currency_code} removed successfully.")
+            else:
+                logger.error(f"Error: {response.result['error']}, Message: {response.result.get('error_message', 'No additional details')}")
+
+            # Handle the engine result
+            engine_result = response.result.get("engine_result")
+            engine_result_message = response.result.get("engine_result_message", "No additional details")
+            handle_engine_result(engine_result, engine_result_message)
+
+            is_valid, response = validate_xrpl_response(response, required_keys=["tx_json"])
+            if not is_valid:
+                raise Exception(response)
+
+            return create_trust_set_response(response, account, currency_code, 'NOT THIS')
+
+        except Exception as e:
+            # Handle any exceptions by logging the error and returning a failure response.
+            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500, function_name=function_name)
         finally:
             # Log the total execution time for performance monitoring purposes.
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))

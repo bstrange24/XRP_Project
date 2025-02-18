@@ -5,6 +5,8 @@ https://xrpl-py.readthedocs.io/en/stable/source/snippets.html
 
 https://xrpl.org/docs/references/protocol/transactions/types/accountdelete
 
+
+
 Ripple¹	Testnet	https://s.altnet.rippletest.net:51234/	wss://s.altnet.rippletest.net:51233/	Testnet public server
 XRPL Labs	Testnet	https://testnet.xrpl-labs.com/	wss://testnet.xrpl-labs.com/	Testnet public server with CORS support
 Ripple¹	Testnet (Clio)	https://clio.altnet.rippletest.net:51234/	wss://clio.altnet.rippletest.net:51233/	Testnet public server with Clio
@@ -36,6 +38,7 @@ Perform the following to setup this project:
    8) node
    9) npm
    10) npm install -g @angular/cli
+
 
 
 # Endpoint for creating a new XRPL account.
@@ -114,3 +117,76 @@ Perform the following to setup this project:
     # POST http://localhost:8000/set-trust-line/
     # Body: {"sender_seed": "...", "account": "...", "currency": "USD", "limit": 1000}
     path('set-trust-line/', set_trust_line, name='set_trust_line'),
+
+
+    the engine_result field in a transaction response:
+    tesSUCCESS: The transaction was successfully applied.
+    terRETRY: The transaction should be retried at a later time.
+    terQUEUED: The transaction has been queued for processing.
+    tecCLAIM: The fee was claimed but the transaction did not succeed.
+    tecDIR_FULL: The directory node is full.
+    tecFAILED_PROCESSING: The transaction failed to process.
+    tecINSUF_RESERVE_LINE: Insufficient reserve to add the trust line.
+    tecINSUF_RESERVE_OFFER: Insufficient reserve to create the offer.
+    tecNO_DST: Destination account does not exist.
+    tecNO_DST_INSUF_XRP: Destination account does not exist. Too little XRP sent to create it.
+    tecNO_LINE_INSUF_RESERVE: No such line. Too little reserve to create it.
+    tecNO_LINE_REDUNDANT: Redundant trust line.
+    tecPATH_DRY: Path could not send partial amount.
+    tecPATH_PARTIAL: Path could not send full amount.
+    tecUNFUNDED: One of the participants in the transaction does not have enough funds.
+    tecUNFUNDED_ADD: Insufficient balance to add to escrow.
+    tecUNFUNDED_OFFER: Offer is unfunded.
+    tecOVERSIZE: Object too large.
+    tecCRYPTOCONDITION_ERROR: The crypto-condition is incorrect.
+    tecINTERNAL: Internal error.
+    temBAD_AMOUNT: The amount is invalid.
+    temBAD_AUTH_MASTER: Authorization is not from the master key.
+    temBAD_CURRENCY: The currency is invalid.
+    temBAD_EXPIRATION: The expiration is invalid.
+    temBAD_FEE: The fee is invalid.
+    temBAD_ISSUER: The issuer is invalid.
+    temBAD_LIMIT: The limit is invalid.
+    temBAD_OFFER: The offer is invalid.
+    temBAD_PATH: The path is invalid.
+    temBAD_PATH_LOOP: The path loop is invalid.
+    temBAD_REGKEY: The regular key is invalid.
+    temBAD_SEND_XRP_LIMIT: The send XRP limit is invalid.
+    temBAD_SEND_XRP_MAX: The send XRP max is invalid.
+    temBAD_SEND_XRP_NO_DIRECT: The send XRP direct is invalid.
+    temBAD_SEND_XRP_PARTIAL: The send XRP partial is invalid.
+    temBAD_SEND_XRP_PATHS: The send XRP paths are invalid.
+    temBAD_TICK_SIZE: The tick size is invalid.
+    temBAD_TRANSACTION: The transaction is invalid.
+    temBAD_TRANSFER_RATE: The transfer rate is invalid.
+    temBAD_WALLET: The wallet is invalid.
+    temDISABLED: The feature is disabled.
+    temDST_NEEDED: The destination is needed.
+    temINVALID: The transaction is invalid.
+    temMALFORMED: The transaction is malformed.
+    temREDUNDANT: The transaction is redundant.
+    temSEQ_AND_TICK: The sequence and tick are invalid.
+    temSEQ_ARITH: The sequence arithmetic is invalid.
+    temSEQ_DISCRETE: The sequence is discrete.
+    temSEQ_INCR: The sequence is incremental.
+    temSEQ_PREV: The sequence is previous.
+    temSEQ_SUB: The sequence is sub.
+    temSEQ_UNCHANGED: The sequence is unchanged.
+    temSIGNER: The signer is invalid.
+    temUNCERTAIN: The transaction is uncertain.
+    temUNKNOWN: The transaction is unknown.
+    temUNSUPPORTED: The transaction is unsupported.
+    temWRONG: The transaction is wrong.
+    temXRP: The XRP amount is invalid.
+    temXRP_PATHS: The XRP paths are invalid.
+    temXRP_TO_NON_XRP: The XRP to non-XRP is invalid.
+    temXRP_TO_XRP: The XRP to XRP is invalid.
+    temXRP_TO_XRP_LIMIT: The XRP to XRP limit is invalid.
+    temXRP_TO_XRP_MAX: The XRP to XRP max is invalid.
+    temXRP_TO_XRP_NO_DIRECT: The XRP to XRP direct is invalid.
+    temXRP_TO_XRP_PARTIAL: The XRP to XRP partial is invalid.
+    temXRP_TO_XRP_PATHS: The XRP to XRP paths are invalid.
+    temXRP_TO_XRP_TICK_SIZE: The XRP to XRP tick size is invalid.
+    temXRP_TO_XRP_TRANSFER_RATE: The XRP to XRP transfer rate is invalid.
+    temXRP_TO_XRP_WALLET: The XRP to XRP wallet is invalid.
+    temXRP_WALLET: The XRP wallet is invalid.

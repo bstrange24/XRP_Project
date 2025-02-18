@@ -22,9 +22,9 @@ from ..constants import ACCOUNT_IS_REQUIRED, ENTERING_FUNCTION_LOG, LEAVING_FUNC
     ERROR_INITIALIZING_CLIENT, XRPL_RESPONSE
 from ..currency.currency_util import create_issued_currency_the_user_wants, \
     create_amount_the_user_wants_to_spend
+from ..errors.error_handling import handle_error
 from ..offers.account_offers_util import process_offer, create_book_offer, create_offer
-from ..utils import get_request_param, total_execution_time_in_millis, handle_error, validate_xrpl_response, \
-    get_xrpl_client
+from ..utils import get_request_param, total_execution_time_in_millis, validate_xrpl_response, get_xrpl_client
 
 logger = logging.getLogger('xrpl_app')
 
@@ -38,14 +38,16 @@ class AccountOffer(View):
     async def get(self, request, *args, **kwargs):
         return await self.create_offer(request)
 
+    #### Need new error handling
+    ####
     async def create_offer(self, request):
         start_time = time.time()  # Capture the start time
         function_name = 'AccountOffer'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function
 
         try:
-            wallet_address = get_request_param(request, 'wallet_address')
-            if not wallet_address:
+            account = get_request_param(request, 'account')
+            if not account:
                 raise ValueError(ACCOUNT_IS_REQUIRED)  # Raise an error if the wallet address is missing.
 
             currency = get_request_param(request, 'currency')
@@ -65,7 +67,7 @@ class AccountOffer(View):
             xrpl_config = apps.get_app_config('xrpl_api')
 
             async with AsyncWebsocketClient(xrpl_config.XRPL_WEB_SOCKET_NETWORK_URL) as client:
-                we_want = create_issued_currency_the_user_wants(wallet_address, currency, value)
+                we_want = create_issued_currency_the_user_wants(account, currency, value)
                 logger.info(f"We want: {we_want}")
                 we_spend = create_amount_the_user_wants_to_spend()
                 logger.info(f"We spend: {we_spend}")
@@ -75,7 +77,7 @@ class AccountOffer(View):
 
                 logger.info("Requesting orderbook information...")
                 orderbook_info = await client.request(
-                    create_book_offer(wallet_address, we_want, we_spend)
+                    create_book_offer(account, we_want, we_spend)
                 )
                 logger.info(f"Orderbook:{orderbook_info.result}")
 
@@ -121,7 +123,7 @@ class AccountOffer(View):
 
                     logger.info("Requesting second orderbook information...")
                     orderbook2_info = await client.request(
-                        create_book_offer(wallet_address, we_want, we_spend)
+                        create_book_offer(account, we_want, we_spend)
                     )
                     logger.info(f"Orderbook2: {orderbook2_info.result}")
 
@@ -159,7 +161,7 @@ class AccountOffer(View):
                             logger.info(f"Remaining {want_amt - running_total2} {tally_currency} "
                                         "will probably be placed on top of the order book.")
 
-                tx = create_offer(wallet_address, we_want, we_spend)
+                tx = create_offer(account, we_want, we_spend)
                 logger.info(f"create_offer_create: {tx}")
 
                 logger.info(f"before autofill_and_sign...")
@@ -212,12 +214,12 @@ class AccountOffer(View):
 
                 # Check balances
                 logger.info("Getting address balances as of validated ledger...")
-                balances = await client.request(prepare_account_lines_for_offer(wallet_address))
+                balances = await client.request(prepare_account_lines_for_offer(account))
                 logger.info(f"Balance result: {balances.result}")
 
                 # Check Offers
-                logger.info(f"Getting outstanding Offers from {wallet_address} as of validated ledger...")
-                acct_offers = await client.request(prepare_account_offers(wallet_address))
+                logger.info(f"Getting outstanding Offers from {account} as of validated ledger...")
+                acct_offers = await client.request(prepare_account_offers(account))
                 logger.info(f"Account Offers result: {acct_offers.result}")
 
                 response_data = create_account_offers_response(orderbook_info, result, acct_offers)
@@ -263,8 +265,8 @@ class AccountOffer(View):
 
         try:
             # Step 1: Retrieve the wallet address from the query parameters in the request.
-            wallet_address = get_request_param(self, 'wallet_address')
-            if not wallet_address:
+            account = get_request_param(self, 'account')
+            if not account:
                 # If wallet address is missing, raise an error and return failure.
                 raise ValueError(ACCOUNT_IS_REQUIRED)
 
@@ -275,7 +277,7 @@ class AccountOffer(View):
                 raise ConnectionError(ERROR_INITIALIZING_CLIENT)
 
             # Step 3: Prepare the request for fetching account offers using the wallet address.
-            account_offers_request = prepare_account_offers(wallet_address)
+            account_offers_request = prepare_account_offers(account)
             # Send the request to the XRPL client to get the account offers.
             response = client.request(account_offers_request)
 
@@ -294,13 +296,13 @@ class AccountOffer(View):
             # Step 7: Log the number of offers found and return the response with the offer data.
             if offers:
                 # If offers are found, log how many were found.
-                logger.info(f"Found {len(offers)} offers for wallet {wallet_address}.")
+                logger.info(f"Found {len(offers)} offers for wallet {account}.")
             else:
                 # If no offers are found, log this information.
-                logger.info(f"No offers found for wallet {wallet_address}.")
+                logger.info(f"No offers found for wallet {account}.")
 
             # Step 8: Log the successful fetching of offers for the account.
-            logger.info(f"Successfully fetched offers for account {wallet_address}.")
+            logger.info(f"Successfully fetched offers for account {account}.")
 
             # Step 9: Prepare and return the response containing the offers.
             return create_get_account_offers_response(response)

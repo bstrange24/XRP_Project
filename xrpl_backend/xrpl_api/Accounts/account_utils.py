@@ -9,6 +9,7 @@ import logging
 from django.db import transaction
 
 from ..constants import XRPL_RESPONSE
+from ..errors.error_handling import handle_engine_result
 from ..models import XrplAccountData
 from ..utils import get_xrpl_client
 
@@ -149,6 +150,8 @@ def get_account_details(client, wallet_address: str):
         logger.debug(XRPL_RESPONSE)
         logger.debug(json.dumps(response.result, indent=4, sort_keys=True))
 
+        print(response.is_successful())
+
         # Check if the response status is 'success'
         if response and response.status == 'success':
             result = response.result
@@ -157,6 +160,14 @@ def get_account_details(client, wallet_address: str):
             }
         else:
             logger.error(f"Failed to retrieve account details. Response: {response.text}")
+            # Handle the engine result
+            engine_result = response.result.get("engine_result")
+            if engine_result is None:
+                engine_result = 'unknown'
+
+            engine_result_message = response.result.get("engine_result_message",
+                                                        "Transaction response was unsuccessful.")
+            handle_engine_result(engine_result, engine_result_message)
             return None
 
     except Exception as e:
@@ -539,25 +550,11 @@ def prepare_account_tx_with_pagination(sender_address, marker):
 
 
 def prepare_account_set_tx(sender_address, flags):
-    """
-    Prepares an AccountSet transaction for the XRPL.
-
-    Args:
-        sender_address (str): The address of the account sending the transaction.
-        flags (int): A bitmask representing the flags to be set in the transaction.
-
-    Returns:
-        xrpl.models.transactions.AccountSet: An AccountSet transaction object with the specified parameters.
-
-    This function constructs an AccountSet transaction for the XRPL, which is used to modify various settings and properties of an account.
-    It takes two arguments: `sender_address`, which is the address of the account sending the transaction, and `flags`, which is a bitmask
-    representing the flags to be set in the transaction. The function returns an `AccountSet` object configured with these parameters.
-    """
-    # Prepare and return an AccountSet transaction object
     return AccountSet(
         account=sender_address,
         flags=flags
     )
+
 
 
 def prepare_account_lines(wallet_address, marker):

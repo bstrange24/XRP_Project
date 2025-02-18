@@ -6,6 +6,7 @@ from asgiref.sync import sync_to_async
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from xrpl.asyncio.account import get_balance
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.utils import xrp_to_drops
 from xrpl.wallet import Wallet
@@ -16,9 +17,11 @@ from .payments_util import check_pay_channel_entries, create_payment_transaction
 from ..accounts.account_utils import prepare_account_data, check_check_entries, \
     create_account_delete_transaction, account_delete_tx_response
 from ..constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, XRPL_RESPONSE, ACCOUNT_IS_REQUIRED
+from ..errors.error_handling import handle_error
 from ..escrows.escrows_util import check_escrow_entries
 from ..ledger.ledger_util import check_ripple_state_entries
-from ..utils import is_valid_xrpl_seed, handle_error, \
+from ..transactions.transactions_util import prepare_tx
+from ..utils import is_valid_xrpl_seed, \
     total_execution_time_in_millis, validate_request_data, fetch_network_fee, validate_xrpl_response
 
 logger = logging.getLogger('xrpl_app')
@@ -33,6 +36,8 @@ class Payments(View):
     async def get(self, request, *args, **kwargs):
         return await self.send_payment_and_delete_account(request)
 
+    #### Need new error handling
+    ####
     async def send_payment_and_delete_account(self, request):
         start_time = time.time()
         function_name = "send_payment_and_delete_account"
@@ -154,6 +159,8 @@ class SendPayments(View):
     async def get(self, request, *args, **kwargs):
         return await self.send_payment(request)
 
+    #### Need new error handling
+    ####
     async def send_payment(self, request):
         start_time = time.time()
         function_name = 'send_payment'
@@ -161,10 +168,10 @@ class SendPayments(View):
 
         try:
             sender_seed = self.request.GET['sender_seed']
-            receiver_address = self.request.GET['receiver_address']
+            receiver_account = self.request.GET['receiver_account']
             amount_xrp = self.request.GET['amount_xrp']
-            validate_request_data(sender_seed, receiver_address, amount_xrp)
-            logger.info(f"Receiver account: {receiver_address}")
+            validate_request_data(sender_seed, receiver_account, amount_xrp)
+            logger.info(f"Receiver account: {receiver_account}")
             logger.info(f"Sending {amount_xrp} XRP")
 
             amount_drops = xrp_to_drops(float(amount_xrp))
@@ -175,9 +182,13 @@ class SendPayments(View):
                 sender_wallet = Wallet.from_seed(sender_seed)
                 sender_address = sender_wallet.classic_address
 
+                print("Balances of wallets before Payment tx")
+                print(f"Sender Address Balance: {get_balance(sender_address, client)}")
+                print(f"Receiver Address Balance: {get_balance(receiver_account, client)}")
+
                 fee_drops = await fetch_network_fee(client)
 
-                payment_transaction = create_payment_transaction(sender_address, receiver_address, str(amount_drops),
+                payment_transaction = create_payment_transaction(sender_address, receiver_account, str(amount_drops),
                                                                  str(fee_drops), False)
 
                 process_payment_start_time = time.time()
@@ -189,13 +200,24 @@ class SendPayments(View):
                 if not is_valid:
                     raise Exception(result)
 
+                # Create a Transaction request to see transaction
+                tx_response = client.request(prepare_tx(result.result["hash"]))
+
+                # Check validated field on the transaction
+                print("Validated:", tx_response.result["validated"])
+
+                # Check balances after 1000 was sent from wallet1 to wallet2
+                print("Balances of wallets after Payment tx:")
+                print(f"Sender Address Balance: {get_balance(sender_address, client)}")
+                print(f"Receiver Address Balance: {get_balance(receiver_account, client)}")
+
                 logger.debug("payment_response:")
                 logger.debug(json.dumps(result, indent=4, sort_keys=True))
 
                 # Handle the transaction response
                 # Use `sync_to_async` to handle database operations asynchronously
                 return await sync_to_async(process_payment_response, thread_sensitive=True)(
-                    result, payment_response, sender_address, receiver_address, amount_xrp, str(fee_drops)
+                    result, payment_response, sender_address, receiver_account, amount_xrp, str(fee_drops)
                 )
 
         except Exception as e:

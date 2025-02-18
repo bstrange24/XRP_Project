@@ -15,8 +15,9 @@ from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_SERVER_INFO, ERROR_INITIALIZING_CLIENT, ERROR_FETCHING_ACCOUNT_OFFERS, XRPL_RESPONSE, \
     CACHE_TIMEOUT_FOR_SERVER_INFO, LEAVING_FUNCTION_LOG, ERROR_FETCHING_XRP_RESERVES, CACHE_TIMEOUT, \
     ACCOUNT_IS_REQUIRED, RESERVES_NOT_FOUND
+from ..errors.error_handling import handle_error
 from ..ledger.ledger_util import ledger_info_response
-from ..utils import get_cached_data, get_xrpl_client, validate_xrpl_response, handle_error, \
+from ..utils import get_cached_data, get_xrpl_client, validate_xrpl_response, \
     total_execution_time_in_millis, get_request_param
 
 logger = logging.getLogger('xrpl_app')

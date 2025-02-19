@@ -40,7 +40,9 @@ def process_transaction_error(response):
     if response is not None:
         engine_result = response.result.get("engine_result")
         if engine_result is None:
-            engine_result = 'unknown'
+            engine_result = response.result.get("error_message")
+            if engine_result is None:
+                engine_result = 'unknown'
 
         engine_result_message = response.result.get("engine_result_message", "")
     else:
@@ -56,6 +58,7 @@ def handle_engine_result(engine_result, engine_result_message):
     """
     engine_result_actions = {
         "tesSUCCESS": lambda: return_success("Transaction is successful."),
+        "Transaction not found.": lambda: return_success("Transaction not found."),
         "unknown": lambda: raise_exception("Transaction response was unsuccessful."),
         "None": lambda: raise_exception("Transaction response was None and unsuccessful."),
         "tefBAD_AUTH": lambda: raise_exception("Transaction's public key is not authorized."),

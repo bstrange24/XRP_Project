@@ -8,7 +8,7 @@ def wait_for_validation(client, tx_hash, max_retries=10, delay=1):
         tx_response = client.request(Tx(transaction=tx_hash))
         if tx_response.result.get('validated'):
             return tx_response
-    return None
+    return tx_response
 
 
 def create_trust_set_transaction(currency, limit_drops, wallet_address, sender_wallet, sequence_number, fee):
@@ -76,5 +76,5 @@ def trust_line_response(response):
     return JsonResponse({
         'status': 'success',  # Indicate that the operation was successful
         'message': 'Trust lines fetched successfully.',  # Provide a success message
-        'results': response  # Include the results from the XRPL transaction
+        'results': response.result  # Include the results from the XRPL transaction
     })

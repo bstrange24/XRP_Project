@@ -257,25 +257,6 @@ def get_account_details(client, wallet_address: str):
 
 
 def prepare_account_data(sender_address, black_hole):
-    """
-    Prepares an `AccountInfo` request object to fetch account data for a given sender address.
-
-    This function creates and returns an `AccountInfo` object configured to retrieve
-    the latest validated account information for the specified sender address. The
-    request is set to use the latest validated ledger and enforces strict validation
-    to ensure the address is in the correct format.
-
-    Args:
-        sender_address (str): The XRP Ledger address of the sender whose account data
-                             is to be fetched.
-
-    Returns:
-        AccountInfo: A configured `AccountInfo` object ready to be used in a request.
-
-    Example:
-        account_info_request = prepare_account_data("rExampleAddress123")
-        response = xrpl_client.request(account_info_request)
-    """
     if black_hole:
         return AccountInfo(
             account=sender_address,

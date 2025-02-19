@@ -15,11 +15,11 @@ urlpatterns = [
 
     # Endpoint for creating a new XRPL account.
     # Example: http://127.0.0.1:8000/xrpl/create-account/
-    path('create-account/', Accounts.create_account, name='create_account'),
+    path('create-test-account/', Accounts.create_test_account, name='create_test_account'),
 
     # Endpoint for creating a new XRPL account.
     # Example: http://127.0.0.1:8000/xrpl/create_multiple_account/
-    path('create-multiple-accounts/', Accounts.create_multiple_accounts, name='create_multiple_account'),
+    path('create-multiple-test-accounts/', Accounts.create_multiple_test_accounts, name='create_multiple_test_accounts'),
 
     # Endpoint to fetch wallet information for a given wallet address.
     # Example: http://127.0.0.1:8000/xrpl/wallet-info/rMgaRbbZUBeoxwZevhv1mezuvA97eR4JHV/

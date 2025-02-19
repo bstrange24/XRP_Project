@@ -22,12 +22,31 @@ def handle_error(error_message, status_code, function_name):
     return JsonResponse(error_message, status=status_code)
 
 
-def process_transaction_error(response):
-    engine_result = response.result.get("engine_result")
-    if engine_result is None:
-        engine_result = 'unknown'
+def error_response(message):
+    return {"status": "failure", "message": message}
 
-    engine_result_message = response.result.get("engine_result_message", "Transaction response was unsuccessful.")
+
+def handle_error_new(exception, status_code, function_name):
+    exception_name = type(exception).__name__
+    logger.error(f"Exception caught: {exception_name} - {exception}")
+
+    error_data = exception.args[0] if exception.args and isinstance(exception.args[0], dict) else {"status": "failure", "message": str(exception)}
+
+    logger.error(f"Leaving: {function_name}")
+    return JsonResponse(error_data, status=status_code)
+
+
+def process_transaction_error(response):
+    if response is not None:
+        engine_result = response.result.get("engine_result")
+        if engine_result is None:
+            engine_result = 'unknown'
+
+        engine_result_message = response.result.get("engine_result_message", "")
+    else:
+        engine_result = 'None'
+        engine_result_message = ""
+
     handle_engine_result(engine_result, engine_result_message)
 
 
@@ -38,6 +57,7 @@ def handle_engine_result(engine_result, engine_result_message):
     engine_result_actions = {
         "tesSUCCESS": lambda: return_success("Transaction is successful."),
         "unknown": lambda: raise_exception("Transaction response was unsuccessful."),
+        "None": lambda: raise_exception("Transaction response was None and unsuccessful."),
         "tefBAD_AUTH": lambda: raise_exception("Transaction's public key is not authorized."),
         "tecNO_LINE_INSUF_RESERVE": lambda: raise_exception("No such line. Too little reserve to create it."),
         "terRETRY": lambda: raise_exception("The transaction should be retried at a later time."),

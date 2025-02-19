@@ -1,12 +1,15 @@
 import asyncio
+import json
 import logging
 import re
 import time
 from decimal import Decimal
+from typing import Optional
 
 from django.apps import apps
 from django.core.cache import cache
 from xrpl import XRPLException
+from xrpl.asyncio.clients import XRPLRequestFailureException
 from xrpl.clients import JsonRpcClient
 from xrpl.core.addresscodec import is_valid_classic_address, is_valid_xaddress
 from xrpl.core.keypairs import derive_keypair, derive_classic_address
@@ -279,14 +282,14 @@ def extract_request_data(request):
 
     This function retrieves the following data from the request:
     - `sender_seed`: The seed of the sender (required).
-    - `receiver_address`: The address of the receiver (optional).
+    - `receiver_account`: The address of the receiver (optional).
     - `amount_xrp`: The amount of XRP to transfer (optional, must be a valid decimal).
 
     Args:
         request: The HTTP request object containing query parameters or JSON data.
 
     Returns:
-        tuple: A tuple containing (sender_seed, receiver_address, amount_xrp).
+        tuple: A tuple containing (sender_seed, receiver_account, amount_xrp).
 
     Raises:
         ValueError: If `sender_seed` is missing or if `amount_xrp` is in an invalid format.
@@ -297,8 +300,8 @@ def extract_request_data(request):
         # Raise an error if sender_seed is missing (required field)
         raise ValueError("sender_seed is required")
 
-    # Extract receiver_address from either query parameters or request body
-    receiver_address = get_request_param(request, 'receiver')
+    # Extract receiver_account from either query parameters or request body
+    receiver_account = get_request_param(request, 'receiver_account')
 
     # Initialize amount_xrp as None (optional field)
     amount_xrp = None
@@ -314,7 +317,7 @@ def extract_request_data(request):
             raise ValueError(f"Invalid amount format: {str(e)}")
 
     # Return the extracted data as a tuple
-    return sender_seed, receiver_address, amount_xrp
+    return sender_seed, receiver_account, amount_xrp
 
 
 def validate_xrpl_response(response: Response, required_keys=None):
@@ -354,6 +357,31 @@ def validate_xrpl_response(response: Response, required_keys=None):
     return True, response.result  # Valid response
 
 
+def validate_xrpl_response_data(response: Optional[Response]) -> bool:
+    if response is None or not response.is_successful():
+        logger.info("Response is None or not successful")
+        return True
+
+    logger.debug(f"account_set_tx submit_and_wait:\n{json.dumps(response.result, indent=4, sort_keys=True)}")
+    logger.info(f"response.is_successful(): {response.is_successful()}")
+
+    result = response.result
+    meta_transaction_result = result.get('meta', {}).get('TransactionResult')
+    transaction_hash = result.get('hash')
+
+    if meta_transaction_result and transaction_hash:
+        logger.info(f"TransactionResult: {meta_transaction_result} TransactionHash: {transaction_hash}")
+        if meta_transaction_result != 'tesSUCCESS':
+            return True
+    else:
+        logger.info("Meta tag or hash tag is not available")
+        return False
+
+    return False
+
+
+
+
 def validate_request_data(sender_seed: str, receiver_address: str, amount_xrp: int) -> None:
     """
     Validates the required parameters for an XRPL transaction.
@@ -391,7 +419,10 @@ async def fetch_network_fee(client):
         fee = await asyncio.to_thread(get_fee, client)
         logger.info(f"Network fee in drops: {fee}")
         return fee
-    except Exception as e:
+    except XRPLRequestFailureException as e:
+        logger.error(f"Error fetching transaction fee: {e}")
+        return {"status": "failure", "message": str(e)}
+    except XRPLException as e:
         logger.error(f"Error fetching transaction fee: {e}")
         return {"status": "failure", "message": str(e)}
 

@@ -10,7 +10,7 @@ from django.apps import apps
 from rest_framework.decorators import api_view
 from tenacity import retry, wait_exponential, stop_after_attempt
 from xrpl.asyncio.clients import AsyncWebsocketClient
-from xrpl.asyncio.transaction import autofill_and_sign
+from xrpl.asyncio.transaction import autofill_and_sign, XRPLReliableSubmissionException
 
 from xrpl.models import XRP
 from xrpl.utils import drops_to_xrp, get_balance_changes
@@ -226,6 +226,11 @@ class AccountOffer(View):
                 logger.info(f"response_data: {response_data}")
 
                 return response_data
+
+        except XRPLReliableSubmissionException as e:
+            # Catch any exceptions that occur during the process. Handle error and return response
+            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
+                                function_name=function_name)
         except Exception as e:
             # Catch any exceptions that occur during the process. Handle error and return response
             return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,

@@ -6,19 +6,16 @@ from decimal import Decimal
 
 from django.apps import apps
 from django.core.cache import cache
-from django.http import JsonResponse
 from xrpl import XRPLException
-from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.clients import JsonRpcClient
 from xrpl.core.addresscodec import is_valid_classic_address, is_valid_xaddress
 from xrpl.core.keypairs import derive_keypair, derive_classic_address
 from xrpl.ledger import get_fee
-from xrpl.models import Response
+from xrpl.models import Response, TrustSet, AccountSetAsfFlag
 from xrpl.utils import xrp_to_drops, drops_to_xrp
 
-from .constants import BASE_RESERVE, REQUIRE_DESTINATION_TAG_FLAG, DISABLE_MASTER_KEY_FLAG, \
-    ENABLE_REGULAR_KEY_FLAG, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS
-from .errors.error_handling import handle_engine_result, handle_error
+from .constants import BASE_RESERVE, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS
+from .errors.error_handling import handle_error
 
 logger = logging.getLogger('xrpl_app')
 
@@ -240,42 +237,6 @@ def calculate_max_transferable(balance: float) -> int:
     return int(xrp_to_drops(max_transferable_xrp)) if max_transferable_xrp > 0 else 0
 
 
-def build_flags(require_destination_tag, disable_master_key, enable_regular_key):
-    """
-    This function constructs a flag value for account settings in the XRP Ledger. It:
-
-    - Takes boolean inputs for different account settings:
-      - require_destination_tag: If true, forces transactions to this account to include a destination tag.
-      - disable_master_key: If true, disables the master key for the account, enhancing security by requiring a regular key for transactions.
-      - enable_regular_key: If true, enables a regular key which can be used for signing transactions instead of the master key.
-
-    - Uses bitwise OR operations to combine flag values:
-      - Each setting corresponds to a predefined flag constant (assumed to be defined elsewhere as constants).
-
-    - Returns an integer representing the combined state of these flags, which can be used in XRPL transactions like AccountSet.
-
-    Note: The function assumes that constants like REQUIRE_DESTINATION_TAG_FLAG, DISABLE_MASTER_KEY_FLAG, and ENABLE_REGULAR_KEY_FLAG are predefined.
-    """
-
-    # Initialize flags to zero; we will use bitwise operations to set specific flags
-    flags = 0
-
-    # Set the REQUIRE_DESTINATION_TAG flag if the condition is true
-    if require_destination_tag:
-        flags |= REQUIRE_DESTINATION_TAG_FLAG
-
-    # Set the DISABLE_MASTER_KEY flag if the condition is true
-    if disable_master_key:
-        flags |= DISABLE_MASTER_KEY_FLAG
-
-    # Set the ENABLE_REGULAR_KEY flag if the condition is true
-    if enable_regular_key:
-        flags |= ENABLE_REGULAR_KEY_FLAG
-
-    # Return the combined flags as an integer
-    return flags
-
-
 def get_request_param(request, key, default=None, convert_func=None):
     """
     Retrieves a parameter from an HTTP request.
@@ -303,6 +264,13 @@ def get_request_param(request, key, default=None, convert_func=None):
     if convert_func and value is not None:
         return convert_func(value)  # Apply conversion function if provided
     return value
+
+
+def get_query_param(params, key):
+    try:
+        return params.get(key)
+    except Exception:
+        return None
 
 
 def extract_request_data(request):

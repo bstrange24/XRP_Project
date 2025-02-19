@@ -1,19 +1,99 @@
 import json
+import logging
 from decimal import Decimal
 
 from django.http import JsonResponse
 from xrpl.models import ServerInfo, AccountDelete, AccountInfo, AccountTx, AccountSet, AccountObjects, SetRegularKey, \
-    AccountOffers, AccountLines
-import logging
+    AccountOffers, AccountLines, AccountSetAsfFlag
 
 from django.db import transaction
 
-from ..constants import XRPL_RESPONSE
+from ..constants import XRPL_RESPONSE, ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG
 from ..errors.error_handling import handle_engine_result
 from ..models import XrplAccountData
-from ..utils import get_xrpl_client
+from ..utils import get_xrpl_client, parse_boolean_param, get_query_param
 
 logger = logging.getLogger('xrpl_app')
+
+
+def get_account_set_flags(self):
+    flags_to_enable = []
+    flags_to_disable = []
+
+    # Map the parameter names to the corresponding flag variables
+    flag_params = map_request_parameters_to_flag_variables()
+    logger.info(flag_params)
+
+    non_none_request_parameters = get_account_set_flags_from_request_parameters(self)
+    logger.info(non_none_request_parameters)
+
+    for param_name, flag_value in flag_params.items():
+        if param_name in non_none_request_parameters:
+            flag_state = parse_boolean_param(self, param_name)
+            logger.info(f"param_name: {param_name}, flag_value: {flag_value}, flag_state: {flag_state}")
+            if flag_state:
+                flags_to_enable.append(flag_value)
+            else:
+                flags_to_disable.append(flag_value)
+
+    return flags_to_enable, flags_to_disable
+
+
+def map_request_parameters_to_flag_variables():
+    return {
+        'asf_account_txn_id': AccountSetAsfFlag.ASF_ACCOUNT_TXN_ID,
+        'asf_allow_trust_line_clawback': AccountSetAsfFlag.ASF_ALLOW_TRUSTLINE_CLAWBACK,
+        'asf_authorized_nft_token_minter': AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
+        'asf_default_ripple': AccountSetAsfFlag.ASF_DEFAULT_RIPPLE,
+        'asf_deposit_auth': AccountSetAsfFlag.ASF_DEPOSIT_AUTH,
+        'asf_disable_master': AccountSetAsfFlag.ASF_DISABLE_MASTER,
+        'asf_disallow_incoming_check': AccountSetAsfFlag.ASF_DISABLE_INCOMING_CHECK,
+        'asf_disallow_incoming_nft_token_offer': AccountSetAsfFlag.ASF_DISABLE_INCOMING_NFTOKEN_OFFER,
+        'asf_disallow_incoming_pay_chan': AccountSetAsfFlag.ASF_DISABLE_INCOMING_PAYCHAN,
+        'asf_disallow_XRP': AccountSetAsfFlag.ASF_DISALLOW_XRP,
+        'asf_global_freeze': AccountSetAsfFlag.ASF_GLOBAL_FREEZE,
+        'asf_no_freeze': AccountSetAsfFlag.ASF_NO_FREEZE,
+        'asf_require_auth': AccountSetAsfFlag.ASF_REQUIRE_AUTH,
+        'asf_require_dest': AccountSetAsfFlag.ASF_REQUIRE_DEST,
+    }
+
+
+def get_account_set_flags_from_request_parameters(self):
+    asf_account_txn_id = get_query_param(self.query_params, 'asf_account_txn_id')
+    asf_allow_trust_line_clawback = get_query_param(self.query_params, 'asf_allow_trust_line_clawback')
+    asf_authorized_nft_token_minter = get_query_param(self.query_params, 'asf_authorized_nft_token_minter')
+    asf_default_ripple = get_query_param(self.query_params, 'asf_default_ripple')
+    asf_deposit_auth = get_query_param(self.query_params, 'asf_deposit_auth')
+    asf_disable_master = get_query_param(self.query_params, 'asf_disable_master')
+    asf_disallow_incoming_check = get_query_param(self.query_params, 'asf_disallow_incoming_check')
+    asf_disallow_incoming_nft_token_offer = get_query_param(self.query_params, 'asf_disallow_incoming_nft_token_offer')
+    asf_disallow_incoming_pay_chan = get_query_param(self.query_params, 'asf_disallow_incoming_pay_chan')
+    asf_disallow_XRP = get_query_param(self.query_params, 'asf_disallow_XRP')
+    asf_global_freeze = get_query_param(self.query_params, 'asf_global_freeze')
+    asf_no_freeze = get_query_param(self.query_params, 'asf_no_freeze')
+    asf_require_auth = get_query_param(self.query_params, 'asf_require_auth')
+    asf_require_dest = get_query_param(self.query_params, 'asf_require_dest')
+
+    non_none_request_parameters = [
+        param_name for param_name, value in [
+            ('asf_account_txn_id', asf_account_txn_id),
+            ('asf_allow_trust_line_clawback', asf_allow_trust_line_clawback),
+            ('asf_authorized_nft_token_minter', asf_authorized_nft_token_minter),
+            ('asf_default_ripple', asf_default_ripple),
+            ('asf_deposit_auth', asf_deposit_auth),
+            ('asf_disable_master', asf_disable_master),
+            ('asf_disallow_incoming_check', asf_disallow_incoming_check),
+            ('asf_disallow_incoming_nft_token_offer', asf_disallow_incoming_nft_token_offer),
+            ('asf_disallow_incoming_pay_chan', asf_disallow_incoming_pay_chan),
+            ('asf_disallow_XRP', asf_disallow_XRP),
+            ('asf_global_freeze', asf_global_freeze),
+            ('asf_no_freeze', asf_no_freeze),
+            ('asf_require_auth', asf_require_auth),
+            ('asf_require_dest', asf_require_dest)
+        ] if value is not None
+    ]
+
+    return non_none_request_parameters
 
 
 def get_account_objects(account: str):
@@ -44,7 +124,7 @@ def get_account_reserves():
     """
     Fetches the current reserve requirements from the XRP Ledger.
 
-    This function queries the XRP Ledger ledger to retrieve the base reserve
+    This function queries the XRP Ledger to retrieve the base reserve
     and reserve increment values, which are required for account operations.
     It handles errors gracefully and logs appropriate messages for debugging.
 
@@ -399,20 +479,12 @@ def create_wallet_info_response(base_reserve, reserve_increment, account_details
     })
 
 
-def create_wallet_balance_response(balance_in_xrp):
-    """
-    Creates and returns a JSON response containing the wallet balance in XRP.
-
-    Args:
-        balance_in_xrp (float): The balance of the wallet in XRP.
-
-    Returns:
-        JsonResponse: A JSON response object with the balance information.
-    """
+def create_wallet_balance_response(balance_in_xrp, account_details):
     return JsonResponse({
         'status': 'success',
         'message': 'Successfully retrieved account balance.',
         "balance": balance_in_xrp,
+        'result': account_details,
     })
 
 
@@ -435,8 +507,8 @@ def create_account_response(wallet_address, seed, xrp_balance, account_details):
         'account_id': wallet_address,
         'secret': seed,
         'balance': xrp_balance,
-        'transaction_hash': account_details['result']['ledger_hash'],
-        'previous_transaction_id': account_details['result']['account_data']['PreviousTxnID'],
+        'transaction_hash': account_details['ledger_hash'],
+        'previous_transaction_id': account_details['account_data']['PreviousTxnID'],
     })
 
 
@@ -549,12 +621,18 @@ def prepare_account_tx_with_pagination(sender_address, marker):
     )
 
 
-def prepare_account_set_tx(sender_address, flags):
+def prepare_account_set_enabled_tx(sender_address, flag):
     return AccountSet(
         account=sender_address,
-        flags=flags
+        set_flag=flag,
     )
 
+
+def prepare_account_set_disabled_tx(sender_address, flag):
+    return AccountSet(
+        account=sender_address,
+        clear_flag=flag,
+    )
 
 
 def prepare_account_lines(wallet_address, marker):

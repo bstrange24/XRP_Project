@@ -3,9 +3,12 @@
 Go here for xrpl documentation
 https://xrpl-py.readthedocs.io/en/stable/source/snippets.html
 
+https://xrpl.org/docs/references/protocol/transactions/types/accountset
+https://xrpl.org/docs/references/protocol/ledger-data/ledger-entry-types/accountroot
+https://xrpl.org/docs/references/protocol/transactions/common-fields
+https://xrpl-py.readthedocs.io/en/stable/search.html?q=DEFAULT_RIPPLE_FLAG&check_keywords=yes&area=default#
+
 https://xrpl.org/docs/references/protocol/transactions/types/accountdelete
-
-
 
 Ripple¹	Testnet	https://s.altnet.rippletest.net:51234/	wss://s.altnet.rippletest.net:51233/	Testnet public server
 XRPL Labs	Testnet	https://testnet.xrpl-labs.com/	wss://testnet.xrpl-labs.com/	Testnet public server with CORS support
@@ -38,7 +41,6 @@ Perform the following to setup this project:
    8) node
    9) npm
    10) npm install -g @angular/cli
-
 
 
 # Endpoint for creating a new XRPL account.

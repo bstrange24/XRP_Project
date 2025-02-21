@@ -6,17 +6,6 @@ logger = logging.getLogger('xrpl_app')
 
 
 def handle_error(error_message, status_code, function_name):
-    """
-    This function handles error responses by logging the error, creating a JSON response, and returning it with an appropriate status code.
-    - Logs the error message and function exit.
-    - Constructs a JSON response with the error message.
-    - Sets the HTTP status code based on the error context.
-    Parameters:
-    - error_message: The details of the error to be logged and returned.
-    - status_code: HTTP status code to set for the response.
-    - function_name: Name of the function where the error occurred for logging.
-    """
-
     logger.error(error_message)
     logger.error(f"Leaving: {function_name}")
     return JsonResponse(error_message, status=status_code)
@@ -53,9 +42,6 @@ def process_transaction_error(response):
 
 
 def handle_engine_result(engine_result, engine_result_message):
-    """
-    Handle the engine result by performing the appropriate action based on the result code.
-    """
     engine_result_actions = {
         "tesSUCCESS": lambda: return_success("Transaction is successful."),
         "Transaction not found.": lambda: return_success("Transaction not found."),
@@ -139,14 +125,8 @@ def handle_engine_result(engine_result, engine_result_message):
 
 
 def raise_exception(message):
-    """
-    Raise an exception with the given message.
-    """
     raise Exception(message)
 
 
 def return_success(message):
-    """
-    Return success message.
-    """
     return message

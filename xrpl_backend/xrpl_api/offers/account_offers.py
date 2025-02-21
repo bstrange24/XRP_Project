@@ -3,28 +3,35 @@ import logging
 import time
 from decimal import Decimal
 
+import xrpl
+from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.apps import apps
 from rest_framework.decorators import api_view
 from tenacity import retry, wait_exponential, stop_after_attempt
-from xrpl.asyncio.clients import AsyncWebsocketClient
+from xrpl import XRPLException
+from xrpl.asyncio.account import does_account_exist
+from xrpl.asyncio.clients import AsyncWebsocketClient, XRPLRequestFailureException
 from xrpl.asyncio.transaction import autofill_and_sign, XRPLReliableSubmissionException
+from xrpl.core.addresscodec import XRPLAddressCodecException
 
 from xrpl.models import XRP
 from xrpl.utils import drops_to_xrp, get_balance_changes
 from xrpl.wallet import Wallet
 
-from ..accounts.account_utils import prepare_account_lines_for_offer, prepare_account_offers, \
-    create_account_offers_response, create_get_account_offers_response
-from ..constants import ACCOUNT_IS_REQUIRED, ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, RETRY_BACKOFF, MAX_RETRIES, \
-    ERROR_INITIALIZING_CLIENT, XRPL_RESPONSE
-from ..currency.currency_util import create_issued_currency_the_user_wants, \
-    create_amount_the_user_wants_to_spend
-from ..errors.error_handling import handle_error
-from ..offers.account_offers_util import process_offer, create_book_offer, create_offer
-from ..utils import get_request_param, total_execution_time_in_millis, validate_xrpl_response, get_xrpl_client
+from ..constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, RETRY_BACKOFF, MAX_RETRIES, \
+    ERROR_INITIALIZING_CLIENT, INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, \
+    MISSING_REQUEST_PARAMETERS
+from ..currency.currency_util import buyer_create_issued_currency, \
+    create_amount_the_buyer_wants_to_spend
+from ..errors.error_handling import handle_error, handle_error_new, error_response, process_transaction_error
+from ..offers.account_offers_util import process_offer, create_book_offer, create_offer, \
+    prepare_account_lines_for_offer, prepare_account_offers, create_account_offers_response, \
+    create_get_account_offers_response, prepare_account_offers_paginated
+from ..utils import get_request_param, total_execution_time_in_millis, get_xrpl_client, \
+    validate_xrp_wallet, validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
 
@@ -38,54 +45,53 @@ class AccountOffer(View):
     async def get(self, request, *args, **kwargs):
         return await self.create_offer(request)
 
-    #### Need new error handling
-    ####
     async def create_offer(self, request):
         start_time = time.time()  # Capture the start time
         function_name = 'AccountOffer'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function
 
         try:
+            # Extract the parameters from the request data.
             account = get_request_param(request, 'account')
-            if not account:
-                raise ValueError(ACCOUNT_IS_REQUIRED)  # Raise an error if the wallet address is missing.
-
             currency = get_request_param(request, 'currency')
-            if not currency:
-                raise ValueError('currency is required')  # Raise an error if the wallet address is missing.
-
             value = get_request_param(request, 'value')
-            if not value:
-                raise ValueError('value is required')  # Raise an error if the wallet address is missing.
-
             sender_seed = get_request_param(request, 'sender_seed')
-            if not sender_seed:
-                raise ValueError('sender seed is required')  # Raise an error if the wallet address is missing.
+
+            # If any of the required parameters are missing, raise an error.
+            if not all([account, currency, value, sender_seed]):
+                raise ValueError(MISSING_REQUEST_PARAMETERS)
+
+            logger.info(f"Received parameters - account: {account}, currency: {currency}, value: {value}, sender_seed: {sender_seed}")
 
             sender_wallet = Wallet.from_seed(sender_seed)
 
             xrpl_config = apps.get_app_config('xrpl_api')
 
             async with AsyncWebsocketClient(xrpl_config.XRPL_WEB_SOCKET_NETWORK_URL) as client:
-                we_want = create_issued_currency_the_user_wants(account, currency, value)
-                logger.info(f"We want: {we_want}")
-                we_spend = create_amount_the_user_wants_to_spend()
-                logger.info(f"We spend: {we_spend}")
+                if not does_account_exist(account, client):
+                    raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(account)))
 
-                proposed_quality = Decimal(we_spend["value"]) / Decimal(we_want["value"])
+                buyer_wants = buyer_create_issued_currency(account, currency, value)
+                logger.info(f"Buyer wants: {buyer_wants}")
+                buyer_spend = create_amount_the_buyer_wants_to_spend()
+                logger.info(f"Buyer spends: {buyer_spend}")
+
+                proposed_quality = Decimal(buyer_spend["value"]) / Decimal(buyer_wants["value"])
                 logger.info(f"Proposed quality: {proposed_quality}")
 
                 logger.info("Requesting orderbook information...")
-                orderbook_info = await client.request(
-                    create_book_offer(account, we_want, we_spend)
-                )
-                logger.info(f"Orderbook:{orderbook_info.result}")
+                orderbook_info_response = await client.request(create_book_offer(account, buyer_wants, buyer_spend))
 
-                offers = orderbook_info.result.get("offers", [])
+                if validate_xrpl_response_data(orderbook_info_response):
+                    process_transaction_error(orderbook_info_response)
+
+                logger.info(f"Orderbook:{orderbook_info_response.result}")
+
+                offers = orderbook_info_response.result.get("offers", [])
                 logger.info(f"Offers: {offers}")
 
-                want_amt = Decimal(we_want["value"])
-                logger.info(f"Want amount: {want_amt}")
+                buyer_amount = Decimal(buyer_wants["value"])
+                logger.info(f"Buyer amount: {buyer_amount}")
 
                 running_total = Decimal(0)
                 if len(offers) == 0:
@@ -93,22 +99,19 @@ class AccountOffer(View):
                 else:
                     for o in offers:
                         if Decimal(o["quality"]) <= proposed_quality:
-                            logger.info(f"Matching Offer found, funded with {o.get('owner_funds')} "
-                                        f"{we_want['currency']}")
+                            logger.info(f"Matching Offer found, funded with {o.get('owner_funds')} {buyer_wants['currency']}")
                             running_total += Decimal(o.get("owner_funds", Decimal(0)))
-                            if running_total >= want_amt:
+                            if running_total >= buyer_amount:
                                 logger.info("Full Offer will probably fill")
                                 break
                         else:
-                            # Offers are in ascending quality order, so no others after this
-                            # will match either
+                            # Offers are in ascending quality order, so no others after this will match either
                             logger.info("Remaining orders too expensive.")
                             break
 
-                    logger.info(f"Total matched: {min(running_total, want_amt)} {we_want['currency']}")
-                    if 0 < running_total < want_amt:
-                        logger.info(f"Remaining {want_amt - running_total} {we_want['currency']} "
-                                    "would probably be placed on top of the order book.")
+                    logger.info(f"Total matched: {min(running_total, buyer_amount)} {buyer_wants['currency']}")
+                    if 0 < running_total < buyer_amount:
+                        logger.info(f"Remaining {buyer_amount - running_total} {buyer_wants['currency']} would probably be placed on top of the order book.")
 
                 if running_total == 0:
                     # If part of the Offer was expected to cross, then the rest would be placed
@@ -122,24 +125,26 @@ class AccountOffer(View):
                     # book_offers request.
 
                     logger.info("Requesting second orderbook information...")
-                    orderbook2_info = await client.request(
-                        create_book_offer(account, we_want, we_spend)
-                    )
-                    logger.info(f"Orderbook2: {orderbook2_info.result}")
+                    orderbook2_info_response = await client.request(create_book_offer(account, buyer_wants, buyer_spend))
+
+                    if validate_xrpl_response_data(orderbook2_info_response):
+                        process_transaction_error(orderbook2_info_response)
+
+                    logger.info(f"Orderbook2: {orderbook2_info_response.result}")
 
                     # Since TakerGets/TakerPays are reversed, the quality is the inverse.
                     # You could also calculate this as 1 / proposed_quality.
-                    offered_quality = Decimal(we_want["value"]) / Decimal(we_spend["value"])
+                    offered_quality = Decimal(buyer_wants["value"]) / Decimal(buyer_spend["value"])
                     logger.info(f"offered_quality: {offered_quality}")
 
-                    tally_currency = we_spend["currency"]
+                    tally_currency = buyer_spend["currency"]
                     logger.info(f"tally_currency: {tally_currency}")
 
                     if isinstance(tally_currency, XRP):
                         tally_currency = f"drops of {tally_currency}"
                     logger.info(f"tally_currency after isinstance: {tally_currency}")
 
-                    offers2 = orderbook2_info.result.get("offers", [])
+                    offers2 = orderbook2_info_response.result.get("offers", [])
                     logger.info(f"offers2: {offers2}")
 
                     running_total2 = Decimal(0)
@@ -148,38 +153,39 @@ class AccountOffer(View):
                     else:
                         for o in offers2:
                             if Decimal(o["quality"]) <= offered_quality:
-                                logger.info(f"Existing offer found, funded with {o.get('owner_funds')} "
-                                            f"{tally_currency}")
+                                logger.info(f"Existing offer found, funded with {o.get('owner_funds')} {tally_currency}")
                                 running_total2 += Decimal(o.get("owner_funds", Decimal(0)))
                             else:
                                 logger.info("Remaining orders are below where ours would be placed.")
                                 break
 
-                        logger.info(f"Our Offer would be placed below at least {running_total2} "
-                                    f"{tally_currency}")
-                        if 0 < running_total2 < want_amt:
-                            logger.info(f"Remaining {want_amt - running_total2} {tally_currency} "
-                                        "will probably be placed on top of the order book.")
+                        logger.info(f"Our Offer would be placed below at least {running_total2} {tally_currency}")
+                        if 0 < running_total2 < buyer_amount:
+                            logger.info(f"Remaining {buyer_amount - running_total2} {tally_currency} will probably be placed on top of the order book.")
 
-                tx = create_offer(account, we_want, we_spend)
-                logger.info(f"create_offer_create: {tx}")
+                tx = create_offer(account, buyer_wants, buyer_spend)
+                logger.info(f"Created offer: {tx}")
 
                 logger.info(f"before autofill_and_sign...")
                 signed_tx = await autofill_and_sign(tx, client, sender_wallet)
+
+                # if validate_xrpl_response_data(signed_tx):
+                #     process_transaction_error(signed_tx)
                 logger.info(f"after autofill_and_sign...")
+
+
                 logger.info(f"before process_offer...")
-                result = await process_offer(signed_tx, client)
+                process_offer_result = await process_offer(signed_tx, client)
+
+                if validate_xrpl_response_data(process_offer_result):
+                    process_transaction_error(process_offer_result)
                 logger.info(f"after process_offer...")
 
-                is_valid, response = validate_xrpl_response(result, required_keys=["meta"])
-                if not is_valid:
-                    raise Exception(response)
-                else:
-                    logger.info(f"Transaction succeeded:")
-                    logger.info(f"{xrpl_config.XRPL_WEB_SOCKET_NETWORK_URL}{signed_tx.get_hash()}")
+                logger.info(f"Transaction succeeded:")
+                logger.info(f"{xrpl_config.XRPL_WEB_SOCKET_NETWORK_URL}{signed_tx.get_hash()}")
 
                 # Check metadata ------------------------------------------------------------
-                balance_changes = get_balance_changes(result.result["meta"])
+                balance_changes = get_balance_changes(process_offer_result.result["meta"])
                 logger.info(f"Balance Changes:{balance_changes}")
 
                 # Helper to convert an XRPL amount to a string for display
@@ -190,39 +196,46 @@ class AccountOffer(View):
                         return f"{amt['value']} {amt['currency']}.{amt['issuer']}"
 
                 offers_affected = 0
-                for affnode in result.result["meta"]["AffectedNodes"]:
-                    if "ModifiedNode" in affnode:
-                        if affnode["ModifiedNode"]["LedgerEntryType"] == "Offer":
+                for affected_node in process_offer_result.result["meta"]["AffectedNodes"]:
+                    if "ModifiedNode" in affected_node:
+                        if affected_node["ModifiedNode"]["LedgerEntryType"] == "Offer":
                             # Usually a ModifiedNode of type Offer indicates a previous Offer that
                             # was partially consumed by this one.
                             offers_affected += 1
-                    elif "DeletedNode" in affnode:
-                        if affnode["DeletedNode"]["LedgerEntryType"] == "Offer":
+                    elif "DeletedNode" in affected_node:
+                        if affected_node["DeletedNode"]["LedgerEntryType"] == "Offer":
                             # The removed Offer may have been fully consumed, or it may have been
                             # found to be expired or unfunded.
                             offers_affected += 1
-                    elif "CreatedNode" in affnode:
-                        if affnode["CreatedNode"]["LedgerEntryType"] == "RippleState":
+                    elif "CreatedNode" in affected_node:
+                        if affected_node["CreatedNode"]["LedgerEntryType"] == "RippleState":
                             logger.info("Created a trust line.")
-                        elif affnode["CreatedNode"]["LedgerEntryType"] == "Offer":
-                            offer = affnode["CreatedNode"]["NewFields"]
-                            logger.info(f"Created an Offer owned by {offer['Account']} with "
-                                        f"TakerGets={amt_str(offer['TakerGets'])} and "
-                                        f"TakerPays={amt_str(offer['TakerPays'])}.")
+                        elif affected_node["CreatedNode"]["LedgerEntryType"] == "Offer":
+                            offer = affected_node["CreatedNode"]["NewFields"]
+                            logger.info(f"Created an Offer owned by {offer['Account']} with TakerGets={amt_str(offer['TakerGets'])} and TakerPays={amt_str(offer['TakerPays'])}.")
 
                 logger.info(f"Modified or removed {offers_affected} matching Offer(s)")
 
                 # Check balances
                 logger.info("Getting address balances as of validated ledger...")
                 balances = await client.request(prepare_account_lines_for_offer(account))
+
+                if validate_xrpl_response_data(balances):
+                    process_transaction_error(balances)
+
                 logger.info(f"Balance result: {balances.result}")
 
                 # Check Offers
                 logger.info(f"Getting outstanding Offers from {account} as of validated ledger...")
                 acct_offers = await client.request(prepare_account_offers(account))
+
+                if validate_xrpl_response_data(acct_offers):
+                    process_transaction_error(acct_offers)
+
                 logger.info(f"Account Offers result: {acct_offers.result}")
 
-                response_data = create_account_offers_response(orderbook_info, result, acct_offers)
+                # response_data = create_account_offers_response(orderbook_info_response, result, acct_offers)
+                response_data = create_account_offers_response(orderbook_info_response, process_offer_result)
                 logger.info(f"response_data: {response_data}")
 
                 return response_data
@@ -243,79 +256,71 @@ class AccountOffer(View):
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def get_account_offers(self):
-        """
-        Retrieve account offers (open orders) for a given wallet address from the XRP Ledger.
-
-        This function performs the following steps:
-        1. Extracts the `wallet_address` query parameter from the request.
-        2. Initializes the XRPL client to interact with the XRP Ledger.
-        3. Prepares and sends a request to fetch account offers for the specified wallet address.
-        4. Validates the response to ensure it contains the required data.
-        5. Logs the raw response for debugging purposes.
-        6. Extracts the offers from the response data.
-        7. Logs the number of offers found or if no offers are present.
-        8. Returns the formatted response containing the account offers.
-        9. Handles any exceptions that occur during execution.
-        10. Logs the total execution time of the function.
-
-        Args:
-            self (HttpRequest): The HTTP request object containing the `wallet_address` query parameter.
-
-        Returns:
-            JsonResponse: A JSON response containing the account offers or an error message.
-        """
-        start_time = time.time()  # Capture the start time to track the execution duration.
+        # Capture the start time to track the execution duration.
+        start_time = time.time()
         function_name = 'get_account_offers'
-        logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log function entry.
+        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Step 1: Retrieve the wallet address from the query parameters in the request.
             account = get_request_param(self, 'account')
-            if not account:
-                # If wallet address is missing, raise an error and return failure.
-                raise ValueError(ACCOUNT_IS_REQUIRED)
+            if not account or not validate_xrp_wallet(account):
+                raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
 
-            # Step 2: Initialize the XRPL client to interact with the XRPL network.
+            # Initialize the XRPL client for further operations.
             client = get_xrpl_client()
             if not client:
-                # If the client is not initialized, raise an error and return failure.
-                raise ConnectionError(ERROR_INITIALIZING_CLIENT)
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
-            # Step 3: Prepare the request for fetching account offers using the wallet address.
-            account_offers_request = prepare_account_offers(account)
-            # Send the request to the XRPL client to get the account offers.
-            response = client.request(account_offers_request)
+            if not xrpl.account.does_account_exist(account, client):
+                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(account)))
 
-            # Step 4: Validate the response from XRPL to ensure it's successful and contains expected data.
-            is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
-            if not is_valid:
-                raise Exception(response)
+            account_offers = []  # Initialize an empty list to store account lines
+            marker = None  # Initialize the marker to manage pagination
 
-            # Step 5: Log the raw response for debugging purposes (useful for detailed inspection).
-            logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(response, indent=4, sort_keys=True))
+            # Loop to fetch all account lines for the account, using pagination via 'marker'
+            while True:
+                # Prepare the account offers request with the current marker (for pagination)
+                account_offers_info = prepare_account_offers_paginated(account, marker)
 
-            # Step 6: Extract the offers from the response data.
-            offers = response.get("offers", [])
+                # Send the request to XRPL to fetch account offers
+                account_offers_response = client.request(account_offers_info)
 
-            # Step 7: Log the number of offers found and return the response with the offer data.
-            if offers:
-                # If offers are found, log how many were found.
-                logger.info(f"Found {len(offers)} offers for wallet {account}.")
-            else:
-                # If no offers are found, log this information.
-                logger.info(f"No offers found for wallet {account}.")
+                if validate_xrpl_response_data(account_offers_response):
+                    process_transaction_error(account_offers_response)
 
-            # Step 8: Log the successful fetching of offers for the account.
-            logger.info(f"Successfully fetched offers for account {account}.")
+                offers = account_offers_response.result.get('offers', [])
 
-            # Step 9: Prepare and return the response containing the offers.
-            return create_get_account_offers_response(response)
+                if offers:
+                    logger.info(f"Found {len(offers)} offers for wallet {account}.")
 
+                # Add the fetched account lines to the account_lines list
+                account_offers.extend(offers)
+
+                # Check if there are more pages of account lines to fetch using the 'marker' field.
+                # If 'marker' is not present, break the loop, as we have fetched all pages.
+                marker = account_offers_response.result.get('marker')
+                if not marker:
+                    break
+
+            # Extract pagination parameters from the request for paginating the response
+            # Default to page 1 if no page is specified
+            page = int(self.GET.get('page', 1))
+            # Default to 10 items per page if no page_size is specified
+            page_size = int(self.GET.get('page_size', 10))
+
+            # Paginate the account lines using Django's Paginator
+            paginator = Paginator(account_offers, page_size)
+            paginated_offers = paginator.get_page(page)
+
+            return create_get_account_offers_response(paginated_offers, paginator)
+
+        except (XRPLRequestFailureException, XRPLException, XRPLAddressCodecException, ValueError) as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
         except Exception as e:
-            # Step 10: Handle unexpected errors that might occur during the execution.
-            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
-                                function_name=function_name)
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
-            # Step 11: Log when the function exits, including the total execution time.
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
+    

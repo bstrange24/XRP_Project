@@ -1,50 +1,35 @@
-from django.core.paginator import Paginator
 import json
 import logging
 import time
 
-import xrpl
+from django.core.paginator import Paginator
 from django.views import View
 from rest_framework.decorators import api_view
 from tenacity import wait_exponential, stop_after_attempt, retry
 from xrpl import XRPLException
+from xrpl.account import does_account_exist
+from xrpl.asyncio.clients import XRPLRequestFailureException
+from xrpl.utils import XRPRangeException
 
 from .transactions_util import transaction_history_response, prepare_tx, transaction_status_response
 from ..accounts.account_utils import prepare_account_tx, prepare_account_tx_with_pagination, \
     account_tx_with_pagination_response
 from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
-    ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, XRPL_RESPONSE, ERROR_FETCHING_TRANSACTION_STATUS, \
-    INVALID_WALLET_IN_REQUEST, ERROR_FETCHING_TRANSACTION_HISTORY, INVALID_TRANSACTION_HASH
-from ..errors.error_handling import handle_error
-from ..utils import get_xrpl_client, total_execution_time_in_millis, \
-    validate_xrpl_response, validate_xrp_wallet, is_valid_transaction_hash
+    ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, ERROR_FETCHING_TRANSACTION_HISTORY, \
+    INVALID_TRANSACTION_HASH, \
+    ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER
+from ..errors.error_handling import process_transaction_error, handle_error_new, error_response
+from ..utils import get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, is_valid_transaction_hash, \
+    validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
 
 
 class Transactions(View):
 
-    #### Need new error handling
-    ####
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def get_transaction_history(self, account, previous_transaction_id):
-        """
-        Retrieves the transaction history for a given XRP wallet address and searches for a specific transaction.
-
-        Steps:
-        1. Validate the provided wallet address to ensure it is correctly formatted.
-        2. Validate the transaction hash format to confirm it follows the expected structure.
-        3. Initialize the XRPL client to communicate with the XRP Ledger.
-        4. Prepare an AccountTx request to fetch past transactions related to the wallet.
-        5. Send the request to XRPL and retrieve transaction history.
-        6. Validate the response and check for transactions in the result.
-        7. Iterate through the transactions to find a match with the given transaction hash.
-        8. If a matching transaction is found, return its details.
-        9. If no matching transaction is found or an error occurs, return an appropriate error response.
-
-        If any step fails, an error is logged, and an error response is returned.
-        """
         start_time = time.time()  # Capture the start time
         function_name = 'get_transaction_history'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
@@ -52,33 +37,33 @@ class Transactions(View):
         try:
             # Validate the provided wallet address
             if not account or not validate_xrp_wallet(account):
-                raise XRPLException(INVALID_WALLET_IN_REQUEST)
+                raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
 
             # Validate the format of the transaction hash
             if not is_valid_transaction_hash(previous_transaction_id):
-                raise XRPLException(INVALID_TRANSACTION_HASH)
+                raise XRPLException(error_response(INVALID_TRANSACTION_HASH))
 
-            # Initialize the XRPL client for querying the ledger
+            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
             client = get_xrpl_client()
             if not client:
-                raise XRPLException(ERROR_INITIALIZING_CLIENT)
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+            if not does_account_exist(account, client):
+                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(account)))
 
             # Prepare an AccountTx request to fetch transactions for the given account
             account_tx_request = prepare_account_tx(account)
 
             # Send the request to XRPL to get transaction history
-            response = client.request(account_tx_request)
-            is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
-            if not is_valid:
-                raise Exception(response)
+            account_tx_response = client.request(account_tx_request)
 
-            # Log the raw response for detailed debugging
-            logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(response, indent=4, sort_keys=True))
+            # Validate client response. Raise exception on error
+            if validate_xrpl_response_data(account_tx_response):
+                process_transaction_error(account_tx_response)
 
             # Check if the response contains any transactions
-            if 'transactions' in response:
-                for transaction_tx in response['transactions']:
+            if 'transactions' in account_tx_response.result:
+                for transaction_tx in account_tx_response.result['transactions']:
                     # Look for the specific transaction by comparing hash
                     # Match the actual transaction hash
                     if str(transaction_tx['hash']) == previous_transaction_id:
@@ -89,37 +74,22 @@ class Transactions(View):
                         return transaction_history_response(transaction_tx)
 
                 # If no match is found after checking all transactions
-                raise XRPLException(ERROR_FETCHING_TRANSACTION_HISTORY)
+                raise XRPLException(error_response(ERROR_FETCHING_TRANSACTION_HISTORY))
             else:
-                raise XRPLException(ERROR_FETCHING_TRANSACTION_HISTORY)
+                raise XRPLException(error_response(ERROR_FETCHING_TRANSACTION_HISTORY))
 
-        except (xrpl.XRPLException, Exception) as e:
-            # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
-            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
-                                function_name=function_name)
+        except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        except Exception as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-    #### Need new error handling
-    ####
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_transaction_history_with_pagination(request, account):
-        """
-        Retrieves the transaction history for a given XRP wallet address with pagination support.
-
-        Steps:
-        1. Validate the provided wallet address to ensure it is properly formatted.
-        2. Initialize the XRPL client to communicate with the XRP Ledger.
-        3. Fetch transactions in a loop using pagination (via the 'marker' parameter).
-        4. If a response is successful, extract transactions and append them to a list.
-        5. If additional transactions exist (indicated by a 'marker'), continue fetching.
-        6. Extract pagination parameters (page number and page size) from the request.
-        7. Use Django’s Paginator to split transactions into manageable pages.
-        8. Return the paginated transaction history, along with total transaction count and page count.
-
-        If any step fails, an error response is logged and returned.
-        """
+    def get_transaction_history_with_pagination(self, account):
         start_time = time.time()  # Capture the start time
         function_name = 'get_transaction_history_with_pagination'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
@@ -127,12 +97,15 @@ class Transactions(View):
         try:
             # Validate the provided wallet address
             if not account or not validate_xrp_wallet(account):
-                raise XRPLException(INVALID_WALLET_IN_REQUEST)
+                raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
 
-            # Initialize the XRPL client for querying transactions
+            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
             client = get_xrpl_client()
             if not client:
-                raise XRPLException(ERROR_INITIALIZING_CLIENT)
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+            if not does_account_exist(account, client):
+                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(account)))
 
             transactions = []
             marker = None
@@ -142,32 +115,28 @@ class Transactions(View):
                 account_tx_request = prepare_account_tx_with_pagination(account, marker)
 
                 # Send the request to XRPL to get transaction history
-                response = client.request(account_tx_request)
-                is_valid, response = validate_xrpl_response(response, required_keys=["validated"])
-                if not is_valid:
-                    raise Exception(response)
-
-                # Log the raw response for detailed debugging
-                logger.debug(XRPL_RESPONSE)
-                logger.debug(json.dumps(response, indent=4, sort_keys=True))
+                account_tx_response = client.request(account_tx_request)
+                # Validate client response. Raise exception on error
+                if validate_xrpl_response_data(account_tx_response):
+                    process_transaction_error(account_tx_response)
 
                 # Add fetched transactions to the list
-                if "transactions" not in response:
+                if "transactions" not in account_tx_response.result:
                     raise XRPLException(ERROR_FETCHING_TRANSACTION_HISTORY)
 
-                transactions.extend(response["transactions"])
+                transactions.extend(account_tx_response.result["transactions"])
 
                 # Log the transactions for debugging
-                logger.debug(json.dumps(response["transactions"], indent=4, sort_keys=True))
+                logger.debug(json.dumps(account_tx_response.result["transactions"], indent=4, sort_keys=True))
 
                 # Check if there are more pages of transactions to fetch
-                marker = response.get("marker")
+                marker = account_tx_response.result.get("marker")
                 if not marker:
                     break
 
             # Extract pagination parameters from the request
-            page = int(request.GET.get('page', 1))
-            page_size = int(request.GET.get('page_size', 10))
+            page = int(self.GET.get('page', 1))
+            page_size = int(self.GET.get('page_size', 10))
 
             # Paginate the transactions
             paginator = Paginator(transactions, page_size)
@@ -177,34 +146,18 @@ class Transactions(View):
             logger.info(f"Transaction history fetched for address: {account}")
             return account_tx_with_pagination_response(paginated_transactions, paginator.count, paginator.num_pages)
 
+        except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
         except Exception as e:
-            # Handle any exceptions that occur during the process
-            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
-                                function_name=function_name)
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
-
-#### Need new error handling
-####
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def check_transaction_status(request, tx_hash):
-        """
-        This function checks the status of a given XRPL transaction by its hash. The process involves:
-
-        1. Validating the transaction hash format.
-        2. Initializing an XRPL client to interact with the network.
-        3. Preparing a request to fetch transaction details.
-        4. Sending the request to XRPL and receiving the response.
-        5. Validating the response to ensure it contains necessary transaction details.
-        6. Logging relevant information for debugging and monitoring purposes.
-        7. Returning a formatted response with the transaction status.
-
-        Error handling is implemented to manage XRPL-related errors, network issues, or unexpected failures.
-        Logging is used to trace function entry, exit, and key processing steps.
-        """
+    def check_transaction_status(self, tx_hash):
         start_time = time.time()  # Capture the start time
         function_name = 'check_transaction_status'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
@@ -226,23 +179,20 @@ class Transactions(View):
             tx_request = prepare_tx(tx_hash)
 
             # Send the request to the XRPL to get the transaction details
-            response = client.request(tx_request)
-            is_valid, result = validate_xrpl_response(response, required_keys=["validated"])
-            if not is_valid:
-                raise Exception(result)
+            tx_response = client.request(tx_request)
 
-            # Log the raw response for detailed debugging
-            logger.debug(XRPL_RESPONSE)
-            logger.debug(json.dumps(result, indent=4, sort_keys=True))
+            # Validate client response. Raise exception on error
+            if validate_xrpl_response_data(tx_response):
+                process_transaction_error(tx_response)
 
-            # Log the raw response for detailed debugging
-            logger.info(f"Raw XRPL response for transaction {tx_hash}: {result}")
-            return transaction_status_response(response, tx_hash)
+            logger.info(f"Raw XRPL response for transaction {tx_hash}: {tx_response}")
+            return transaction_status_response(tx_response, tx_hash)
 
-        except (xrpl.XRPLException, Exception) as e:
-            # Handle exceptions like XRPL-specific errors, network issues, or unexpected errors
-            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
-                                function_name=function_name)
-
+        except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        except Exception as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))

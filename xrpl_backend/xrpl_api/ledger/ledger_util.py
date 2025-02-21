@@ -83,9 +83,9 @@ def check_account_ledger_entries(account: str):
     return True, account_objects
 
 
-def ledger_info_response(response, message):
+def ledger_info_response(response):
     return JsonResponse({
         'status': 'success',
-        'message': message,
-        'ledger_info': response
+        'message': 'Server info fetched successfully.',
+        'ledger_info': response.result
     })

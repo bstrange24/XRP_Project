@@ -272,7 +272,7 @@ def get_request_param(request, key, default=None, convert_func=None):
 def get_query_param(params, key):
     try:
         return params.get(key)
-    except Exception:
+    except Exception as e:
         return None
 
 
@@ -362,7 +362,7 @@ def validate_xrpl_response_data(response: Optional[Response]) -> bool:
         logger.info("Response is None or not successful")
         return True
 
-    logger.debug(f"account_set_tx submit_and_wait:\n{json.dumps(response.result, indent=4, sort_keys=True)}")
+    logger.debug(f"response:\n{json.dumps(response.result, indent=4, sort_keys=True)}")
     logger.info(f"response.is_successful(): {response.is_successful()}")
 
     result = response.result
@@ -378,8 +378,6 @@ def validate_xrpl_response_data(response: Optional[Response]) -> bool:
         return False
 
     return False
-
-
 
 
 def validate_request_data(sender_seed: str, receiver_address: str, amount_xrp: int) -> None:

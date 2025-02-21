@@ -2,7 +2,7 @@ from xrpl.models import IssuedCurrency, XRP, BookOffers
 from xrpl.utils import xrp_to_drops
 
 
-def create_issued_currency_the_user_wants(wallet_address, currency, amount):
+def buyer_create_issued_currency(wallet_address, currency, amount):
     return {
         "currency": IssuedCurrency(
             currency=currency,
@@ -11,7 +11,7 @@ def create_issued_currency_the_user_wants(wallet_address, currency, amount):
         "value": amount,
     }
 
-def create_amount_the_user_wants_to_spend():
+def create_amount_the_buyer_wants_to_spend():
     return {
         "currency": XRP(),
         # 25 TST * 10 XRP per TST * 15% financial exchange (FX) cost

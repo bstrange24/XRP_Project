@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.models import BookOffers, OfferCreate
+from xrpl.models import BookOffers, OfferCreate, AccountLines, AccountOffers
 
 
 # Ensure this function runs properly in Django's event loop
@@ -8,6 +8,44 @@ async def process_offer(signed_tx, client):
     result = await submit_and_wait(signed_tx, client)
     return result
 
+def create_get_account_offers_response(paginated_transactions, paginator):
+    return JsonResponse({
+        "status": "success",
+        "message": "Account offers successfully retrieved.",
+        "account_offers": list(paginated_transactions),
+        "total_account_lines": paginator.count,
+        "pages": paginator.num_pages,
+        "current_page": paginated_transactions.number,
+    })
+
+def prepare_account_lines_for_offer(wallet_address):
+    return AccountLines(
+        account=wallet_address,
+        ledger_index="validated",
+    )
+
+def prepare_account_offers(wallet_address):
+    return AccountOffers(
+        account=wallet_address,
+        ledger_index="validated",
+    )
+
+def prepare_account_offers_paginated(wallet_address, marker):
+    return AccountOffers(
+        account=wallet_address,
+        limit=100,
+        marker=marker,
+        ledger_index="validated",
+    )
+
+def create_account_offers_response(orderbook_info, result, acct_offers):
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Offers successfully created.',
+        'result': result.result,
+        'orderbook_info': orderbook_info.result,
+        'acct_offers': acct_offers.result,
+    })
 
 def create_book_offer(wallet_address, we_want, we_spend):
     return BookOffers(
@@ -27,10 +65,8 @@ def create_offer(wallet_address, we_want, we_spend):
     )
 
 
-def create_account_offers_response(signed_tx, orderbook_info, result, acct_offers):
+def create_account_offers_response(result, acct_offers):
     return JsonResponse({
-        "transaction_hash": signed_tx.get_hash(),
-        "orderbook_info": orderbook_info.result,
         "transaction_status": "success" if result.is_successful() else "failed",
         'acct_offers.result': acct_offers.result
     })

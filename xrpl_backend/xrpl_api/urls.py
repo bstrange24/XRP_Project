@@ -3,7 +3,7 @@ from django.urls import path
 from .accounts.accounts import Accounts
 from .ledger.ledger import LedgerInteraction
 from .offers.account_offers import AccountOffer
-from .payments.payments import Payments, SendPayments
+from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
 from .transactions.transactions import Transactions
 from .trust_lines.trust_line import TrustLine
 
@@ -31,7 +31,7 @@ urlpatterns = [
 
     # Endpoint to update account settings on the XRPL.
     # Example: http://127.0.0.1:8000/xrpl/config-account/?sender_seed=...&require_destination_tag=false
-    path("config-account/", Accounts.config_account, name="config_account"),
+    path("update-account-config/", Accounts.update_account_config, name="update_account_config"),
 
     # Endpoint to retrieve account settings on the XRPL.
     # Example: http://127.0.0.1:8000/xrpl/get-account-config/rMgaRbbZUBeoxwZevhv1mezuvA97eR4JHV/
@@ -39,7 +39,7 @@ urlpatterns = [
 
     # Endpoint to blackhole all XRP in a wallet.
     # Example: http://127.0.0.1:8000/xrpl/black_hole_xrp/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/
-    path('black_hole_xrp/<str:account>/', Accounts.black_hole_xrp, name='delete_account'),
+    path('send-xrp-payment-and-black-hole-account/', SendXrpPaymentAndBlackHoleAccount.as_view(), name='send_xrp_payment_and_black_hole_account'),
 
     # Endpoint to get active offers on an account.
     # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
@@ -65,11 +65,11 @@ urlpatterns = [
 
     # Endpoint to send a payment transaction from one wallet to another.
     # Example: http://127.0.0.1:8000/xrpl/send-payment/?sender_seed=...&receiver=...&amount=10
-    path('send-payment/', SendPayments.as_view(), name='send_payment'),
+    path('send-xrp-payment/', SendXrpPayments.as_view(), name='send_xrp_payment'),
 
     # Endpoint to send payment and delete the sender's wallet account.
     # Example: http://127.0.0.1:8000/xrpl/send-payment-delete-wallet/?sender_seed=...&receiver=...&amount=10
-    path('send-payment-delete-account/', Payments.as_view(), name='send_payment_and_delete_account'),
+    path('send-xrp-payment-and-delete-account/', SendXrpPaymentsAndDeleteAccount.as_view(), name='send_xrp_payment_and_delete_account'),
 
     # Endpoint to retrieve detailed information about a specific ledger.
     # Example: http://127.0.0.1:8000/xrpl/get-ledger-info/?ledger_index=validated
@@ -101,4 +101,8 @@ urlpatterns = [
     # Endpoint to remove a trust lines for a wallet address.
     # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
     path('remove-trust-line/', TrustLine.remove_trust_line, name='remove_trust_line'),
+
+    # path('send-cross-currency-payment/', Currency.send_cross_currency_payment, name='send_cross_currency_payment'),
+
+
 ]

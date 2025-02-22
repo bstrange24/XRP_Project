@@ -11,7 +11,6 @@ from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.models import Payment, Ledger, ServerInfo, AccountObjects
 
 from .db_operations.payments_db_operations import save_payment_data
-from ..accounts.account_utils import update_sender_account_balances, update_receiver_account_balances
 from ..errors.error_handling import error_response, handle_error_new
 
 logger = logging.getLogger('xrpl_app')
@@ -109,7 +108,7 @@ def check_pay_channel_entries(account_objects):
         return True
 
 
-def process_payment_response(result: dict, payment_response, sender_address: str, receiver_address: str,
+def process_payment_response(payment_result: dict, payment_response, sender_address: str, receiver_address: str,
                              amount_xrp: Decimal, fee_drops: str):
     function_name = "process_payment_response"
     try:
@@ -124,17 +123,11 @@ def process_payment_response(result: dict, payment_response, sender_address: str
 
         # Save the payment transaction details
         logger.info(f"Saving payment data in table")
-        save_payment_data(sender_address, receiver_address, Decimal(amount_xrp), transaction_hash)
-
-        # Update the balances of both sender and receiver accounts
-        logger.info(f"Updating sender account balances data in table")
-        update_sender_account_balances(sender_address, Decimal(amount_xrp))
-
-        logger.info(f"Updating receiver account balances data in table")
-        update_receiver_account_balances(receiver_address, Decimal(amount_xrp))
+        save_payment_data(payment_result.result, transaction_hash, sender_address, receiver_address, amount_xrp,
+                                     str(fee_drops))
 
         # Send a response to indicate successful payment
-        return send_payment_response(result, transaction_hash, sender_address, receiver_address, amount_xrp,
+        return send_payment_response(payment_result, transaction_hash, sender_address, receiver_address, amount_xrp,
                                      str(fee_drops))
     except (XRPLException, AttributeError, KeyError, TypeError, ValueError) as e:
         # Handle error message
@@ -177,20 +170,3 @@ def create_payment_transaction(sender_address: str, receiver_address: str, amoun
             amount=str(amount_drops),
             fee=str(fee_drops),  # Fee must be passed as a string
         )
-
-
-# def save_payment_data(sender: str, receiver: str, amount: Decimal, transaction_hash: str):
-#     function_name = "save_payment_data"
-#     try:
-#         logger.debug(f"Payment response: {save_payment_data}")
-#         XrplPaymentData.objects.create(
-#             sender=sender,
-#             receiver=receiver,
-#             amount=amount,
-#             transaction_hash=transaction_hash,
-#         )
-#     except Exception as e:
-#         # Handle error message
-#         return handle_error_new(e, status_code=500, function_name=function_name)
-#     finally:
-#         pass

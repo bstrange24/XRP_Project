@@ -126,44 +126,44 @@ def get_account_reserves():
         return None, None
 
 
-def update_sender_account_balances(sender_address: str, amount_xrp: Decimal):
-    try:
-        with transaction.atomic():  # Ensures the update is committed
-            sender_account = XrplAccountData.objects.select_for_update().get(account=sender_address)
-
-            if amount_xrp <= 0:
-                logger.warning(f"Skipping update: amount_xrp={amount_xrp}")
-                return
-
-            sender_account.balance -= amount_xrp
-            sender_account.save(update_fields=["balance"])  # Force update
-
-    except XrplAccountData.DoesNotExist as e:
-        # Handle error message
-        return handle_error_new(e, status_code=500, function_name='update_sender_account_balances')
-    except Exception as e:
-        # Handle error message
-        return handle_error_new(e, status_code=500, function_name='update_sender_account_balances')
-
-
-def update_receiver_account_balances(receiver_address: str, amount_xrp: Decimal):
-    try:
-        with transaction.atomic():
-            receiver_account = XrplAccountData.objects.get(account=receiver_address)
-
-            if amount_xrp <= 0:
-                logger.warning(f"Skipping update: amount_xrp={amount_xrp}")
-                return
-
-            receiver_account.balance += amount_xrp
-            receiver_account.save()
-
-    except XrplAccountData.DoesNotExist as e:
-        # Handle error message
-        return handle_error_new(e, status_code=500, function_name='update_receiver_account_balances')
-    except Exception as e:
-        # Handle error message
-        return handle_error_new(e, status_code=500, function_name='update_receiver_account_balances')
+# def update_sender_account_balances(sender_address: str, amount_xrp: Decimal):
+#     try:
+#         with transaction.atomic():  # Ensures the update is committed
+#             sender_account = XrplAccountData.objects.select_for_update().get(account=sender_address)
+#
+#             if amount_xrp <= 0:
+#                 logger.warning(f"Skipping update: amount_xrp={amount_xrp}")
+#                 return
+#
+#             sender_account.balance -= amount_xrp
+#             sender_account.save(update_fields=["balance"])  # Force update
+#
+#     except XrplAccountData.DoesNotExist as e:
+#         # Handle error message
+#         return handle_error_new(e, status_code=500, function_name='update_sender_account_balances')
+#     except Exception as e:
+#         # Handle error message
+#         return handle_error_new(e, status_code=500, function_name='update_sender_account_balances')
+#
+#
+# def update_receiver_account_balances(receiver_address: str, amount_xrp: Decimal):
+#     try:
+#         with transaction.atomic():
+#             receiver_account = XrplAccountData.objects.get(account=receiver_address)
+#
+#             if amount_xrp <= 0:
+#                 logger.warning(f"Skipping update: amount_xrp={amount_xrp}")
+#                 return
+#
+#             receiver_account.balance += amount_xrp
+#             receiver_account.save()
+#
+#     except XrplAccountData.DoesNotExist as e:
+#         # Handle error message
+#         return handle_error_new(e, status_code=500, function_name='update_receiver_account_balances')
+#     except Exception as e:
+#         # Handle error message
+#         return handle_error_new(e, status_code=500, function_name='update_receiver_account_balances')
 
 
 def get_account_details(client, wallet_address: str):

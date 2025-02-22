@@ -199,9 +199,6 @@ class SendXrpPayments(View):
                 logger.info(f"Sender Address Balance: {await get_balance(sender_address, client)}")
                 logger.info(f"Receiver Address Balance: {await get_balance(receiver_account, client)}")
 
-                logger.debug("payment_response:")
-                # logger.debug(json.dumps(result, indent=4, sort_keys=True))
-
                 # Handle the transaction response
                 # Use `sync_to_async` to handle database operations asynchronously
                 # Always await coroutines in asynchronous code.

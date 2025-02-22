@@ -156,7 +156,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} [{module} - {funcName}:{lineno}] {message}',
+            'format': '{levelname} {asctime} [Thread: {thread}] [{module} - {funcName}:{lineno}] {message}',
             'style': '{',
         },
         'simple': {
@@ -184,3 +184,4 @@ LOGGING = {
         },
     },
 }
+

@@ -23,7 +23,7 @@ from ..accounts.account_utils import prepare_account_data, check_check_entries, 
     delete_account_response
 from ..constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
     SENDER_SEED_IS_INVALID, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA, \
-    INSUFFICENT_BALANCE_TO_COVER_RESERVER_FEES, asfDisableMaster
+    INSUFFICIENT_BALANCE_TO_COVER_RESERVER_FEES, asfDisableMaster
 from ..errors.error_handling import handle_error_new, error_response, process_transaction_error
 from ..escrows.escrows_util import check_escrow_entries
 from ..ledger.ledger_util import check_ripple_state_entries
@@ -275,7 +275,7 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 transferable_amount = int(balance) - int(drops)
 
                 if transferable_amount <= 0:
-                    raise XRPLException(error_response(INSUFFICENT_BALANCE_TO_COVER_RESERVER_FEES))
+                    raise XRPLException(error_response(INSUFFICIENT_BALANCE_TO_COVER_RESERVER_FEES))
 
                 fee_drops = await get_fee(client)
 

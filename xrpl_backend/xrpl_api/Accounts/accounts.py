@@ -16,7 +16,7 @@ from xrpl.utils import XRPRangeException
 from xrpl.wallet import generate_faucet_wallet, Wallet
 
 from .account_utils import prepare_account_set_disabled_tx, prepare_account_set_enabled_tx, process_all_flags
-from .db_operations.account_db_operations import save_account_data_to_databases, save_account_configuration_transaction
+from .db_operations.account_db_operations import save_account_data, save_account_configuration_transaction
 from ..accounts.account_utils import create_multiple_account_response, \
     create_account_response, create_wallet_info_response, get_account_reserves, create_wallet_balance_response, \
     account_set_tx_response, prepare_account_data, account_config_settings, get_account_set_flags
@@ -77,7 +77,7 @@ class Accounts(View):
                 raise XRPLException(error_response(INVALID_XRP_BALANCE))
 
             # Save account data to databases
-            save_account_data_to_databases(account_info_response.result, str(xrp_balance))
+            save_account_data(account_info_response.result, str(xrp_balance))
             logger.debug(f"{CLASSIC_XRP_ADDRESS} save to database")
 
             # Return response with account information
@@ -141,7 +141,7 @@ class Accounts(View):
                     raise XRPLException(error_response(INVALID_XRP_BALANCE))
 
                 # Save account data to databases
-                save_account_data_to_databases(account_info_response.result, str(xrp_balance))
+                save_account_data(account_info_response.result, str(xrp_balance))
                 logger.debug(f"{CLASSIC_XRP_ADDRESS} save to database")
 
                 # Accessing the result from the response
@@ -339,7 +339,7 @@ class Accounts(View):
             # Save account transaction info (if needed)
             if tx_responses:
                 # Here we assume save_account_transaction will record info based on the last transaction
-                save_account_configuration_transaction(tx_responses[-1], all_flags)
+                save_account_configuration_transaction(tx_responses[-1], flags_to_enable)
 
             return account_set_tx_response(tx_responses[-1], sender_address)
 
@@ -350,76 +350,3 @@ class Accounts(View):
         finally:
             elapsed = total_execution_time_in_millis(overall_start_time)
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, elapsed))
-
-    # @api_view(['GET'])
-    # @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    # def update_account_config(self):
-    #     start_time = time.time()  # Capture the start time
-    #     function_name = 'update_account_config'
-    #     logger.info(ENTERING_FUNCTION_LOG.format(function_name))
-    #
-    #     try:
-    #         # Extract and validate parameters from the request
-    #         sender_seed = get_request_param(self, 'sender_seed')
-    #         if not is_valid_xrpl_seed(sender_seed):
-    #             raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
-    #
-    #         # Initialize the XRPL client
-    #         client = get_xrpl_client()
-    #         if not client:
-    #             raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-    #
-    #         # Create a wallet from the seed to get the sender's address
-    #         sender_wallet = Wallet.from_seed(sender_seed)
-    #         sender_address = sender_wallet.classic_address
-    #
-    #         logger.info(f"Processing account config for {sender_address} ")
-    #
-    #         # Build flags for the AccountSet transaction based on the provided settings
-    #         flags_to_enable, flags_to_disable = get_account_set_flags(self)
-    #         all_flags = flags_to_enable + flags_to_disable
-    #         logger.info(f"Total Flags being processed: {len(all_flags)}")
-    #
-    #         counter = 1
-    #         response_result = None
-    #
-    #         for flags in all_flags:
-    #             start_time = time.time()  # Capture the start time
-    #             logger.info(f"Processing: {counter} flag")
-    #             if flags in flags_to_enable:
-    #                 # Prepare the AccountSet enabled transaction
-    #                 account_set_tx = prepare_account_set_enabled_tx(sender_address, flags)
-    #                 logger.info(f"Processing enabled flags")
-    #             else:
-    #                 # Prepare the AccountSet disable transaction
-    #                 account_set_tx = prepare_account_set_disabled_tx(sender_address, flags)
-    #                 logger.info(f"Processing disabled flags")
-    #
-    #             # Submit and wait for the transaction to be included in a ledger
-    #             response = submit_and_wait(account_set_tx, client, sender_wallet)
-    #             if validate_xrpl_response_data(response):
-    #                 process_transaction_error(response)
-    #
-    #             # Create a Transaction request to see transaction
-    #             response_result = response.result
-    #             tx_response = client.request(prepare_tx(response_result["hash"]))
-    #             if validate_xrpl_response_data(tx_response):
-    #                 process_transaction_error(tx_response)
-    #
-    #             logger.info(f"Total time for loop: {counter} in ms: {total_execution_time_in_millis(start_time)}")
-    #             counter += 1
-    #
-    #         if response_result is not None:
-    #             save_account_transaction(response_result, all_flags)
-    #
-    #         return account_set_tx_response(response_result, sender_address)
-    #
-    #     except (XRPLRequestFailureException, XRPLException, XRPLAddressCodecException, ValueError) as e:
-    #         # Handle error message
-    #         return handle_error_new(e, status_code=500, function_name=function_name)
-    #     except Exception as e:
-    #         # Handle error message
-    #         return handle_error_new(e, status_code=500, function_name=function_name)
-    #     finally:
-    #         logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
-

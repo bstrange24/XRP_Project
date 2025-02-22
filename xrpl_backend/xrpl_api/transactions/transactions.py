@@ -11,6 +11,7 @@ from xrpl.account import does_account_exist
 from xrpl.asyncio.clients import XRPLRequestFailureException
 from xrpl.utils import XRPRangeException
 
+from .db_operations.transaction_db_operations import save_transaction_history
 from .transactions_util import transaction_history_response, prepare_tx, transaction_status_response
 from ..accounts.account_utils import prepare_account_tx, prepare_account_tx_with_pagination, \
     account_tx_with_pagination_response
@@ -70,6 +71,10 @@ class Transactions(View):
                         logger.debug("Transaction found:")
                         logger.debug(json.dumps(transaction_tx, indent=4, sort_keys=True))
 
+                        # Insert transaction in database, Skip it the record already exists.
+                        if transaction_tx:
+                            save_transaction_history(transaction_tx)
+
                         # Prepare and return the found transaction
                         return transaction_history_response(transaction_tx)
 
@@ -86,6 +91,7 @@ class Transactions(View):
             return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
 
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
@@ -144,6 +150,11 @@ class Transactions(View):
 
             # Log successful transaction history fetch
             logger.info(f"Transaction history fetched for address: {account}")
+
+            if paginated_transactions:
+                # Here we assume save_transaction_history will record info based on the last transaction
+                save_transaction_history(paginated_transactions[-1])
+
             return account_tx_with_pagination_response(paginated_transactions, paginator.count, paginator.num_pages)
 
         except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
@@ -154,6 +165,7 @@ class Transactions(View):
             return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
 
     @api_view(['GET'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
@@ -186,7 +198,11 @@ class Transactions(View):
                 process_transaction_error(tx_response)
 
             logger.info(f"Raw XRPL response for transaction {tx_hash}: {tx_response}")
-            return transaction_status_response(tx_response, tx_hash)
+
+            if tx_response:
+                save_transaction_history(tx_response.result)
+
+            return transaction_status_response(tx_response)
 
         except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
             # Handle error message

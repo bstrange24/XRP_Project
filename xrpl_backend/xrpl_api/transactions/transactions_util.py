@@ -10,17 +10,17 @@ def prepare_tx(tx_hash):
     return Tx(transaction=tx_hash)
 
 
-def transaction_status_response(response, tx_hash):
+def transaction_status_response(response):
     return JsonResponse({
         'status': 'success',
-        'message': f"{response.result['tx_json']['TransactionType']}",
+        'transactions': f"{response.result['tx_json']['TransactionType']}",
         'result': response.result,
     })
 
 
-def transaction_history_response(transaction_tx):
+def transaction_history_response(response):
     return JsonResponse({
         'status': 'success',
-        'message': 'Transaction history successfully retrieved.',
-        'response': transaction_tx,
+        'transactions': f"{response['tx_json']['TransactionType']}",
+        'result': response,
     })

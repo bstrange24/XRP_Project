@@ -16,7 +16,6 @@ def save_payment_data(sender: str, receiver: str, amount: Decimal, transaction_h
                 transaction_hash=transaction_hash,
             )
     except Exception as e:
-        # Handle error message
         logger.error(f"Error saving payment data: {e}")
     finally:
         pass

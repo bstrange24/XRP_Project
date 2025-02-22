@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="db.sqlite3" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="5100"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="auth_group" custom_title="0" dock_id="5" table="4,10:mainauth_group"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000005fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500320100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500330100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500340100000000ffffffff0000000000000000fb000000160064006f0063006b00420072006f00770073006500350100000000ffffffff0000011e00ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">SELECT * FROM xrpl_account_data;
+
+SELECT * FROM xrpl_ledger_data;
+
+SELECT * FROM xrpl_payment_data;
+
+SELECT * FROM xrpl_account_configuration_data;
+SELECT * FROM xrpl_account_configuration_meta_data;
+SELECT * FROM xrpl_account_configuration_affected_nodes_data;
+SELECT * FROM xrpl_account_configuration_tx_json_data;
+
+SELECT * FROM xrpl_transaction_history_data;
+SELECT * FROM xrpl_transaction_history_meta_data;
+SELECT * FROM xrpl_transaction_history_affected_node_data;
+SELECT * FROM xrpl_transaction_history_final_fields_data;
+SELECT * FROM xrpl_transaction_history_previous_fields_data;
+SELECT * FROM xrpl_transaction_history_new_fields_data;
+SELECT * FROM xrpl_transaction_history_json_data;
+
+
+-- Get All Transactions with Their Metadata and Affected Nodes
+SELECT
+    th.hash AS transaction_hash,
+    th.ledger_index,
+    th.validated,
+    tm.transaction_index,
+    tm.transaction_result,
+    tm.delivered_amount,
+    tan.node_type,
+    tan.ledger_entry_type,
+    tan.ledger_index AS node_ledger_index,
+    tf.account AS final_fields_account,
+    tf.balance AS final_fields_balance,
+    tp.balance AS previous_fields_balance,
+    tn.account AS new_fields_account
+FROM
+    xrpl_transaction_history_data th
+LEFT JOIN
+    xrpl_transaction_history_meta_data tm ON th.id = tm.ledger_transaction_id
+LEFT JOIN
+    xrpl_transaction_history_affected_node_data tan ON tm.id = tan.meta_data_id
+LEFT JOIN
+    xrpl_transaction_history_final_fields_data tf ON tan.id = tf.affected_node_id
+LEFT JOIN
+    xrpl_transaction_history_previous_fields_data tp ON tan.id = tp.affected_node_id
+LEFT JOIN
+    xrpl_transaction_history_new_fields_data tn ON tan.id = tn.affected_node_id;
+
+-- Get All Transactions with Their tx_json Data
+SELECT
+    th.hash AS transaction_hash,
+    th.ledger_index,
+    th.validated,
+    tj.account AS tx_json_account,
+    tj.destination,
+    tj.fee,
+    tj.transaction_type
+FROM
+    xrpl_transaction_history_data th
+LEFT JOIN
+    xrpl_transaction_history_json_data tj ON th.id = tj.ledger_transaction_id;
+	
+-- Get All Affected Nodes with Their FinalFields and PreviousFields
+SELECT
+    tan.node_type,
+    tan.ledger_entry_type,
+    tan.ledger_index AS node_ledger_index,
+    tf.account AS final_fields_account,
+    tf.balance AS final_fields_balance,
+    tp.balance AS previous_fields_balance
+FROM
+    xrpl_transaction_history_affected_node_data tan
+LEFT JOIN
+    xrpl_transaction_history_final_fields_data tf ON tan.id = tf.affected_node_id
+LEFT JOIN
+    xrpl_transaction_history_previous_fields_data tp ON tan.id = tp.affected_node_id;
+
+-- Filter Transactions by validated Status and Include Metadata
+SELECT
+    th.hash AS transaction_hash,
+    th.ledger_index,
+    th.validated,
+    tm.transaction_index,
+    tm.transaction_result,
+    tm.delivered_amount
+FROM
+    xrpl_transaction_history_data th
+LEFT JOIN
+    xrpl_transaction_history_meta_data tm ON th.id = tm.ledger_transaction_id
+WHERE
+    th.validated = 1;  -- 1 for True, 0 for False
+
+-- Get All Transactions with Their Metadata, Affected Nodes, and tx_json
+SELECT
+    th.hash AS transaction_hash,
+    th.ledger_index,
+    th.validated,
+    tm.transaction_index,
+    tm.transaction_result,
+    tm.delivered_amount,
+    tan.node_type,
+    tan.ledger_entry_type,
+    tan.ledger_index AS node_ledger_index,
+    tf.account AS final_fields_account,
+    tf.balance AS final_fields_balance,
+    tp.balance AS previous_fields_balance,
+    tn.account AS new_fields_account,
+    tj.account AS tx_json_account,
+    tj.destination,
+    tj.fee,
+    tj.transaction_type
+FROM
+    xrpl_transaction_history_data th
+LEFT JOIN
+    xrpl_transaction_history_meta_data tm ON th.id = tm.ledger_transaction_id
+LEFT JOIN
+    xrpl_transaction_history_affected_node_data tan ON tm.id = tan.meta_data_id
+LEFT JOIN
+    xrpl_transaction_history_final_fields_data tf ON tan.id = tf.affected_node_id
+LEFT JOIN
+    xrpl_transaction_history_previous_fields_data tp ON tan.id = tp.affected_node_id
+LEFT JOIN
+    xrpl_transaction_history_new_fields_data tn ON tan.id = tn.affected_node_id
+LEFT JOIN
+    xrpl_transaction_history_json_data tj ON th.id = tj.ledger_transaction_id;
+
+-- Filter Transactions by ledger_index and Include Affected Nodes
+SELECT
+    th.hash AS transaction_hash,
+    th.ledger_index,
+    th.validated,
+    tan.node_type,
+    tan.ledger_entry_type,
+    tan.ledger_index AS node_ledger_index,
+    tf.account AS final_fields_account,
+    tf.balance AS final_fields_balance,
+    tp.balance AS previous_fields_balance
+FROM
+    xrpl_transaction_history_data th
+LEFT JOIN
+    xrpl_transaction_history_meta_data tm ON th.id = tm.ledger_transaction_id
+LEFT JOIN
+    xrpl_transaction_history_affected_node_data tan ON tm.id = tan.meta_data_id
+LEFT JOIN
+    xrpl_transaction_history_final_fields_data tf ON tan.id = tf.affected_node_id
+LEFT JOIN
+    xrpl_transaction_history_previous_fields_data tp ON tan.id = tp.affected_node_id
+WHERE
+    th.ledger_index = 4914199;  -- Replace with the desired ledger index</sql><current_tab id="0"/></tab_sql></sqlb_project>

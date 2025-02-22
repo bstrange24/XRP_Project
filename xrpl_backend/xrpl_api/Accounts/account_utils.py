@@ -3,7 +3,7 @@ import logging
 from decimal import Decimal
 import time
 from django.http import JsonResponse
-from xrpl.models import ServerInfo, AccountDelete, AccountInfo, AccountTx, AccountSet, AccountObjects, SetRegularKey, AccountLines, AccountSetAsfFlag
+from xrpl.models import ServerInfo, AccountDelete, AccountInfo, AccountTx, AccountSet, AccountObjects, SetRegularKey, AccountLines
 
 from django.db import transaction
 from xrpl.transaction import submit_and_wait
@@ -11,10 +11,12 @@ from .models.account_models import XrplAccountData
 from ..constants import XRPL_RESPONSE
 from ..errors.error_handling import handle_engine_result, handle_error_new, process_transaction_error, error_response
 from ..transactions.transactions_util import prepare_tx
-from ..utils import get_xrpl_client, parse_boolean_param, get_query_param, validate_xrpl_response_data, \
-    total_execution_time_in_millis
+from ..utils import get_xrpl_client, parse_boolean_param, validate_xrpl_response_data, \
+    total_execution_time_in_millis, map_request_parameters_to_flag_variables, \
+    get_account_set_flags_from_request_parameters
 
 logger = logging.getLogger('xrpl_app')
+
 
 def process_all_flags(sender_address, client, sender_wallet, flags_to_enable, all_flags):
     """
@@ -23,7 +25,7 @@ def process_all_flags(sender_address, client, sender_wallet, flags_to_enable, al
     """
     tx_results = []
     for counter, flag in enumerate(all_flags, start=1):
-        logger.info("Processing flag %d of %d: %s", counter, len(all_flags), flag.name)
+        logger.info(f"Processing flag {counter} of {len(all_flags)}: {flag.name}")
         result = process_flag(sender_address, flag, client, sender_wallet, flags_to_enable)
         tx_results.append(result)
     return tx_results
@@ -35,10 +37,10 @@ def process_flag(sender_address, flag, client, sender_wallet, flags_to_enable):
     """
     flag_start_time = time.time()
     if flag in flags_to_enable:
-        logger.info("Processing enabled flag: %s", flag.name)
+        logger.info(f"Processing enabled flag: {flag.name}")
         account_set_tx = prepare_account_set_enabled_tx(sender_address, flag)
     else:
-        logger.info("Processing disabled flag: %s", flag.name)
+        logger.info(f"Processing disabled flag: {flag.name}")
         account_set_tx = prepare_account_set_disabled_tx(sender_address, flag)
 
     # Submit the transaction and wait for ledger inclusion
@@ -56,18 +58,19 @@ def process_flag(sender_address, flag, client, sender_wallet, flags_to_enable):
         process_transaction_error(tx_response)
 
     elapsed = total_execution_time_in_millis(flag_start_time)
-    logger.info("Processed flag %s in %sms", flag.name, elapsed)
+    logger.info(f"Processed flag {flag.name} in {elapsed} ms")
     return tx_response.result
+
 
 def get_account_set_flags(self):
     flags_to_enable = []
     flags_to_disable = []
 
     flag_params = map_request_parameters_to_flag_variables()
-    logger.info("Mapping of request parameters to flags: %s", flag_params)
+    logger.info(f"Mapping of request parameters to flags: {flag_params}")
 
     non_none_request_parameters = get_account_set_flags_from_request_parameters(self)
-    logger.info("Non-None request parameters: %s", non_none_request_parameters)
+    logger.info(f"Non-None request parameters: {non_none_request_parameters}")
 
     for param_name, flag_value in flag_params.items():
         if param_name in non_none_request_parameters:
@@ -79,50 +82,6 @@ def get_account_set_flags(self):
                 flags_to_disable.append(flag_value)
 
     return flags_to_enable, flags_to_disable
-
-
-def map_request_parameters_to_flag_variables():
-    return {
-        'asf_account_txn_id': AccountSetAsfFlag.ASF_ACCOUNT_TXN_ID,
-        'asf_allow_trustline_clawback': AccountSetAsfFlag.ASF_ALLOW_TRUSTLINE_CLAWBACK,
-        'asf_authorized_nftoken_minter': AccountSetAsfFlag.ASF_AUTHORIZED_NFTOKEN_MINTER,
-        'asf_default_ripple': AccountSetAsfFlag.ASF_DEFAULT_RIPPLE,
-        'asf_deposit_auth': AccountSetAsfFlag.ASF_DEPOSIT_AUTH,
-        'asf_disable_master': AccountSetAsfFlag.ASF_DISABLE_MASTER,
-        'asf_disable_incoming_check': AccountSetAsfFlag.ASF_DISABLE_INCOMING_CHECK,
-        'asf_disable_incoming_nftoken_offer': AccountSetAsfFlag.ASF_DISABLE_INCOMING_NFTOKEN_OFFER,
-        'asf_disable_incoming_paychan': AccountSetAsfFlag.ASF_DISABLE_INCOMING_PAYCHAN,
-        'asf_disable_incoming_trustline': AccountSetAsfFlag.ASF_DISABLE_INCOMING_TRUSTLINE,
-        'asf_disallow_XRP': AccountSetAsfFlag.ASF_DISALLOW_XRP,
-        'asf_global_freeze': AccountSetAsfFlag.ASF_GLOBAL_FREEZE,
-        'asf_no_freeze': AccountSetAsfFlag.ASF_NO_FREEZE,
-        'asf_require_auth': AccountSetAsfFlag.ASF_REQUIRE_AUTH,
-        'asf_require_dest': AccountSetAsfFlag.ASF_REQUIRE_DEST,
-    }
-
-
-def get_account_set_flags_from_request_parameters(self):
-    params = {
-        'asf_account_txn_id': get_query_param(self.query_params, 'asf_account_txn_id'),
-        'asf_allow_trustline_clawback': get_query_param(self.query_params, 'asf_allow_trustline_clawback'),
-        'asf_authorized_nftoken_minter': get_query_param(self.query_params, 'asf_authorized_nftoken_minter'),
-        'asf_default_ripple': get_query_param(self.query_params, 'asf_default_ripple'),
-        'asf_deposit_auth': get_query_param(self.query_params, 'asf_deposit_auth'),
-        'asf_disable_master': get_query_param(self.query_params, 'asf_disable_master'),
-        'asf_disable_incoming_check': get_query_param(self.query_params, 'asf_disable_incoming_check'),
-        'asf_disable_incoming_nftoken_offer': get_query_param(self.query_params, 'asf_disable_incoming_nftoken_offer'),
-        'asf_disable_incoming_paychan': get_query_param(self.query_params, 'asf_disable_incoming_paychan'),
-        'asf_disable_incoming_trustline': get_query_param(self.query_params, 'asf_disable_incoming_trustline'),
-        'asf_disallow_XRP': get_query_param(self.query_params, 'asf_disallow_XRP'),
-        'asf_global_freeze': get_query_param(self.query_params, 'asf_global_freeze'),
-        'asf_no_freeze': get_query_param(self.query_params, 'asf_no_freeze'),
-        'asf_require_auth': get_query_param(self.query_params, 'asf_require_auth'),
-        'asf_require_dest': get_query_param(self.query_params, 'asf_require_dest')
-    }
-
-    # Return only those keys and values where value is not None.
-    non_none_request_parameters = {key: value for key, value in params.items() if value is not None}
-    return non_none_request_parameters
 
 
 def get_account_objects(account: str):
@@ -307,7 +266,7 @@ def account_tx_with_pagination_response(paginated_transactions, count, num_pages
     return JsonResponse({
         "status": "success",
         "message": "Transaction history successfully retrieved.",
-        "transactions": list(paginated_transactions),
+        "result": list(paginated_transactions),
         "total_transactions": count,
         "pages": num_pages,
         "current_page": paginated_transactions.number,
@@ -427,7 +386,7 @@ def prepare_account_lines(wallet_address, marker):
 def prepare_account_tx(sender_address):
     return AccountTx(
         account=sender_address,
-        limit=100  # Increase limit to fetch more transactions at once, reducing the need for multiple requests
+        limit=100
     )
 
 

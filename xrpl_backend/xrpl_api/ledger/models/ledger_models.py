@@ -1,93 +1,93 @@
 from django.db import models
 
-class XrplLedgerEntryData(models.Model):
-    """
-    A model representing XRPL ledger entry data.
-
-    Attributes:
-        ledger_index (str): The unique index of the ledger entry.
-        close_time_iso (datetime): The ISO timestamp of the ledger's close time.
-        ctid (str): The CTID (Checksum Transaction ID) associated with the ledger.
-        hash (str): The unique hash of the ledger.
-        seq (int): The sequence number of the ledger.
-        ticket_count (int): The number of tickets in the ledger.
-        ledger_entry_type (str): The type of the ledger entry.
-        previous_fields_balance (int): The balance of the account before the last transaction.
-        previous_txn_id (str): The hash of the previous transaction affecting this ledger entry.
-        previous_txn_lgr_seq (int): The ledger sequence of the previous transaction.
-        account (str): The XRPL account associated with this ledger entry.
-        balance (int): The balance associated with the ledger entry.
-        flags (int): Flags indicating the state of the ledger entry.
-        owner_count (int): The count of owned objects.
-        transaction_index (int): The transaction index in the ledger.
-        transaction_result (str): The result of the transaction (e.g., "tesSUCCESS").
-        delivered_amount (int): The amount delivered in the transaction.
-        validated (bool): Whether the ledger entry is validated.
-    """
-    ledger_index = models.CharField(max_length=64, unique=True)
-    close_time_iso = models.DateTimeField()
-    ctid = models.CharField(max_length=16)
-    hash = models.CharField(max_length=64)
-    seq = models.IntegerField()
-    ticket_count = models.IntegerField()
-    ledger_entry_type = models.CharField(max_length=32)
-    previous_fields_balance = models.BigIntegerField()
-    previous_txn_id = models.CharField(max_length=64)
-    previous_txn_lgr_seq = models.IntegerField()
-    account = models.CharField(max_length=64)
-    balance = models.BigIntegerField()
-    flags = models.IntegerField()
-    owner_count = models.IntegerField()
-    transaction_index = models.IntegerField()
-    transaction_result = models.CharField(max_length=16)
-    delivered_amount = models.BigIntegerField()
-    validated = models.BooleanField()
-
-    def __str__(self):
-        return f"Ledger Entry {self.ledger_index}"
-
-    class Meta:
-        db_table = 'xrpl_ledger_entry_data'
-
-
-class XrplTransactionData(models.Model):
-    """
-    A model representing XRPL transaction data.
-
-    Attributes:
-        ledger_entry (ForeignKey): The ledger entry associated with this transaction.
-        account (str): The XRPL account initiating the transaction.
-        deliver_max (int): The maximum amount to deliver in the transaction.
-        destination (str): The destination account for the transaction.
-        fee (int): The fee for the transaction.
-        flags (int): Flags indicating transaction properties.
-        last_ledger_sequence (int): The last ledger sequence number for the transaction.
-        sequence (int): The sequence number of the transaction.
-        signing_pub_key (str): The signing public key for the transaction.
-        transaction_type (str): The type of the transaction (e.g., "Payment").
-        txn_signature (str): The transaction's signature.
-        date (datetime): The date and time of the transaction.
-        ledger_index (int): The ledger index associated with the transaction.
-    """
-    ledger_entry = models.ForeignKey(XrplLedgerEntryData, on_delete=models.CASCADE, related_name='transactions')
-    account = models.CharField(max_length=64)
-    deliver_max = models.BigIntegerField()
-    destination = models.CharField(max_length=64)
-    fee = models.BigIntegerField()
-    flags = models.IntegerField()
-    last_ledger_sequence = models.IntegerField()
-    sequence = models.IntegerField()
-    signing_pub_key = models.CharField(max_length=128)
-    transaction_type = models.CharField(max_length=16)
-    txn_signature = models.TextField()
-    date = models.DateTimeField()
-    ledger_index = models.IntegerField()
-
-    def __str__(self):
-        return f"Transaction {self.ledger_index} for Ledger Entry {self.ledger_entry.ledger_index}"
-
-    class Meta:
-        db_table = 'xrpl_transaction_data'
+# class XrplLedgerEntryData(models.Model):
+#     """
+#     A model representing XRPL ledger entry data.
+#
+#     Attributes:
+#         ledger_index (str): The unique index of the ledger entry.
+#         close_time_iso (datetime): The ISO timestamp of the ledger's close time.
+#         ctid (str): The CTID (Checksum Transaction ID) associated with the ledger.
+#         hash (str): The unique hash of the ledger.
+#         seq (int): The sequence number of the ledger.
+#         ticket_count (int): The number of tickets in the ledger.
+#         ledger_entry_type (str): The type of the ledger entry.
+#         previous_fields_balance (int): The balance of the account before the last transaction.
+#         previous_txn_id (str): The hash of the previous transaction affecting this ledger entry.
+#         previous_txn_lgr_seq (int): The ledger sequence of the previous transaction.
+#         account (str): The XRPL account associated with this ledger entry.
+#         balance (int): The balance associated with the ledger entry.
+#         flags (int): Flags indicating the state of the ledger entry.
+#         owner_count (int): The count of owned objects.
+#         transaction_index (int): The transaction index in the ledger.
+#         transaction_result (str): The result of the transaction (e.g., "tesSUCCESS").
+#         delivered_amount (int): The amount delivered in the transaction.
+#         validated (bool): Whether the ledger entry is validated.
+#     """
+#     ledger_index = models.CharField(max_length=64, unique=True)
+#     close_time_iso = models.DateTimeField()
+#     ctid = models.CharField(max_length=16)
+#     hash = models.CharField(max_length=64)
+#     seq = models.IntegerField()
+#     ticket_count = models.IntegerField()
+#     ledger_entry_type = models.CharField(max_length=32)
+#     previous_fields_balance = models.BigIntegerField()
+#     previous_txn_id = models.CharField(max_length=64)
+#     previous_txn_lgr_seq = models.IntegerField()
+#     account = models.CharField(max_length=64)
+#     balance = models.BigIntegerField()
+#     flags = models.IntegerField()
+#     owner_count = models.IntegerField()
+#     transaction_index = models.IntegerField()
+#     transaction_result = models.CharField(max_length=16)
+#     delivered_amount = models.BigIntegerField()
+#     validated = models.BooleanField()
+#
+#     def __str__(self):
+#         return f"Ledger Entry {self.ledger_index}"
+#
+#     class Meta:
+#         db_table = 'xrpl_ledger_entry_data'
+#
+#
+# class XrplTransactionData(models.Model):
+#     """
+#     A model representing XRPL transaction data.
+#
+#     Attributes:
+#         ledger_entry (ForeignKey): The ledger entry associated with this transaction.
+#         account (str): The XRPL account initiating the transaction.
+#         deliver_max (int): The maximum amount to deliver in the transaction.
+#         destination (str): The destination account for the transaction.
+#         fee (int): The fee for the transaction.
+#         flags (int): Flags indicating transaction properties.
+#         last_ledger_sequence (int): The last ledger sequence number for the transaction.
+#         sequence (int): The sequence number of the transaction.
+#         signing_pub_key (str): The signing public key for the transaction.
+#         transaction_type (str): The type of the transaction (e.g., "Payment").
+#         txn_signature (str): The transaction's signature.
+#         date (datetime): The date and time of the transaction.
+#         ledger_index (int): The ledger index associated with the transaction.
+#     """
+#     ledger_entry = models.ForeignKey(XrplLedgerEntryData, on_delete=models.CASCADE, related_name='transactions')
+#     account = models.CharField(max_length=64)
+#     deliver_max = models.BigIntegerField()
+#     destination = models.CharField(max_length=64)
+#     fee = models.BigIntegerField()
+#     flags = models.IntegerField()
+#     last_ledger_sequence = models.IntegerField()
+#     sequence = models.IntegerField()
+#     signing_pub_key = models.CharField(max_length=128)
+#     transaction_type = models.CharField(max_length=16)
+#     txn_signature = models.TextField()
+#     date = models.DateTimeField()
+#     ledger_index = models.IntegerField()
+#
+#     def __str__(self):
+#         return f"Transaction {self.ledger_index} for Ledger Entry {self.ledger_entry.ledger_index}"
+#
+#     class Meta:
+#         db_table = 'xrpl_transaction_data'
 
 
 class Ledger(models.Model):
@@ -167,6 +167,9 @@ class LastClose(models.Model):
     def __str__(self):
         return f"Last Close for {self.server_info.hostid}"
 
+    class Meta:
+        db_table = 'xrpl_server_last_close'
+
 
 class Port(models.Model):
     """
@@ -178,6 +181,9 @@ class Port(models.Model):
 
     def __str__(self):
         return f"Port {self.port} for {self.server_info.hostid}"
+
+    class Meta:
+        db_table = 'xrpl_server_port'
 
 
 class StateAccountingEntry(models.Model):
@@ -200,6 +206,9 @@ class StateAccountingEntry(models.Model):
     def __str__(self):
         return f"{self.state} for {self.server_info.hostid}"
 
+    class Meta:
+        db_table = 'xrpl_server_state_accounting_entry'
+
 
 class ValidatedLedger(models.Model):
     """
@@ -215,3 +224,6 @@ class ValidatedLedger(models.Model):
 
     def __str__(self):
         return f"Validated Ledger {self.seq} for {self.server_info.hostid}"
+
+    class Meta:
+        db_table = 'xrpl_server_validated_ledger'

@@ -14,123 +14,13 @@ from xrpl.clients import JsonRpcClient
 from xrpl.core.addresscodec import is_valid_classic_address, is_valid_xaddress
 from xrpl.core.keypairs import derive_keypair, derive_classic_address
 from xrpl.ledger import get_fee
-from xrpl.models import Response, TrustSet, AccountSetAsfFlag
+from xrpl.models import Response, AccountSetAsfFlag
 from xrpl.utils import xrp_to_drops, drops_to_xrp
 
-from .constants import BASE_RESERVE, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS
+from .constants import BASE_RESERVE, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS, ASF_FLAGS
 from .errors.error_handling import handle_error
 
 logger = logging.getLogger('xrpl_app')
-
-
-# def handle_error(error_message, status_code, function_name):
-#     """
-#     This function handles error responses by logging the error, creating a JSON response, and returning it with an appropriate status code.
-#     - Logs the error message and function exit.
-#     - Constructs a JSON response with the error message.
-#     - Sets the HTTP status code based on the error context.
-#     Parameters:
-#     - error_message: The details of the error to be logged and returned.
-#     - status_code: HTTP status code to set for the response.
-#     - function_name: Name of the function where the error occurred for logging.
-#     """
-#
-#     logger.error(error_message)
-#     logger.error(f"Leaving: {function_name}")
-#     return JsonResponse(error_message, status=status_code)
-
-# def check_engine_result(response):
-#     try:
-#         # Convert the response to a dictionary
-#         response_dict = response.result
-#
-#         # Check if the 'meta' field is present in the response
-#         meta_key = 'engine_result'
-#         if meta_key not in response_dict:
-#             return True, "Missing 'engine_result' key."
-#
-#         # Get the 'engine_result' from the metadata
-#         engine_result = response_dict[meta_key]
-#
-#         if engine_result == "tesSUCCESS":
-#             return True, "Transaction was successful!"
-#         else:
-#             # Handle the engine result
-#             engine_result = response.get("engine_result")
-#             engine_result_message = response.get("engine_result_message", "No additional details")
-#             handle_engine_result(engine_result, engine_result_message)
-#             # return False, f"Transaction failed: {engine_result}"
-#
-#     except AttributeError as e:
-#         # Handle cases where the response does not have a `.result` attribute
-#         return False, f"Unexpected error: {e}"
-#     except KeyError as e:
-#         # Handle cases where expected keys are missing in the response
-#         return False, f"Key not found: {e}"
-
-
-# def check_transaction_response(response, key):
-#     try:
-#         # Ensure response.result is a valid dictionary
-#         if not isinstance(response, dict):
-#             return False, f"Invalid response format. 'result' should be a dictionary {response}"
-#
-#         # Check if the 'meta' field is present in the response
-#         if key not in response:
-#             return True, f"Missing {key} key."
-#
-#         # Get the 'engine_result' from the metadata
-#         engine_result = response[key].get('TransactionResult', None)
-#
-#         if engine_result == "tesSUCCESS":
-#             return True, "Transaction was successful!"
-#         else:
-#             # Handle the engine result
-#             engine_result = response.get("engine_result")
-#             engine_result_message = response.get("engine_result_message", "No additional details")
-#             handle_engine_result(engine_result, engine_result_message)
-#
-#     except AttributeError as e:
-#         # Handle cases where the response does not have a `.result` attribute
-#         return False, f"Unexpected error: {e}"
-#     except KeyError as e:
-#         # Handle cases where expected keys are missing in the response
-#         return False, f"Key not found: {e}"
-
-# def check_engine_result(response):
-#
-#     try:
-#         response = response.result
-#         if response["engine_result"] == "tesSUCCESS":
-#             return True, "Transaction was successful!"
-#         else:
-#             # Handle the engine result
-#             engine_result = response.get("engine_result")
-#             engine_result_message = response.get("engine_result_message", "No additional details")
-#             handle_engine_result(engine_result, engine_result_message)
-#     except Exception as e:
-#         print(f"HERE: {e}")
-#         return None, "No engine_result available for this transaction."
-
-
-
-# def check_transaction_response(response):
-#     try:
-#         response = response.result
-#         # Check if the 'meta' field is present
-#         if 'meta' in response:
-#             # Get the 'engine_result' field from the 'meta'
-#             engine_result = response['meta'].get('TransactionResult', None)
-#
-#             if engine_result == "tesSUCCESS":
-#                 return True, "Transaction was successful!"
-#             else:
-#                 return False, f"Transaction failed: {engine_result}"
-#         else:
-#             return None, "No metadata available for this transaction."
-#     except XRPLException:
-#         return None, "No metadata available for this transaction."
-
 
 
 def total_execution_time_in_millis(start_time):
@@ -350,10 +240,6 @@ def validate_xrpl_response(response: Response, required_keys=None):
     if response.result.get("info"):
         return True, response.result
 
-    # Check if "validated" is present and is False
-    # if not response.result.get("validated"):
-    #     return False, f"Transaction is not valid on the ledger {response.result}"
-
     return True, response.result  # Valid response
 
 
@@ -506,3 +392,49 @@ def parse_boolean_param(request, param_name, default="false"):
     # Check if the parsed value indicates a true state
     return value in ["true", "1", "yes"]
 
+
+def map_request_parameters_to_flag_variables():
+    return {
+        flag: getattr(AccountSetAsfFlag, flag.upper()) for flag in ASF_FLAGS
+    }
+
+
+def get_account_set_flags_from_request_parameters(self):
+    params = {flag: get_query_param(self.query_params, flag) for flag in ASF_FLAGS}
+
+    # Return only those keys and values where value is not None.
+    non_none_request_parameters = {key: value for key, value in params.items() if value is not None}
+    return non_none_request_parameters
+
+
+def get_account_set_flags_for_database_transaction(flags_to_enable):
+    enabled_flags = {flag.name for flag in flags_to_enable}
+
+    # Mapping of flag names to database column names
+    flag_mapping = {
+        'asf_account_txn_id': 'ASF_ACCOUNT_TXN_ID',
+        'asf_allow_trustline_clawback': 'ASF_ALLOW_TRUSTLINE_CLAWBACK',
+        'asf_authorized_nftoken_minter': 'ASF_AUTHORIZED_NFTOKEN_MINTER',
+        'asf_default_ripple': 'ASF_DEFAULT_RIPPLE',
+        'asf_deposit_auth': 'ASF_DEPOSIT_AUTH',
+        'asf_disable_master': 'ASF_DISABLE_MASTER',
+        'asf_disable_incoming_check': 'ASF_DISABLE_INCOMING_CHECK',
+        'asf_disable_incoming_nftoken_offer': 'ASF_DISABLE_INCOMING_NFTOKEN_OFFER',
+        'asf_disable_incoming_paychan': 'ASF_DISABLE_INCOMING_PAYCHAN',
+        'asf_disable_incoming_trustline': 'ASF_DISABLE_INCOMING_TRUSTLINE',
+        'asf_disallow_xrp': 'ASF_DISALLOW_XRP',
+        'asf_global_freeze': 'ASF_GLOBAL_FREEZE',
+        'asf_no_freeze': 'ASF_NO_FREEZE',
+        'asf_require_auth': 'ASF_REQUIRE_AUTH',
+        'asf_require_dest': 'ASF_REQUIRE_DEST'
+    }
+
+
+    # Print all elements in flag_mapping on the same line
+    log_statement = ', '.join(f"{key}: {value}" for key, value in flag_mapping.items())
+    logger.info(f"flag_mapping: {log_statement}")
+
+    # Populate the flag_mapping with True or False based on enabled_flags and disabled_flags
+    flag_mapping = {key: (flag_mapping[key] in enabled_flags) for key in flag_mapping}
+
+    return flag_mapping

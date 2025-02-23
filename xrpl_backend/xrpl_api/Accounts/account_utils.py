@@ -3,7 +3,8 @@ import logging
 from decimal import Decimal
 import time
 from django.http import JsonResponse
-from xrpl.models import ServerInfo, AccountDelete, AccountInfo, AccountTx, AccountSet, AccountObjects, SetRegularKey, AccountLines
+from xrpl.models import ServerInfo, AccountDelete, AccountInfo, AccountTx, AccountSet, AccountObjects, SetRegularKey, \
+    AccountLines
 
 from django.db import transaction
 from xrpl.transaction import submit_and_wait
@@ -11,7 +12,7 @@ from .models.account_models import XrplAccountData
 from ..constants.constants import XRPL_RESPONSE
 from ..errors.error_handling import handle_engine_result, handle_error_new, process_transaction_error, error_response
 from ..transactions.transactions_util import prepare_tx
-from ..utils.utils import get_xrpl_client, parse_boolean_param, validate_xrpl_response_data, \
+from ..utilities.utilities import get_xrpl_client, parse_boolean_param, validate_xrpl_response_data, \
     total_execution_time_in_millis, map_request_parameters_to_flag_variables, \
     get_account_set_flags_from_request_parameters
 
@@ -283,14 +284,6 @@ def create_multiple_account_response(transactions):
     })
 
 
-def create_account_delete_transaction(sender_address: str, receiver_address: str, last_ledger_sequence: str):
-    return AccountDelete(
-        account=sender_address,
-        destination=receiver_address,
-        last_ledger_sequence=int(last_ledger_sequence) + 200  # Set the custom LastLedgerSequence
-    )
-
-
 def create_account_lines_response(paginated_transactions, paginator):
     return JsonResponse({
         "status": "success",
@@ -308,6 +301,14 @@ def account_config_settings(response):
         "message": "Account configuration retrieved successfully.",
         "result": response,
     })
+
+
+def create_account_delete_transaction(sender_address: str, receiver_address: str, last_ledger_sequence: str):
+    return AccountDelete(
+        account=sender_address,
+        destination=receiver_address,
+        last_ledger_sequence=int(last_ledger_sequence) + 200  # Set the custom LastLedgerSequence
+    )
 
 
 def prepare_account_tx_with_pagination(sender_address, marker):
@@ -348,6 +349,3 @@ def prepare_account_tx(sender_address):
         account=sender_address,
         limit=100
     )
-
-
-

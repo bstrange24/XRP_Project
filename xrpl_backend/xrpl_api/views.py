@@ -8,7 +8,7 @@
 # from django.core.paginator import Paginator
 # from django.db import transaction
 # from django.http import JsonResponse
-# from django.utils.decorators import sync_and_async_middleware, method_decorator
+# from django.utilities.decorators import sync_and_async_middleware, method_decorator
 # from django.views import View
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.decorators import api_view
@@ -24,7 +24,7 @@
 #     AccountOffers, Fee
 # from xrpl.models.requests import Ledger
 # from xrpl.transaction import submit_and_wait, submit
-# from xrpl.utils import xrp_to_drops, drops_to_xrp, get_balance_changes
+# from xrpl.utilities import xrp_to_drops, drops_to_xrp, get_balance_changes
 # from xrpl.wallet import Wallet
 # from xrpl.wallet import generate_faucet_wallet
 #
@@ -51,7 +51,7 @@
 #     calculate_last_ledger_sequence
 # from .transactions.transactions_util import prepare_tx, transaction_status_response, transaction_history_response
 # from .trust_lines.trust_line_util import trust_line_response, create_trust_set_transaction, create_trust_set_response
-# from .utils import get_xrpl_client, handle_error, \
+# from .utilities import get_xrpl_client, handle_error, \
 #     build_flags, is_valid_xrpl_seed, get_request_param, validate_xrp_wallet, is_valid_transaction_hash, \
 #     get_cached_data, parse_boolean_param, extract_request_data, \
 #     validate_request_data, fetch_network_fee, convert_drops_to_xrp, \
@@ -1457,7 +1457,7 @@
 #             f"Received parameters - sender_seed: {sender_seed}, wallet_address: {wallet_address}, currency: {currency}, limit: {limit}")
 #
 #         # If the currency is XRP, convert the limit into drops (the smallest unit of XRP).
-#         limit_drops = xrpl.utils.xrp_to_drops(limit) if currency == "XRP" else limit
+#         limit_drops = xrpl.utilities.xrp_to_drops(limit) if currency == "XRP" else limit
 #         logger.info(f"Converted limit: {limit_drops}")
 #
 #         # Initialize the XRPL client to interact with the XRP ledger.

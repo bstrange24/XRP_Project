@@ -4,7 +4,7 @@ from .accounts.accounts import Accounts
 from django.test import RequestFactory
 
 # Import the function to be tested
-from .utils import validate_xrpl_response_data
+from .utilities import validate_xrpl_response_data
 
 # class TestValidateXrplResponseData(unittest.TestCase):
 #
@@ -51,7 +51,7 @@ class TestGetAccountInfo(unittest.TestCase):
         self.account = 'rEXAMPLE'
 
     # @patch('xrpl_api.views.get_xrpl_client')
-    # @patch('xrpl_api.utils.validate_xrp_wallet')
+    # @patch('xrpl_api.utilities.validate_xrp_wallet')
     # @patch('xrpl.accounts.does_account_exist')
     # @patch('xrpl.account.prepare_account_data')
     # @patch('your_module.validate_xrpl_response_data')
@@ -87,7 +87,7 @@ class TestGetAccountInfo(unittest.TestCase):
     #     # Validate the response
     #     self.assertEqual(response['status'], 'error')
 
-    @patch('xrpl_api.utils.get_xrpl_client')
+    @patch('xrpl_api.utilities.get_xrpl_client')
     def test_get_account_info_client_initialization_failed(self, mock_get_xrpl_client):
         # Setup mocks
         mock_get_xrpl_client.return_value = None
@@ -102,7 +102,7 @@ class TestGetAccountInfo(unittest.TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertEqual(response.data['status'], 'error')
 
-    # @patch('xrpl_api.utils.get_xrpl_client')
+    # @patch('xrpl_api.utilities.get_xrpl_client')
     # def test_get_account_info_client_initialization_failed(self, mock_get_xrpl_client):
     #     # Setup mocks
     #     mock_get_xrpl_client.return_value = None
@@ -136,7 +136,7 @@ if __name__ == '__main__':
 # from django.test import RequestFactory
 #
 # from .models import XrplAccountData, XrplPaymentData, XrplTransactionData, XrplLedgerEntryData
-# from .utils import get_request_param
+# from .utilities import get_request_param
 # from .views import get_wallet_info
 # from .constants import MAX_RETRIES
 #
@@ -1538,7 +1538,7 @@ if __name__ == '__main__':
 # #     #     request = self.factory.get('/test', {'amount': 'invalid_decimal'})
 # #     #
 # #     #     # Mock handle_error to check if it gets called
-# #     #     with unittest.mock.patch('.utils.handle_error') as mock_handle_error:
+# #     #     with unittest.mock.patch('.utilities.handle_error') as mock_handle_error:
 # #     #         get_request_param(request, 'amount', convert_func=Decimal, function_name=self.function_name)
 # #     #         mock_handle_error.assert_called()
 # #

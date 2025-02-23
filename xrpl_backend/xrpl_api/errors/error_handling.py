@@ -34,6 +34,8 @@ def process_transaction_error(response):
                 engine_result = 'unknown'
 
         engine_result_message = response.result.get("engine_result_message", "")
+        if engine_result_message or engine_result_message == '':
+            engine_result_message = engine_result
     else:
         engine_result = 'None'
         engine_result_message = ""
@@ -42,6 +44,12 @@ def process_transaction_error(response):
 
 
 def handle_engine_result(engine_result, engine_result_message):
+    logger.error(f"Engine result received: {engine_result}, Message: {engine_result_message}")
+
+    # Check if "Invalid field" is in any part of engine_result
+    if isinstance(engine_result, str) and "Invalid" in engine_result:
+        raise_exception({"message": engine_result_message or {engine_result_message}})
+
     engine_result_actions = {
         "tesSUCCESS": lambda: return_success("Transaction is successful."),
         "Transaction not found.": lambda: return_success("Transaction not found."),

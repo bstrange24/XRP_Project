@@ -1,4 +1,3 @@
-import json
 import logging
 import time
 from decimal import Decimal
@@ -9,8 +8,6 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.apps import apps
-from rest_framework.decorators import api_view
-from tenacity import retry, wait_exponential, stop_after_attempt
 from xrpl import XRPLException
 from xrpl.asyncio.account import does_account_exist
 from xrpl.asyncio.clients import AsyncWebsocketClient, XRPLRequestFailureException
@@ -21,16 +18,16 @@ from xrpl.models import XRP
 from xrpl.utils import drops_to_xrp, get_balance_changes
 from xrpl.wallet import Wallet
 
-from ..constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, RETRY_BACKOFF, MAX_RETRIES, \
+from ...constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, \
     MISSING_REQUEST_PARAMETERS
-from ..currency.currency_util import buyer_create_issued_currency, \
+from ...currency.currency_util import buyer_create_issued_currency, \
     create_amount_the_buyer_wants_to_spend
-from ..errors.error_handling import handle_error, handle_error_new, error_response, process_transaction_error
-from ..offers.account_offers_util import process_offer, create_book_offer, create_offer, \
+from ...errors.error_handling import handle_error_new, error_response, process_transaction_error
+from ...offers.account_offers.account_offers_util import process_offer, create_book_offer, create_offer, \
     prepare_account_lines_for_offer, prepare_account_offers, create_account_offers_response, \
     create_get_account_offers_response, prepare_account_offers_paginated
-from ..utils.utils import get_request_param, total_execution_time_in_millis, get_xrpl_client, \
+from ...utilities.utilities import total_execution_time_in_millis, get_xrpl_client, \
     validate_xrp_wallet, validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
@@ -52,14 +49,14 @@ class AccountOffer(View):
 
         try:
             # Extract the parameters from the request data.
+            sender_seed = self.request.GET['sender_seed']
             account = self.request.GET['account']
             currency = self.request.GET['currency']
             value = self.request.GET['value']
-            sender_seed = self.request.GET['sender_seed']
 
             # If any of the required parameters are missing, raise an error.
             if not all([account, currency, value, sender_seed]):
-                raise ValueError(MISSING_REQUEST_PARAMETERS)
+                raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
             logger.info(f"Received parameters: account: {account}, currency: {currency}, value: {value}")
 
@@ -241,20 +238,20 @@ class AccountOffer(View):
                 return response_data
 
         except XRPLReliableSubmissionException as e:
-            # Catch any exceptions that occur during the process. Handle error and return response
-            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
-                                function_name=function_name)
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
         except Exception as e:
-            # Catch any exceptions that occur during the process. Handle error and return response
-            return handle_error({'status': 'failure', 'message': f"{str(e)}"}, status_code=500,
-                                function_name=function_name)
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
-            # Log leaving the function regardless of success or failure
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAccountOffers(View):
+    def __init__(self):
+        super().__init__()
+        self.client = None  # Lazy-loaded client
 
     def post(self, request, *args, **kwargs):
         return self.get_account_offers(request)
@@ -263,6 +260,11 @@ class GetAccountOffers(View):
         return self.get_account_offers(request)
 
     def get_account_offers(self, request):
+        if not self.client:
+            self.client = get_xrpl_client()
+        if not self.client:
+            raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
         # Capture the start time to track the execution duration.
         start_time = time.time()
         function_name = 'get_account_offers'
@@ -273,12 +275,7 @@ class GetAccountOffers(View):
             if not account or not validate_xrp_wallet(account):
                 raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
 
-            # Initialize the XRPL client for further operations.
-            client = get_xrpl_client()
-            if not client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
-            if not xrpl.account.does_account_exist(account, client):
+            if not xrpl.account.does_account_exist(account, self.client):
                 raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(account)))
 
             account_offers = []  # Initialize an empty list to store account lines
@@ -290,7 +287,7 @@ class GetAccountOffers(View):
                 account_offers_info = prepare_account_offers_paginated(account, marker)
 
                 # Send the request to XRPL to fetch account offers
-                account_offers_response = client.request(account_offers_info)
+                account_offers_response = self.client.request(account_offers_info)
                 if validate_xrpl_response_data(account_offers_response):
                     process_transaction_error(account_offers_response)
 
@@ -329,5 +326,3 @@ class GetAccountOffers(View):
             return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
-
-    

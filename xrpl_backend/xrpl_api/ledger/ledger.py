@@ -19,7 +19,7 @@ from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_
     INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER
 from ..errors.error_handling import process_transaction_error, error_response, handle_error_new
 from ..ledger.ledger_util import ledger_info_response
-from ..utils.utils import get_cached_data, get_xrpl_client, \
+from ..utilities.utilities import get_cached_data, get_xrpl_client, \
     total_execution_time_in_millis, get_request_param, validate_xrpl_response_data, validate_xrp_wallet
 
 logger = logging.getLogger('xrpl_app')

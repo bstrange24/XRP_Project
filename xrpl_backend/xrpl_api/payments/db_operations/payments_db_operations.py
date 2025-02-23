@@ -8,12 +8,12 @@ from django.db import transaction
 
 logger = logging.getLogger('xrpl_app')
 
+
 def save_payment_data(transaction_data, transaction_hash, sender_address, receiver_address, amount_xrp, fee_drops):
     try:
         with django.db.transaction.atomic():
             # Upsert Transaction using 'sender' as the key
             transaction, created = PaymentTransactionData.objects.update_or_create(
-                # sender=sender_address,  # Use 'sender' as the key
                 transaction_hash=transaction_hash,  # Use transaction_hash as the lookup key
                 defaults={
                     'close_time_iso': transaction_data['close_time_iso'],

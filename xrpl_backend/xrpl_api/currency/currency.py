@@ -20,7 +20,7 @@ from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_
     MISSING_REQUEST_PARAMETERS, ERROR_INITIALIZING_CLIENT, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, LEAVING_FUNCTION_LOG
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new
 from ..trust_lines.trust_line_util import create_trust_set_response
-from ..utils.utils import get_request_param, get_xrpl_client, validate_xrpl_response_data, \
+from ..utilities.utilities import get_request_param, get_xrpl_client, validate_xrpl_response_data, \
     total_execution_time_in_millis
 
 logger = logging.getLogger('xrpl_app')
@@ -58,7 +58,7 @@ class Currency(View):
 
             if not all([sender_seed, destination_address, source_currency, source_issuer,
                         destination_currency, destination_issuer, amount_to_deliver, max_to_spend]):
-                raise ValueError(MISSING_REQUEST_PARAMETERS)
+                raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
             logger.info(f"Received parameters: destination: {destination_address}, "
                         f"source_currency: {source_currency}, source_issuer: {source_issuer}, "

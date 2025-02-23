@@ -13,7 +13,7 @@ from xrpl.asyncio.ledger import get_fee
 from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.core.addresscodec import XRPLAddressCodecException
 from xrpl.models import AccountSetAsfFlag
-from xrpl.utils import xrp_to_drops
+from xrpl.utils import xrp_to_drops, get_balance_changes, get_final_balances
 from xrpl.wallet import Wallet
 from django.apps import apps
 
@@ -30,7 +30,7 @@ from ..errors.error_handling import handle_error_new, error_response, process_tr
 from ..escrows.escrows_util import check_escrow_entries
 from ..ledger.ledger_util import check_ripple_state_entries
 from ..transactions.transactions_util import prepare_tx
-from ..utils.utils import is_valid_xrpl_seed, \
+from ..utilities.utilities import is_valid_xrpl_seed, \
     total_execution_time_in_millis, validate_request_data, fetch_network_fee, \
     validate_xrp_wallet, validate_xrpl_response_data
 
@@ -134,6 +134,9 @@ class SendXrpPaymentsAndDeleteAccount(View):
 
                 logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_sequence_start_time)}")
 
+                logger.info(f"Get balance changes: {get_balance_changes(payment_response.result['meta'])}")
+                logger.info(f"Get final balances: {get_final_balances(payment_response.result['meta'])}")
+
                 # Handle the transaction response
                 # Use `sync_to_async` to handle database operations asynchronously
                 # Always await coroutines in asynchronous code.
@@ -206,6 +209,8 @@ class SendXrpPayments(View):
                 logger.info("Balances of wallets after Payment tx:")
                 logger.info(f"Sender Address Balance: {await get_balance(sender_address, client)}")
                 logger.info(f"Receiver Address Balance: {await get_balance(receiver_account, client)}")
+                logger.info(f"Get balance changes: {get_balance_changes(tx_response.result['meta'])}")
+                logger.info(f"Get final balances: {get_final_balances(tx_response.result['meta'])}")
 
                 # Handle the transaction response
                 # Use `sync_to_async` to handle database operations asynchronously
@@ -324,6 +329,9 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 get_acc_flag_response = await client.request(get_acc_flag)
                 if validate_xrpl_response_data(get_acc_flag_response):
                     process_transaction_error(get_acc_flag_response)
+
+                logger.info(f"Get balance changes: {get_balance_changes(get_acc_flag_response.result['meta'])}")
+                logger.info(f"Get final balances: {get_final_balances(get_acc_flag_response.result['meta'])}")
 
                 # Verify if the master key has been successfully disabled.
                 if get_acc_flag_response.result['account_data']['Flags'] == asfDisableMaster:

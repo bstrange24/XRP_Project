@@ -25,7 +25,7 @@ from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_
     ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, ERROR_CREATING_TEST_WALLET, INVALID_XRP_BALANCE, \
     CLASSIC_XRP_ADDRESS, X_XRP_ADDRESS, FAILED_TO_FETCH_RESERVE_DATA, SENDER_SEED_IS_INVALID
 from ..errors.error_handling import process_transaction_error, handle_error_new, error_response
-from ..utils.utils import get_request_param, get_xrpl_client, convert_drops_to_xrp, \
+from ..utilities.utilities import get_request_param, get_xrpl_client, convert_drops_to_xrp, \
     total_execution_time_in_millis, validate_xrp_wallet, is_valid_xrpl_seed, validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')

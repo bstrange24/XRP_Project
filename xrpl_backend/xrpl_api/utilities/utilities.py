@@ -18,7 +18,8 @@ from xrpl.models import Response, AccountSetAsfFlag
 from xrpl.utils import xrp_to_drops, drops_to_xrp
 
 from ..constants.constants import BASE_RESERVE, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS, ASF_FLAGS
-from ..errors.error_handling import handle_error
+from ..errors.error_handling import handle_error, error_response
+from ..transactions.transactions_util import prepare_tx
 
 logger = logging.getLogger('xrpl_app')
 
@@ -287,15 +288,44 @@ def validate_request_data(sender_seed: str, receiver_address: str, amount_xrp: i
 
     # Check if all required parameters are provided
     if not all([sender_seed, receiver_address, amount_xrp]):
-        raise ValueError(MISSING_REQUEST_PARAMETERS)
+        raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
     # Validate the receiver's classic address
     if not is_valid_classic_address(receiver_address):
-        raise ValueError(INVALID_WALLET_IN_REQUEST)
+        raise ValueError(error_response(INVALID_WALLET_IN_REQUEST))
 
     # Validate the sender's secret seed
     if not is_valid_xrpl_seed(sender_seed):
-        raise ValueError("Sender seed is invalid.")
+        raise ValueError(error_response("Sender seed is invalid."))
+
+def is_valid_txn_id_format(txn_id):
+    """
+    Validates the format of a transaction ID.
+    Args:
+        txn_id (str): The transaction ID to validate.
+    Returns:
+        bool: True if the format is valid, False otherwise.
+    """
+    return bool(re.match(r"^[A-Fa-f0-9]{64}$", txn_id))
+
+
+def does_txn_exist(txn_id, client):
+    """
+    Checks if a transaction exists on the XRP Ledger.
+    Args:
+        txn_id (str): The transaction ID to check.
+        client (JsonRpcClient): The XRPL client to use for the request.
+    Returns:
+        bool: True if the transaction exists, False otherwise.
+    """
+    try:
+        # Query the transaction
+        response = client.request(prepare_tx(txn_id))
+        return response.is_successful()
+    except Exception as e:
+        # Handle errors (e.g., invalid txn_id or network issues)
+        logger.error(error_response(f"Error checking transaction: {e}"))
+        return False
 
 
 async def fetch_network_fee(client):

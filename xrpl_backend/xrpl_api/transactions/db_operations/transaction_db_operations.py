@@ -7,6 +7,7 @@ from ..models.transaction_models import TransactionHistoryData, TransactionAffec
 
 logger = logging.getLogger('xrpl_app')
 
+
 def save_transaction_history(transaction_data):
     try:
         transaction_hash = transaction_data.get('hash')
@@ -114,4 +115,3 @@ def save_transaction_history(transaction_data):
         logger.error(f"DataError caught saving transaction history data: {e}")
     except Exception as e:
         logger.error(f"Unexpected exception caught saving transaction history data: {e}")
-

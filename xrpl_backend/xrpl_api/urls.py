@@ -1,8 +1,10 @@
 from django.urls import path
 
 from .accounts.accounts import Accounts
+from .escrows.escrows import EscrowAccount, CreateEscrow
 from .ledger.ledger import LedgerInteraction
-from .offers.account_offers import AccountOffer, GetAccountOffers
+from .offers.account_offers.account_offers import GetAccountOffers, AccountOffer
+from .offers.book_offers.book_offers import GetBookOffers
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
 from .transactions.transactions import Transactions
 from .trust_lines.trust_line import TrustLine
@@ -44,6 +46,10 @@ urlpatterns = [
     # Endpoint to get active offers on an account.
     # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
     path('get-account-offers/', GetAccountOffers.as_view(), name='get_account_offers'),
+
+    # Endpoint to get all pairs in the order book
+    # http://127.0.0.1:8000/xrpl/get-book-offers/?taker_gets_currency=XRP&taker_pays_currency=USD&taker_pays_issuer=rIssuerAddress&page=1&page_size=10
+    path('get-book-offers/', GetBookOffers.as_view(), name='get_book_offers'),
 
     # Endpoint to get create an offer on an account.
     # Example: http://127.0.0.1:8000/xrpl/create-account-offer/?wallet_address=raGfE6LfRpUXNjmSYRqUyhWkU429XeYgEg&currency=TST&value=25&sender_seed=sEdS82hNoMmkM7GottuGAFVecYTxRPH
@@ -102,7 +108,12 @@ urlpatterns = [
     # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
     path('remove-trust-line/', TrustLine.remove_trust_line, name='remove_trust_line'),
 
-    # path('send-cross-currency-payment/', Currency.send_cross_currency_payment, name='send_cross_currency_payment'),
+    # Endpoint to escrow a wallet address.
+    # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    path('get-account-escrow/', EscrowAccount.as_view(), name='get_account_escrow'),
 
+    # Endpoint to create an escrow a wallet address.
+    # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    path('create-account-escrow/', CreateEscrow.as_view(), name='create_account_escrow'),
 
 ]

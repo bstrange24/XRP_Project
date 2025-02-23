@@ -21,8 +21,8 @@ from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, MISSING_REQUEST_PARAMETERS, \
     INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new
-from ..offers.account_offers_util import prepare_account_lines_for_offer, prepare_account_offers
-from ..utils.utils import get_request_param, get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, \
+from ..offers.account_offers.account_offers_util import prepare_account_lines_for_offer, prepare_account_offers
+from ..utilities.utilities import get_request_param, get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, \
     validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
@@ -283,7 +283,7 @@ class TrustLine(View):
 
             # If any of the required parameters are missing, raise an error.
             if not all([sender_seed, currency_code, issuer_address]):
-                raise ValueError(MISSING_REQUEST_PARAMETERS)
+                raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
             # Log the received parameters for debugging and verification.
             logger.info(f"Received parameters: currency: {currency_code}, issuer: {issuer_address}")

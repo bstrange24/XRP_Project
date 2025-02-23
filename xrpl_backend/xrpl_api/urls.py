@@ -2,7 +2,7 @@ from django.urls import path
 
 from .accounts.accounts import Accounts
 from .ledger.ledger import LedgerInteraction
-from .offers.account_offers import AccountOffer
+from .offers.account_offers import AccountOffer, GetAccountOffers
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
 from .transactions.transactions import Transactions
 from .trust_lines.trust_line import TrustLine
@@ -43,7 +43,7 @@ urlpatterns = [
 
     # Endpoint to get active offers on an account.
     # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
-    path('get-account-offers/', AccountOffer.get_account_offers, name='get_account_offers'),
+    path('get-account-offers/', GetAccountOffers.as_view(), name='get_account_offers'),
 
     # Endpoint to get create an offer on an account.
     # Example: http://127.0.0.1:8000/xrpl/create-account-offer/?wallet_address=raGfE6LfRpUXNjmSYRqUyhWkU429XeYgEg&currency=TST&value=25&sender_seed=sEdS82hNoMmkM7GottuGAFVecYTxRPH

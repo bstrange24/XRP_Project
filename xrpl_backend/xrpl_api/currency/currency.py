@@ -16,11 +16,11 @@ from xrpl.ledger import get_latest_validated_ledger_sequence
 import time
 
 from ..accounts.account_utils import prepare_account_data
-from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
+from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     MISSING_REQUEST_PARAMETERS, ERROR_INITIALIZING_CLIENT, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, LEAVING_FUNCTION_LOG
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new
 from ..trust_lines.trust_line_util import create_trust_set_response
-from ..utils import get_request_param, get_xrpl_client, validate_xrpl_response_data, \
+from ..utils.utils import get_request_param, get_xrpl_client, validate_xrpl_response_data, \
     total_execution_time_in_millis
 
 logger = logging.getLogger('xrpl_app')
@@ -60,7 +60,7 @@ class Currency(View):
                         destination_currency, destination_issuer, amount_to_deliver, max_to_spend]):
                 raise ValueError(MISSING_REQUEST_PARAMETERS)
 
-            logger.info(f"Received parameters - sender_seed: {sender_seed}, destination: {destination_address}, "
+            logger.info(f"Received parameters: destination: {destination_address}, "
                         f"source_currency: {source_currency}, source_issuer: {source_issuer}, "
                         f"destination_currency: {destination_currency}, destination_issuer: {destination_issuer}, "
                         f"amount_to_deliver: {amount_to_deliver}, max_to_spend: {max_to_spend}")

@@ -9,19 +9,21 @@ from xrpl import XRPLException
 from xrpl.ledger import get_latest_validated_ledger_sequence
 from xrpl.asyncio.clients import XRPLRequestFailureException
 from xrpl.models import Fee
-from xrpl.transaction import sign, submit_and_wait
+from xrpl.transaction import submit_and_wait
 from xrpl.utils import XRPRangeException, xrp_to_drops
 from xrpl.wallet import Wallet
-from xrpl.account import does_account_exist
+from xrpl.account import does_account_exist, get_balance
 
 from .trust_line_util import trust_line_response, create_trust_set_transaction, create_trust_set_response
-from ..accounts.account_utils import create_account_lines_response, prepare_account_lines, prepare_account_data
-from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
+from ..accounts.account_utils import create_account_lines_response, prepare_account_lines, prepare_account_data, \
+    get_account_reserves
+from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, MISSING_REQUEST_PARAMETERS, \
-    INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER
+    INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new
-from ..offers.account_offers_util import prepare_account_lines_for_offer
-from ..utils import get_request_param, get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, validate_xrpl_response_data
+from ..offers.account_offers_util import prepare_account_lines_for_offer, prepare_account_offers
+from ..utils.utils import get_request_param, get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, \
+    validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
 
@@ -157,7 +159,7 @@ class TrustLine(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-    @api_view(['POST'])
+    @api_view(['GET', 'POST'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def set_trust_line(self):
         start_time = time.time()
@@ -166,47 +168,59 @@ class TrustLine(View):
 
         try:
             # Extract the parameters from the request data.
-            # These parameters are necessary to create and submit a TrustSet transaction.
             sender_seed = get_request_param(self, 'sender_seed')
-            issuer = get_request_param(self, 'issuer')
-            currency = get_request_param(self, 'currency')
+            issuer_address = get_request_param(self, 'issuer_address')
+            currency_code = get_request_param(self, 'currency_code')
             limit = get_request_param(self, 'limit')
 
             # If any of the required parameters are missing, raise an error.
-            if not all([sender_seed, issuer, currency, limit]):
-                XRPLException(error_response(MISSING_REQUEST_PARAMETERS))
+            if not all([sender_seed, issuer_address, currency_code, limit]):
+                ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
             # Log the received parameters for debugging and verification.
-            logger.debug(f"Received parameters - sender_seed: {sender_seed}, wallet_address: {issuer}, currency: {currency}, limit: {limit}")
+            logger.debug(f"Parameters: issuer={issuer_address}, currency={currency_code}, limit={limit}")
 
             # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
             client = get_xrpl_client()
             if not client:
                 raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
-            if not does_account_exist(issuer, client):
-                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(issuer)))
+            if not does_account_exist(issuer_address, client):
+                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(issuer_address)))
 
             # If the currency is XRP, convert the limit into drops (the smallest unit of XRP).
-            limit_drops = xrp_to_drops(limit) if currency == "XRP" else limit
+            limit_drops = xrp_to_drops(limit) if currency_code == "XRP" else limit
             logger.info(f"Converted limit: {limit_drops}")
 
             # Create the sender's wallet from the provided seed. This is used to sign transactions.
             sender_wallet = Wallet.from_seed(sender_seed)
-            logger.info(f"Sender wallet created: {sender_wallet.classic_address}")
+            sender_wallet_balance = get_balance(sender_wallet.classic_address, client)
+            issuer_wallet_balance = get_balance(issuer_address, client)
+            logger.info(
+                f"Sender wallet retrieved: {sender_wallet.classic_address} Sender Address Balance: {sender_wallet_balance} Issuer Address Balance: {issuer_wallet_balance}")
 
-            # Fetch the current sequence number for the sender's account.
-            # The sequence number is required for submitting a transaction on the XRP Ledger.
-            account_info = prepare_account_data(sender_wallet.classic_address, False)
+            # Check balance
+            base_reserve, reserve_increment = get_account_reserves()
+            if base_reserve is None or reserve_increment is None:
+                raise XRPLException(error_response(FAILED_TO_FETCH_RESERVE_DATA.format(sender_wallet.classic_address)))
 
-            # Send the request to the XRPL client
-            account_info_response = client.request(account_info)
+            min_balance = base_reserve + reserve_increment  # For 1 trustline
+            logger.info(
+                f" Base Reserve: {base_reserve}, Reserve Increment: {reserve_increment}, Minimum reserve: {min_balance}")
+
+            if float(sender_wallet_balance) < min_balance:
+                raise XRPLException(f"Insufficient XRP for trustline reserve (need {min_balance} XRP)")
+
+            # Create trust line from
+            sender_wallet_account_info = prepare_account_data(sender_wallet.classic_address, False)
+            sender_wallet_account_info_response = client.request(sender_wallet_account_info)
 
             # Validate client response. Raise exception on error
-            if validate_xrpl_response_data(account_info_response):
-                process_transaction_error(account_info_response)
+            if validate_xrpl_response_data(sender_wallet_account_info_response):
+                process_transaction_error(sender_wallet_account_info_response)
 
-            sequence_number = account_info_response.result['account_data']['Sequence']
+            # Fetch sequence
+            sequence_number = sender_wallet_account_info_response.result['account_data']['Sequence']
             logger.info(f"Fetched sequence number: {sequence_number}")
 
             # Fetch the current network fee to include in the transaction.
@@ -215,43 +229,45 @@ class TrustLine(View):
             if validate_xrpl_response_data(fee_response):
                 process_transaction_error(fee_response)
 
-            logger.info(f"Fee response: {fee_response}")
+            logger.debug(f"Fee response: {fee_response}")
 
             # Extract the minimum fee from the response.
-            fee = fee_response.result['drops']['base_fee']
+            fee = fee_response.result['drops']['open_ledger_fee']
             logger.info(f"Fetched network fee: {fee}")
 
             # Get current ledger for LastLedgerSequence
             current_ledger = get_latest_validated_ledger_sequence(client)
 
             # Create a TrustSet transaction with the extracted parameters, including the fee and sequence number.
-            trust_set_tx = create_trust_set_transaction(currency, limit_drops, issuer, sender_wallet.classic_address, sequence_number, fee, current_ledger)
-
-            # Sign the transaction with the sender's wallet.
-            signed_tx_response = sign(trust_set_tx, sender_wallet)
-            logger.info(f"Signed transaction: {signed_tx_response}")
+            trust_set_tx = create_trust_set_transaction(currency_code, limit_drops, issuer_address,
+                                                        sender_wallet.classic_address, sequence_number, fee,
+                                                        current_ledger)
 
             validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
             if validate_xrpl_response_data(validated_tx_response):
                 process_transaction_error(validated_tx_response)
 
             tx_hash = validated_tx_response.result['hash']
-            logger.info(f"Transaction validated with hash: {tx_hash}")
-            logger.info(f"Transaction validated in ledger: {validated_tx_response.result['ledger_index']}")
-            logger.info(f"Trust line created: {validated_tx_response.result}")
-            logger.info(f"Trust line set successfully for account {issuer}")
-            return create_trust_set_response(validated_tx_response, issuer, currency, limit)
+            logger.info(
+                f"Transaction validated with hash: {tx_hash} in ledger: {validated_tx_response.result['ledger_index']}")
+            logger.info(f"Trust line created: {validated_tx_response.result} for account {issuer_address}")
+            logger.info(f"Sender Address Balance: {get_balance(sender_wallet.classic_address, client)}")
+            logger.info(f"Issuer Address Balance: {get_balance(issuer_address, client)}")
+
+            return create_trust_set_response(validated_tx_response, issuer_address, currency_code, limit)
 
         except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
             # Handle error message
             return handle_error_new(e, status_code=500, function_name=function_name)
         except Exception as e:
-            # Handle error message
-            return handle_error_new(e, status_code=500, function_name=function_name)
+            if "Fee value" in str(e):
+                return handle_error_new("Fee too high, try again later", status_code=500, function_name=function_name)
+            else:
+                return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-    @api_view(['POST'])
+    @api_view(['GET', 'POST'])
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def remove_trust_line(self):
         # Capture the start time to calculate the total execution time of the function
@@ -261,29 +277,62 @@ class TrustLine(View):
 
         try:
             # Extract the parameters from the request data.
-            # These parameters are necessary to create and submit a TrustSet transaction.
             sender_seed = get_request_param(self, 'sender_seed')
             currency_code = get_request_param(self, 'currency_code')
-            issuer = get_request_param(self, 'issuer')
+            issuer_address = get_request_param(self, 'issuer_address')
 
             # If any of the required parameters are missing, raise an error.
-            if not all([sender_seed, currency_code, issuer]):
+            if not all([sender_seed, currency_code, issuer_address]):
                 raise ValueError(MISSING_REQUEST_PARAMETERS)
 
             # Log the received parameters for debugging and verification.
-            logger.info(f"Received parameters - sender_seed: {sender_seed}, currency: {currency_code}, issuer: {issuer}")
+            logger.info(f"Received parameters: currency: {currency_code}, issuer: {issuer_address}")
 
             # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
             client = get_xrpl_client()
             if not client:
                 raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
-            if not does_account_exist(issuer, client):
-                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(issuer)))
+            if not does_account_exist(issuer_address, client):
+                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(issuer_address)))
 
             # Load the wallet using the secret key
-            sender_wallet = Wallet.from_secret(sender_seed)
-            logger.info(f"Sender wallet: {sender_wallet.classic_address}")
+            sender_wallet = Wallet.from_seed(sender_seed)
+            sender_wallet_balance = get_balance(sender_wallet.classic_address, client)
+            issuer_wallet_balance = get_balance(issuer_address, client)
+            logger.info(
+                f"Sender wallet retrieved: {sender_wallet.classic_address} Sender Address Balance: {sender_wallet_balance} Issuer Address Balance: {issuer_wallet_balance}")
+
+            offers = client.request(prepare_account_offers(sender_wallet.classic_address)).result["offers"]
+            if any(("currency" in offer["taker_gets"] and offer["taker_gets"]["currency"] == currency_code) or
+                   ("currency" in offer["taker_pays"] and offer["taker_pays"]["currency"] == currency_code)
+                   for offer in offers):
+                raise XRPLException(error_response("Outstanding offers prevent trustline removal"))
+
+            # Check trustline eligibility
+            response = client.request(prepare_account_lines_for_offer(sender_wallet.classic_address))
+            lines = [line for line in response.result["lines"] if
+                     line["currency"] == currency_code and line["account"] == issuer_address]
+            if not lines:
+                raise XRPLException(error_response("Trustline not found"))
+            if float(lines[0]["balance"]) != 0:
+                raise XRPLException(error_response("Trustline balance must be 0 to remove"))
+
+            # Fetch current fee
+            fee_response = client.request(Fee())
+            if validate_xrpl_response_data(fee_response):
+                process_transaction_error(fee_response)
+
+            # Use open_ledger_fee for worst-case scenario
+            fee_drops = fee_response.result["drops"]["open_ledger_fee"]
+            fee_xrp = float(fee_drops) / 1000000  # Convert to XRP
+
+            # Add a small buffer (e.g., 2x fee)
+            buffer_xrp = fee_xrp * 2
+
+            if float(sender_wallet_balance) < buffer_xrp:
+                raise XRPLException(error_response("Insufficient XRP for transaction fee"))
+            logger.info(f"Fee: {fee_drops} drops, Buffer: {buffer_xrp} XRP, Balance: {sender_wallet_balance} XRP")
 
             account_info_response = client.request(prepare_account_data(sender_wallet.classic_address, False))
             if validate_xrpl_response_data(account_info_response):
@@ -292,30 +341,19 @@ class TrustLine(View):
             sequence_number = account_info_response.result["account_data"]["Sequence"]
             logger.info(f"Fetched sequence number: {sequence_number}")
 
-            # Fetch the current fee from the XRPL network
-            fee_response = client.request(Fee())
-            if validate_xrpl_response_data(fee_response):
-                process_transaction_error(fee_response)
-
-            fee = fee_response.result["drops"]["open_ledger_fee"]
-
             # Get current ledger for LastLedgerSequence
             current_ledger = get_latest_validated_ledger_sequence(client)
             logger.info(f"Current ledger: {current_ledger}")
 
-            trust_set_tx = create_trust_set_transaction(currency_code, str(0), issuer, sender_wallet.classic_address,
-                                                        sequence_number, fee, current_ledger)
+            trust_set_tx = create_trust_set_transaction(currency_code, str(0), issuer_address,
+                                                        sender_wallet.classic_address,
+                                                        sequence_number, fee_drops, current_ledger)
 
-            # Sign the transaction with the sender's wallet.
-            signed_tx_response = sign(trust_set_tx, sender_wallet)
-            logger.info(f"Signed transaction: {signed_tx_response}")
             logger.info(f"LastLedgerSequence: {trust_set_tx.last_ledger_sequence}")
 
             submit_and_wait_start_time = int((time.time()) * 1000)
             logger.info(f"Time before submission: {submit_and_wait_start_time}")
-
             validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
-
             submit_and_wait_end_time = int((time.time()) * 1000)
             logger.info(f"Time after submission: {submit_and_wait_end_time - submit_and_wait_start_time}")
 
@@ -323,10 +361,10 @@ class TrustLine(View):
                 process_transaction_error(validated_tx_response)
 
             tx_hash = validated_tx_response.result['hash']
-            logger.info(f"Transaction validated with hash: {tx_hash}")
-            logger.info(f"Transaction validated in ledger: {validated_tx_response.result['ledger_index']}")
-            logger.info(f"Trust line set successfully for account {issuer}")
-            return create_trust_set_response(validated_tx_response, issuer, currency_code, 'NOT THIS')
+            logger.info(
+                f"Transaction validated with hash: {tx_hash} in ledger: {validated_tx_response.result['ledger_index']}")
+            logger.info(f"Trust line set successfully for account {issuer_address}")
+            return create_trust_set_response(validated_tx_response, issuer_address, currency_code, 'EMPTY_LIMIT')
 
         except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
             # Handle error message

@@ -13,13 +13,13 @@ from django.core.cache import cache
 
 from .db_operations.ledger_db_operations import save_ledger_info, save_server_info
 from ..accounts.account_utils import account_reserves_response
-from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
+from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_SERVER_INFO, ERROR_INITIALIZING_CLIENT, \
     CACHE_TIMEOUT_FOR_SERVER_INFO, LEAVING_FUNCTION_LOG, \
     INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER
 from ..errors.error_handling import process_transaction_error, error_response, handle_error_new
 from ..ledger.ledger_util import ledger_info_response
-from ..utils import get_cached_data, get_xrpl_client, \
+from ..utils.utils import get_cached_data, get_xrpl_client, \
     total_execution_time_in_millis, get_request_param, validate_xrpl_response_data, validate_xrp_wallet
 
 logger = logging.getLogger('xrpl_app')

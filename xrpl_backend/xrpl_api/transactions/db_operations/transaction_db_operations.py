@@ -108,8 +108,10 @@ def save_transaction_history(transaction_data):
             )
 
         return transaction
+    except django.db.IntegrityError as e:
+        logger.error(f"IntegrityError caught saving transaction history data: {e}")
+    except django.db.DataError as e:
+        logger.error(f"DataError caught saving transaction history data: {e}")
     except Exception as e:
-        logger.error(f"Exception caught saving transaction history data: {e}")
-    finally:
-        pass
+        logger.error(f"Unexpected exception caught saving transaction history data: {e}")
 

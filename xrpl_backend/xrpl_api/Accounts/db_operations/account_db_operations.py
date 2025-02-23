@@ -6,7 +6,7 @@ from django.db import IntegrityError
 
 from ..models.account_models import XrplAccountData, AccountConfigurationTransaction, AffectedNode, \
     TxJson, AccountConfigurationTransactionMeta
-from ...utils import get_account_set_flags_for_database_transaction
+from ...utils.utils import get_account_set_flags_for_database_transaction
 
 logger = logging.getLogger('xrpl_app')
 
@@ -75,11 +75,12 @@ def save_account_data(response, balance):
             )
 
         logger.info(f"Account {account.account} created and saved.")
+    except django.db.IntegrityError as e:
+        logger.error(f"IntegrityError caught saving transaction history data: {e}")
+    except django.db.DataError as e:
+        logger.error(f"DataError caught saving transaction history data: {e}")
     except Exception as e:
-        logger.error(f"Error saving account data: {str(e)}")
-    finally:
-        pass
-
+        logger.error(f"Unexpected exception caught saving transaction history data: {e}")
 
 def save_account_configuration_transaction(response, flags_to_enable):
     try:
@@ -158,7 +159,9 @@ def save_account_configuration_transaction(response, flags_to_enable):
             )
 
         return transaction
+    except django.db.IntegrityError as e:
+        logger.error(f"IntegrityError caught saving transaction history data: {e}")
+    except django.db.DataError as e:
+        logger.error(f"DataError caught saving transaction history data: {e}")
     except Exception as e:
-        logger.error(f"Error saving account configuration data: {str(e)}")
-    finally:
-        pass
+        logger.error(f"Unexpected exception caught saving transaction history data: {e}")

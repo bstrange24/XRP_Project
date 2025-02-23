@@ -21,7 +21,7 @@ from xrpl.models import XRP
 from xrpl.utils import drops_to_xrp, get_balance_changes
 from xrpl.wallet import Wallet
 
-from ..constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, RETRY_BACKOFF, MAX_RETRIES, \
+from ..constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, RETRY_BACKOFF, MAX_RETRIES, \
     ERROR_INITIALIZING_CLIENT, INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, \
     MISSING_REQUEST_PARAMETERS
 from ..currency.currency_util import buyer_create_issued_currency, \
@@ -30,7 +30,7 @@ from ..errors.error_handling import handle_error, handle_error_new, error_respon
 from ..offers.account_offers_util import process_offer, create_book_offer, create_offer, \
     prepare_account_lines_for_offer, prepare_account_offers, create_account_offers_response, \
     create_get_account_offers_response, prepare_account_offers_paginated
-from ..utils import get_request_param, total_execution_time_in_millis, get_xrpl_client, \
+from ..utils.utils import get_request_param, total_execution_time_in_millis, get_xrpl_client, \
     validate_xrp_wallet, validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
@@ -52,16 +52,16 @@ class AccountOffer(View):
 
         try:
             # Extract the parameters from the request data.
-            account = get_request_param(request, 'account')
-            currency = get_request_param(request, 'currency')
-            value = get_request_param(request, 'value')
-            sender_seed = get_request_param(request, 'sender_seed')
+            account = self.request.GET['account']
+            currency = self.request.GET['currency']
+            value = self.request.GET['value']
+            sender_seed = self.request.GET['sender_seed']
 
             # If any of the required parameters are missing, raise an error.
             if not all([account, currency, value, sender_seed]):
                 raise ValueError(MISSING_REQUEST_PARAMETERS)
 
-            logger.info(f"Received parameters - account: {account}, currency: {currency}, value: {value}, sender_seed: {sender_seed}")
+            logger.info(f"Received parameters: account: {account}, currency: {currency}, value: {value}")
 
             sender_wallet = Wallet.from_seed(sender_seed)
 
@@ -253,16 +253,23 @@ class AccountOffer(View):
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
-    @api_view(['GET'])
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_account_offers(self):
+@method_decorator(csrf_exempt, name="dispatch")
+class GetAccountOffers(View):
+
+    def post(self, request, *args, **kwargs):
+        return self.get_account_offers(request)
+
+    def get(self, request, *args, **kwargs):
+        return self.get_account_offers(request)
+
+    def get_account_offers(self, request):
         # Capture the start time to track the execution duration.
         start_time = time.time()
         function_name = 'get_account_offers'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            account = get_request_param(self, 'account')
+            account = self.request.GET['account']
             if not account or not validate_xrp_wallet(account):
                 raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
 
@@ -284,14 +291,14 @@ class AccountOffer(View):
 
                 # Send the request to XRPL to fetch account offers
                 account_offers_response = client.request(account_offers_info)
-
                 if validate_xrpl_response_data(account_offers_response):
                     process_transaction_error(account_offers_response)
 
                 offers = account_offers_response.result.get('offers', [])
-
                 if offers:
                     logger.info(f"Found {len(offers)} offers for wallet {account}.")
+                else:
+                    logger.info(f"No offers found for wallet {account} in this batch.")
 
                 # Add the fetched account lines to the account_lines list
                 account_offers.extend(offers)
@@ -304,9 +311,9 @@ class AccountOffer(View):
 
             # Extract pagination parameters from the request for paginating the response
             # Default to page 1 if no page is specified
-            page = int(self.GET.get('page', 1))
+            page = int(self.request.GET.get('page', 1))
             # Default to 10 items per page if no page_size is specified
-            page_size = int(self.GET.get('page_size', 10))
+            page_size = int(self.request.GET.get('page_size', 10))
 
             # Paginate the account lines using Django's Paginator
             paginator = Paginator(account_offers, page_size)

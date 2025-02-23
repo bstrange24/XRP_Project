@@ -1,5 +1,6 @@
 import logging
 import time
+from decimal import Decimal
 
 from asgiref.sync import sync_to_async
 from django.utils.decorators import method_decorator
@@ -17,18 +18,19 @@ from xrpl.wallet import Wallet
 from django.apps import apps
 
 from .payments_util import check_pay_channel_entries, create_payment_transaction, process_payment_response, \
-    process_payment, get_account_reserves, check_account_ledger_entries, calculate_last_ledger_sequence
+    process_payment, get_account_reserves, check_account_ledger_entries, calculate_last_ledger_sequence, \
+    save_account_delete_tx_response
 from ..accounts.account_utils import prepare_account_data, check_check_entries, \
     create_account_delete_transaction, account_delete_tx_response, prepare_regular_key, prepare_account_set_enabled_tx, \
     delete_account_response
-from ..constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
+from ..constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
     SENDER_SEED_IS_INVALID, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA, \
     INSUFFICIENT_BALANCE_TO_COVER_RESERVER_FEES, asfDisableMaster
 from ..errors.error_handling import handle_error_new, error_response, process_transaction_error
 from ..escrows.escrows_util import check_escrow_entries
 from ..ledger.ledger_util import check_ripple_state_entries
 from ..transactions.transactions_util import prepare_tx
-from ..utils import is_valid_xrpl_seed, \
+from ..utils.utils import is_valid_xrpl_seed, \
     total_execution_time_in_millis, validate_request_data, fetch_network_fee, \
     validate_xrp_wallet, validate_xrpl_response_data
 
@@ -132,7 +134,13 @@ class SendXrpPaymentsAndDeleteAccount(View):
 
                 logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_sequence_start_time)}")
 
-                return account_delete_tx_response(account_delete_response, payment_response)
+                # Handle the transaction response
+                # Use `sync_to_async` to handle database operations asynchronously
+                # Always await coroutines in asynchronous code.
+                return await sync_to_async(save_account_delete_tx_response, thread_sensitive=True)(
+                    account_delete_response, payment_response, sender_wallet.classic_address, account, transferable_amount,
+                                     drops
+                )
         except (XRPLRequestFailureException, XRPLException) as e:
             # Handle error message
             return handle_error_new(e, status_code=500, function_name=function_name)
@@ -205,7 +213,6 @@ class SendXrpPayments(View):
                 return await sync_to_async(process_payment_response, thread_sensitive=True)(
                     tx_response, payment_response, sender_address, receiver_account, amount_xrp, str(fee_drops)
                 )
-
         except (XRPLRequestFailureException, XRPLException) as e:
             # Handle error message
             return handle_error_new(e, status_code=500, function_name=function_name)

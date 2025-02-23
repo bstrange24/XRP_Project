@@ -6,11 +6,12 @@ from decimal import Decimal
 
 from django.http import JsonResponse
 from xrpl import XRPLException
-from xrpl.asyncio.clients import AsyncJsonRpcClient
+from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.models import Payment, Ledger, ServerInfo, AccountObjects
 
 from .db_operations.payments_db_operations import save_payment_data
+from ..accounts.account_utils import account_delete_tx_response
 from ..errors.error_handling import error_response, handle_error_new
 
 logger = logging.getLogger('xrpl_app')
@@ -57,7 +58,7 @@ async def get_account_reserves(client, *args, **kwargs):
         return None, None
 
 
-async def calculate_last_ledger_sequence(client: AsyncJsonRpcClient, buffer_time=60, retries=5, delay=4):
+async def calculate_last_ledger_sequence(client: AsyncWebsocketClient, buffer_time=60, retries=5, delay=4):
     for attempt in range(1, retries + 1):
         try:
             ledger_info = await client.request(Ledger(ledger_index="validated"))
@@ -106,6 +107,49 @@ def check_pay_channel_entries(account_objects):
     else:
         logger.info("No PayChannel entries found.")
         return True
+
+
+def save_account_delete_tx_response(account_delete_response, payment_response, sender_address, receiver_address, amount_xrp,
+                                     fee_drops):
+    function_name = "process_payment_response"
+    try:
+        logger.debug(f"Payment response: {payment_response}")
+        logger.debug(f"Account Delete response: {account_delete_response}")
+
+        # Extract the transaction hash from the response
+        payment_transaction_hash = payment_response.result.get('hash')
+        if not payment_transaction_hash:
+            raise XRPLException(error_response("Transaction hash missing in response."))
+
+        # Extract the transaction hash from the response
+        delete_transaction_hash = account_delete_response.result.get('hash')
+        if not delete_transaction_hash:
+            raise XRPLException(error_response("Transaction hash missing in response."))
+
+        logger.info(f"Payment transaction hash: {payment_transaction_hash}, Sender: {sender_address}")
+        logger.info(f"Delete transaction hash: {delete_transaction_hash}, Sender: {sender_address}")
+
+        # Save the payment transaction details
+        logger.info(f"Saving payment response data in table")
+        save_payment_data(payment_response.result, payment_transaction_hash, sender_address, receiver_address, amount_xrp,
+                                     str(fee_drops))
+
+        # Save the delete transaction details
+        logger.info(f"Saving delete response data in table")
+        save_payment_data(account_delete_response.result, delete_transaction_hash, sender_address, receiver_address,
+                          amount_xrp,
+                          str(fee_drops))
+
+        # Send a response to indicate successful payment
+        return account_delete_tx_response(account_delete_response, payment_response)
+    except (XRPLException, AttributeError, KeyError, TypeError, ValueError) as e:
+        # Handle error message
+        return handle_error_new(e, status_code=500, function_name=function_name)
+    except Exception as e:
+        # Handle error message
+        return handle_error_new(e, status_code=500, function_name=function_name)
+    finally:
+        pass
 
 
 def process_payment_response(payment_result: dict, payment_response, sender_address: str, receiver_address: str,

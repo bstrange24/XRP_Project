@@ -15,12 +15,12 @@ from .db_operations.transaction_db_operations import save_transaction_history
 from .transactions_util import transaction_history_response, prepare_tx, transaction_status_response
 from ..accounts.account_utils import prepare_account_tx, prepare_account_tx_with_pagination, \
     account_tx_with_pagination_response
-from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
+from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, ERROR_FETCHING_TRANSACTION_HISTORY, \
     INVALID_TRANSACTION_HASH, \
     ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER
 from ..errors.error_handling import process_transaction_error, handle_error_new, error_response
-from ..utils import get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, is_valid_transaction_hash, \
+from ..utils.utils import get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, is_valid_transaction_hash, \
     validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
@@ -155,7 +155,7 @@ class Transactions(View):
                 # Here we assume save_transaction_history will record info based on the last transaction
                 save_transaction_history(paginated_transactions[-1])
 
-            return account_tx_with_pagination_response(paginated_transactions, paginator.count, paginator.num_pages)
+            return account_tx_with_pagination_response(paginated_transactions, paginator)
 
         except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
             # Handle error message

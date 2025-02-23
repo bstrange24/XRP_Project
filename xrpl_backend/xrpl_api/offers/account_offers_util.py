@@ -10,13 +10,13 @@ async def process_offer(signed_tx, client):
 
 def create_get_account_offers_response(paginated_transactions, paginator):
     return JsonResponse({
-        "status": "success",
-        "message": "Account offers successfully retrieved.",
-        "account_offers": list(paginated_transactions),
-        "total_account_lines": paginator.count,
-        "pages": paginator.num_pages,
-        "current_page": paginated_transactions.number,
-    })
+            "status": "success",
+            "message": "Account offers successfully retrieved.",
+            "offers": paginated_transactions.object_list,
+            "page": paginated_transactions.number,
+            "total_pages": paginator.num_pages,
+            "total_offers": paginator.count
+        })
 
 def prepare_account_lines_for_offer(wallet_address):
     return AccountLines(
@@ -33,7 +33,7 @@ def prepare_account_offers(wallet_address):
 def prepare_account_offers_paginated(wallet_address, marker):
     return AccountOffers(
         account=wallet_address,
-        limit=100,
+        limit=200,
         marker=marker,
         ledger_index="validated",
     )

@@ -78,9 +78,9 @@ class PaymentTransactionPreviousFields(models.Model):
 class PaymentTransactionTxJson(models.Model):
     transaction = models.OneToOneField(PaymentTransactionData, on_delete=models.CASCADE, related_name='tx_json')
     account = models.CharField(max_length=35)
-    deliver_max = models.CharField(max_length=20)
+    deliver_max = models.CharField(max_length=20, null=True, blank=True)
     destination = models.CharField(max_length=35)
-    fee = models.CharField(max_length=20)
+    fee = models.CharField(max_length=20, null=True, blank=True)
     flags = models.IntegerField()
     last_ledger_sequence = models.BigIntegerField()
     sequence = models.BigIntegerField()

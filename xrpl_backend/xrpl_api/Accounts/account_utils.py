@@ -8,10 +8,10 @@ from xrpl.models import ServerInfo, AccountDelete, AccountInfo, AccountTx, Accou
 from django.db import transaction
 from xrpl.transaction import submit_and_wait
 from .models.account_models import XrplAccountData
-from ..constants import XRPL_RESPONSE
+from ..constants.constants import XRPL_RESPONSE
 from ..errors.error_handling import handle_engine_result, handle_error_new, process_transaction_error, error_response
 from ..transactions.transactions_util import prepare_tx
-from ..utils import get_xrpl_client, parse_boolean_param, validate_xrpl_response_data, \
+from ..utils.utils import get_xrpl_client, parse_boolean_param, validate_xrpl_response_data, \
     total_execution_time_in_millis, map_request_parameters_to_flag_variables, \
     get_account_set_flags_from_request_parameters
 
@@ -126,46 +126,6 @@ def get_account_reserves():
         return None, None
 
 
-# def update_sender_account_balances(sender_address: str, amount_xrp: Decimal):
-#     try:
-#         with transaction.atomic():  # Ensures the update is committed
-#             sender_account = XrplAccountData.objects.select_for_update().get(account=sender_address)
-#
-#             if amount_xrp <= 0:
-#                 logger.warning(f"Skipping update: amount_xrp={amount_xrp}")
-#                 return
-#
-#             sender_account.balance -= amount_xrp
-#             sender_account.save(update_fields=["balance"])  # Force update
-#
-#     except XrplAccountData.DoesNotExist as e:
-#         # Handle error message
-#         return handle_error_new(e, status_code=500, function_name='update_sender_account_balances')
-#     except Exception as e:
-#         # Handle error message
-#         return handle_error_new(e, status_code=500, function_name='update_sender_account_balances')
-#
-#
-# def update_receiver_account_balances(receiver_address: str, amount_xrp: Decimal):
-#     try:
-#         with transaction.atomic():
-#             receiver_account = XrplAccountData.objects.get(account=receiver_address)
-#
-#             if amount_xrp <= 0:
-#                 logger.warning(f"Skipping update: amount_xrp={amount_xrp}")
-#                 return
-#
-#             receiver_account.balance += amount_xrp
-#             receiver_account.save()
-#
-#     except XrplAccountData.DoesNotExist as e:
-#         # Handle error message
-#         return handle_error_new(e, status_code=500, function_name='update_receiver_account_balances')
-#     except Exception as e:
-#         # Handle error message
-#         return handle_error_new(e, status_code=500, function_name='update_receiver_account_balances')
-
-
 def get_account_details(client, wallet_address: str):
     try:
         account_info = prepare_account_data(wallet_address, False)
@@ -262,14 +222,14 @@ def delete_account_response(tx_response):
     })
 
 
-def account_tx_with_pagination_response(paginated_transactions, count, num_pages):
+def account_tx_with_pagination_response(paginated_transactions, paginator):
     return JsonResponse({
         "status": "success",
         "message": "Transaction history successfully retrieved.",
-        "result": list(paginated_transactions),
-        "total_transactions": count,
-        "pages": num_pages,
-        "current_page": paginated_transactions.number,
+        "transactions": paginated_transactions.object_list,
+        "page": paginated_transactions.number,
+        "total_pages": paginator.num_pages,
+        "total_offers": paginator.count
     })
 
 
@@ -327,7 +287,7 @@ def create_account_delete_transaction(sender_address: str, receiver_address: str
     return AccountDelete(
         account=sender_address,
         destination=receiver_address,
-        last_ledger_sequence=int(last_ledger_sequence)  # Set the custom LastLedgerSequence
+        last_ledger_sequence=int(last_ledger_sequence) + 200  # Set the custom LastLedgerSequence
     )
 
 

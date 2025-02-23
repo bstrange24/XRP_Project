@@ -13,7 +13,8 @@ def save_payment_data(transaction_data, transaction_hash, sender_address, receiv
         with django.db.transaction.atomic():
             # Upsert Transaction using 'sender' as the key
             transaction, created = PaymentTransactionData.objects.update_or_create(
-                sender=sender_address,  # Use 'sender' as the key
+                # sender=sender_address,  # Use 'sender' as the key
+                transaction_hash=transaction_hash,  # Use transaction_hash as the lookup key
                 defaults={
                     'close_time_iso': transaction_data['close_time_iso'],
                     'ctid': transaction_data['ctid'],
@@ -133,6 +134,9 @@ def save_payment_data(transaction_data, transaction_hash, sender_address, receiv
                 logger.debug(f"Updated existing tx_json for transaction with hash {transaction_hash}")
 
         return transaction
+    except django.db.IntegrityError as e:
+        logger.error(f"IntegrityError caught saving transaction history data: {e}")
+    except django.db.DataError as e:
+        logger.error(f"DataError caught saving transaction history data: {e}")
     except Exception as e:
-        logger.error(f"Exception caught saving transaction history data: {e}")
-        raise  # Re-raise the exception after logging
+        logger.error(f"Unexpected exception caught saving transaction history data: {e}")

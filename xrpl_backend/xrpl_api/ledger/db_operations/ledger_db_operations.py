@@ -36,10 +36,12 @@ def save_ledger_info(json_data):
             )
         print(Ledger.objects.first().created_at)
         return ledger
+    except django.db.IntegrityError as e:
+        logger.error(f"IntegrityError caught saving transaction history data: {e}")
+    except django.db.DataError as e:
+        logger.error(f"DataError caught saving transaction history data: {e}")
     except Exception as e:
-        logger.error(f"Error saving ledger data: {e}")
-    finally:
-        pass
+        logger.error(f"Unexpected exception caught saving transaction history data: {e}")
 
 
 def save_server_info(json_data):
@@ -107,7 +109,9 @@ def save_server_info(json_data):
             )
 
         return server_info
+    except django.db.IntegrityError as e:
+        logger.error(f"IntegrityError caught saving transaction history data: {e}")
+    except django.db.DataError as e:
+        logger.error(f"DataError caught saving transaction history data: {e}")
     except Exception as e:
-        logger.error(f"Error saving server data: {e}")
-    finally:
-        pass
+        logger.error(f"Unexpected exception caught saving transaction history data: {e}")

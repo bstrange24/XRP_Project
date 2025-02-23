@@ -15,18 +15,17 @@ from xrpl.transaction import submit_and_wait
 from xrpl.utils import XRPRangeException
 from xrpl.wallet import generate_faucet_wallet, Wallet
 
-from .account_utils import prepare_account_set_disabled_tx, prepare_account_set_enabled_tx, process_all_flags
+from .account_utils import process_all_flags
 from .db_operations.account_db_operations import save_account_data, save_account_configuration_transaction
 from ..accounts.account_utils import create_multiple_account_response, \
     create_account_response, create_wallet_info_response, get_account_reserves, create_wallet_balance_response, \
     account_set_tx_response, prepare_account_data, account_config_settings, get_account_set_flags
-from ..constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
+from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
     ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, ERROR_CREATING_TEST_WALLET, INVALID_XRP_BALANCE, \
     CLASSIC_XRP_ADDRESS, X_XRP_ADDRESS, FAILED_TO_FETCH_RESERVE_DATA, SENDER_SEED_IS_INVALID
 from ..errors.error_handling import process_transaction_error, handle_error_new, error_response
-from ..transactions.transactions_util import prepare_tx
-from ..utils import get_request_param, get_xrpl_client, convert_drops_to_xrp, \
+from ..utils.utils import get_request_param, get_xrpl_client, convert_drops_to_xrp, \
     total_execution_time_in_millis, validate_xrp_wallet, is_valid_xrpl_seed, validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
@@ -79,6 +78,8 @@ class Accounts(View):
             # Save account data to databases
             save_account_data(account_info_response.result, str(xrp_balance))
             logger.debug(f"{CLASSIC_XRP_ADDRESS} save to database")
+
+            print(f"Address: {new_wallet.classic_address} seed: {new_wallet.seed}")
 
             # Return response with account information
             return create_account_response(new_wallet.address, new_wallet.seed, xrp_balance,
@@ -153,6 +154,8 @@ class Accounts(View):
                 account_info_data['account_data']['public_key'] = new_wallet.public_key
 
                 transactions.append(account_info_data)
+
+                print(f"Address: {new_wallet.classic_address} seed: {new_wallet.seed}")
 
             logger.debug(f"{int(create_number_of_accounts)} Wallets created: {transactions}")
 

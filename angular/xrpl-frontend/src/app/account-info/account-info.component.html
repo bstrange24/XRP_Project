@@ -44,62 +44,50 @@
             </div>
           </div>
 
-          <!-- Transactions Section -->
-          <!-- Wrapper for both views -->
-          <div *ngIf="!isTransactionDetails; else transactionDetailTemplate">
-            <!-- Transactions table -->
-            <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
-              <ng-container matColumnDef="account">
-                <th mat-header-cell *matHeaderCellDef> Account</th>
-                <td mat-cell *matCellDef="let tx">{{ tx.Account }}</td>
-              </ng-container>
+          <div class="table-container" (wheel)="onWheel($event)">
+            <div *ngIf="!isTransactionDetails; else transactionDetailTemplate">
+              <!-- Transactions table -->
+              <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
+                <!-- Combined Column -->
+                <ng-container matColumnDef="combined">
+                  <th mat-header-cell *matHeaderCellDef>
+                    <div class="header-row">
+                      <span class="header-cell">Account</span>
+                      <span class="header-cell type-header">Type</span>
+                      <span class="header-cell status-header">Status</span>
+                      <span class="header-cell">Date/Time (UTC)</span>
+                    </div>
+                  </th>
+                  <td mat-cell *matCellDef="let tx">
+                    <div class="transaction-unit" (click)="navigateToTransaction(tx.Account, tx.transaction_hash)">
+                      <div class="main-row">
+                        <span class="cell">{{ tx.Account }}</span>
+                        <span class="cell type-header">{{ tx.TransactionType }}</span>
+                        <span class="cell status-header">{{ tx.transaction_result }}</span>
+                        <span class="cell">{{ tx.date | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}</span>
+                      </div>
 
-              <ng-container matColumnDef="TransactionType">
-                <th mat-header-cell *matHeaderCellDef> Type</th>
-                <td mat-cell *matCellDef="let tx">{{ tx.TransactionType }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="Destination">
-                <th mat-header-cell *matHeaderCellDef> Destination</th>
-                <td mat-cell *matCellDef="let tx">{{ tx.Destination }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="TransactionResult">
-                <th mat-header-cell *matHeaderCellDef> Status</th>
-                <td mat-cell *matCellDef="let tx"> {{ tx.transaction_result }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="delivered_amount">
-                <th mat-header-cell *matHeaderCellDef> Delivered Amount</th>
-                <td mat-cell *matCellDef="let tx"> {{ (tx.delivered_amount / 1000000) | number: '1.2-2' }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="close_time_iso">
-                <th mat-header-cell *matHeaderCellDef> Date/Time (UTC)</th>
-                <td mat-cell *matCellDef="let tx"> {{ tx.date | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr style="cursor: pointer;" mat-row *matRowDef="let row; columns: displayedColumns"
-                (click)="navigateToTransaction(row.Account, row.transaction_hash)">
-              </tr>
-            </table>
-
-            <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageIndex]="pageIndex"
-              (page)="onPageChange($event)"></mat-paginator>
-          </div>
-
-          <!-- Transaction details template -->
-          <ng-template #transactionDetailTemplate>
-            <div>
-              <!-- This is where you show the details after navigating to a transaction -->
-              <!-- <app-transaction-detail [account]="selectedTransaction"></app-transaction-detail> -->
+                      <!-- <div class="details-row" *ngIf="tx.tx_json?.TransactionType !== 'AccountDelete'"> -->
+                        <!-- {{ tx.additional_information }} -->
+                      <!-- </div> -->
+                      <div class="details-row">
+                        {{ tx.additional_information }}
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+          
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+          
+              <div *ngIf="isLoading" class="loading">Loading more transactions...</div>
             </div>
-          </ng-template>
-
+          
+            <ng-template #transactionDetailTemplate>
+              <!-- Placeholder for transaction details if needed -->
+            </ng-template>
+          </div>
         </div>
       </mat-card-content>
     </div>

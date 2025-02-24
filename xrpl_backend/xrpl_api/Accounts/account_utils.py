@@ -158,35 +158,6 @@ def get_account_details(client, wallet_address: str):
         logger.error(f"Error retrieving account details: {str(e)}")
         return None
 
-
-def prepare_account_data(sender_address, black_hole):
-    if black_hole:
-        return AccountInfo(
-            account=sender_address,
-        )
-    else:
-        return AccountInfo(
-            account=sender_address,
-            ledger_index="validated",
-            strict=True,
-        )
-
-
-def prepare_regular_key(wallet_address, black_hole_address):
-    return SetRegularKey(
-        account=wallet_address,
-        regular_key=black_hole_address
-    )
-
-
-def prepare_account_delete(sender_address):
-    return AccountDelete(
-        account=sender_address,
-        destination=sender_address,
-        fee="12",
-    )
-
-
 def account_reserves_response(server_information_response, reserve_base, reserve_inc):
     return JsonResponse({
         'status': 'success',
@@ -227,7 +198,8 @@ def account_tx_with_pagination_response(paginated_transactions, paginator):
     return JsonResponse({
         "status": "success",
         "message": "Transaction history successfully retrieved.",
-        "transactions": paginated_transactions.object_list,
+        # "transactions": paginated_transactions.object_list,
+        "transactions": list(paginated_transactions),
         "page": paginated_transactions.number,
         "total_pages": paginator.num_pages,
         "total_offers": paginator.count
@@ -295,6 +267,13 @@ def create_account_lines_response(paginated_transactions, paginator):
     })
 
 
+def create_cancel_offers_response(cancel_offers_transaction_response):
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Successfully cancelled offers.',
+        'result': cancel_offers_transaction_response.result,
+    })
+
 def account_config_settings(response):
     return JsonResponse({
         "status": "success",
@@ -302,12 +281,39 @@ def account_config_settings(response):
         "result": response,
     })
 
+def prepare_account_data(sender_address, black_hole):
+    if black_hole:
+        return AccountInfo(
+            account=sender_address,
+        )
+    else:
+        return AccountInfo(
+            account=sender_address,
+            ledger_index="validated",
+            strict=True,
+        )
 
-def create_account_delete_transaction(sender_address: str, receiver_address: str, last_ledger_sequence: str):
+
+def prepare_regular_key(wallet_address, black_hole_address):
+    return SetRegularKey(
+        account=wallet_address,
+        regular_key=black_hole_address
+    )
+
+
+def prepare_account_delete(sender_address):
+    return AccountDelete(
+        account=sender_address,
+        destination=sender_address,
+        fee="12",
+    )
+
+
+def create_account_delete_transaction(sender_address: str, receiver_address: str, last_ledger_sequence: int):
     return AccountDelete(
         account=sender_address,
         destination=receiver_address,
-        last_ledger_sequence=int(last_ledger_sequence) + 200  # Set the custom LastLedgerSequence
+        last_ledger_sequence=last_ledger_sequence + 200  # Set the custom LastLedgerSequence
     )
 
 
@@ -349,3 +355,4 @@ def prepare_account_tx(sender_address):
         account=sender_address,
         limit=100
     )
+

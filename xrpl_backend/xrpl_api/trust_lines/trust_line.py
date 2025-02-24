@@ -80,11 +80,12 @@ class TrustLine(View):
                 if not marker:
                     break
 
-            # Extract pagination parameters from the request for paginating the response
-            # Default to page 1 if no page is specified
-            page = int(self.GET.get('page', 1))
-            # Default to 10 items per page if no page_size is specified
-            page_size = int(self.GET.get('page_size', 10))
+            # Extract pagination parameters from the request
+            page = self.GET.get('page', 1)
+            page = int(page) if page else 1
+
+            page_size = self.GET.get('page_size', 10)
+            page_size = int(page_size) if page_size else 1
 
             # Paginate the account lines using Django's Paginator
             paginator = Paginator(account_lines, page_size)

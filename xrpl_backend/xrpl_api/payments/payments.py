@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from xrpl import XRPLException
 from xrpl.asyncio.account import get_balance, does_account_exist
 from xrpl.asyncio.clients import AsyncWebsocketClient, XRPLRequestFailureException
-from xrpl.asyncio.ledger import get_fee
+from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.core.addresscodec import XRPLAddressCodecException
 from xrpl.models import AccountSetAsfFlag
@@ -18,10 +18,9 @@ from xrpl.wallet import Wallet
 from django.apps import apps
 
 from .payments_util import check_pay_channel_entries, create_payment_transaction, process_payment_response, \
-    process_payment, get_account_reserves, check_account_ledger_entries, calculate_last_ledger_sequence, \
-    save_account_delete_tx_response
+    process_payment, get_account_reserves, check_account_ledger_entries, save_account_delete_tx_response
 from ..accounts.account_utils import prepare_account_data, check_check_entries, \
-    create_account_delete_transaction, account_delete_tx_response, prepare_regular_key, prepare_account_set_enabled_tx, \
+    create_account_delete_transaction, prepare_regular_key, prepare_account_set_enabled_tx, \
     delete_account_response
 from ..constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
     SENDER_SEED_IS_INVALID, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA, \
@@ -120,7 +119,8 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_start_time)}")
 
                 calculate_last_ledger_sequence_start_time = time.time()
-                last_ledger_sequence = await calculate_last_ledger_sequence(client, buffer_time=10)
+                last_ledger_sequence = await get_latest_validated_ledger_sequence(client)
+                # last_ledger_sequence1 = await calculate_last_ledger_sequence(client, buffer_time=10)
                 logger.info(
                     f"await calculate_last_ledger_sequence total time: {total_execution_time_in_millis(calculate_last_ledger_sequence_start_time)}")
 

@@ -141,8 +141,11 @@ class Transactions(View):
                     break
 
             # Extract pagination parameters from the request
-            page = int(self.GET.get('page', 1))
-            page_size = int(self.GET.get('page_size', 10))
+            page = self.GET.get('page', 1)
+            page = int(page) if page else 1
+
+            page_size = self.GET.get('page_size', 10)
+            page_size = int(page_size) if page_size else 1
 
             # Paginate the transactions
             paginator = Paginator(transactions, page_size)

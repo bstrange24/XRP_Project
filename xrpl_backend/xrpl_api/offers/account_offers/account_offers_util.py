@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.models import BookOffers, OfferCreate, AccountLines, AccountOffers
+from xrpl.models import BookOffers, OfferCreate, AccountLines, AccountOffers, OfferCancel
 
 
 # Ensure this function runs properly in Django's event loop
@@ -20,7 +20,7 @@ def create_get_account_offers_response(paginated_transactions, paginator):
     })
 
 
-def create_account_offers_response(orderbook_info, result, acct_offers):
+def create_account_offers_paginated_response(orderbook_info, result, acct_offers):
     return JsonResponse({
         'status': 'success',
         'message': 'Offers successfully created.',
@@ -33,9 +33,18 @@ def create_account_offers_response(orderbook_info, result, acct_offers):
 def create_account_offers_response(result, acct_offers):
     return JsonResponse({
         "transaction_status": "success" if result.is_successful() else "failed",
-        'acct_offers.result': acct_offers.result
+        'acct_offers': acct_offers.result
     })
 
+
+def prepare_cancel_offer(classic_address, sequence, offer_id, last_ledger_sequence, fee):
+    return OfferCancel(
+        account=classic_address,
+        sequence=sequence,
+        offer_sequence=offer_id,  # The sequence number of the offer to cancel
+        last_ledger_sequence=last_ledger_sequence + 200,
+        fee=fee
+    )
 
 def prepare_account_lines_for_offer(wallet_address):
     return AccountLines(

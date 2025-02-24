@@ -1,10 +1,11 @@
 from django.urls import path
 
 from .accounts.accounts import Accounts
+from .currency.currency import Currency
 from .escrows.escrows import EscrowAccount, CreateEscrow
 from .ledger.ledger import LedgerInteraction
-from .offers.account_offers.account_offers import GetAccountOffers, AccountOffer
-from .offers.book_offers.book_offers import GetBookOffers
+from .offers.account_offers.account_offers import GetAccountOffers, CancelAccountOffers
+from .offers.book_offers.book_offers import GetBookOffers, CreateBookOffer
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
 from .transactions.transactions import Transactions
 from .trust_lines.trust_line import TrustLine
@@ -24,7 +25,7 @@ urlpatterns = [
     path('create-multiple-test-accounts/', Accounts.create_multiple_test_accounts, name='create_multiple_test_accounts'),
 
     # Endpoint to fetch wallet information for a given wallet address.
-    # Example: http://127.0.0.1:8000/xrpl/wallet-info/rMgaRbbZUBeoxwZevhv1mezuvA97eR4JHV/
+    # Example: http://127.0.0.1:8000/xrpl/account-info/rMgaRbbZUBeoxwZevhv1mezuvA97eR4JHV/
     path('account-info/<str:account>/', Accounts.get_account_info, name='get_account_info'),
 
     # Endpoint to check the balance of a given wallet address.
@@ -43,17 +44,24 @@ urlpatterns = [
     # Example: http://127.0.0.1:8000/xrpl/black_hole_xrp/rJJ7SKuoobMJZcRRqS2sYUhNeyUyGU8ML7/
     path('send-xrp-payment-and-black-hole-account/', SendXrpPaymentAndBlackHoleAccount.as_view(), name='send_xrp_payment_and_black_hole_account'),
 
-    # Endpoint to get active offers on an account.
-    # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
-    path('get-account-offers/', GetAccountOffers.as_view(), name='get_account_offers'),
-
     # Endpoint to get all pairs in the order book
     # http://127.0.0.1:8000/xrpl/get-book-offers/?taker_gets_currency=XRP&taker_pays_currency=USD&taker_pays_issuer=rIssuerAddress&page=1&page_size=10
     path('get-book-offers/', GetBookOffers.as_view(), name='get_book_offers'),
 
-    # Endpoint to get create an offer on an account.
-    # Example: http://127.0.0.1:8000/xrpl/create-account-offer/?wallet_address=raGfE6LfRpUXNjmSYRqUyhWkU429XeYgEg&currency=TST&value=25&sender_seed=sEdS82hNoMmkM7GottuGAFVecYTxRPH
-    path("create-account-offer/", AccountOffer.as_view(), name="create_offer"),
+    # Endpoint to get active offers on an account.
+    # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    path('get-account-offers/', GetAccountOffers.as_view(), name='get_account_offers'),
+
+    # Endpoint to cancel an offer on an account.
+    # Example: http://127.0.0.1:8000/xrpl/create-book-offer/?wallet_address=raGfE6LfRpUXNjmSYRqUyhWkU429XeYgEg&currency=TST&value=25&sendes_seed=sEdS82hNoMmkM7GottuGAFVecYTxRPH
+    # path("create-book-offers/", CreateBookOffer.as_view(), name="create_book_offers"),
+
+
+    path("create-book-offers-easy/", CreateBookOffer.as_view(), name="create_book_offers_easy"),
+
+    # Endpoint to get created offers on an account.
+    # Example: http://127.0.0.1:8000/xrpl/cancel-account-offers/?sender_seed=sEdVWMNWboHkJmE5sWC69Y4KghW1KXC
+    path("cancel-account-offers/", CancelAccountOffers.as_view(), name="cancel_account_offers"),
 
     # Endpoint to retrieve the transaction history for a wallet address.
     # Example: http://127.0.0.1:8000/xrpl/transaction-history/rQGijrV8XYRseZAfjFvC9cDxxr58h9SvMY/...
@@ -115,5 +123,9 @@ urlpatterns = [
     # Endpoint to create an escrow a wallet address.
     # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
     path('create-account-escrow/', CreateEscrow.as_view(), name='create_account_escrow'),
+
+    # Endpoint to send currency payments.
+    path('send-cross-currency-payment/', Currency.as_view(), name='send_cross_currency_payment'),
+
 
 ]

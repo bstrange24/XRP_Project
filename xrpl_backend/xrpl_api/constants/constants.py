@@ -50,6 +50,8 @@ ACCOUNT_IS_REQUIRED = 'Account address is required.'
 INVALID_TRANSACTION_HASH = 'Invalid transaction hash.'
 PAYMENT_IS_UNSUCCESSFUL = "Payment response is unsuccessful"
 MISSING_REQUEST_PARAMETERS = "Missing required parameters."
+UNABLE_TO_FETCH_ACCOUNT_OFFERS = "Unable to fetch account offers for cancellation"
+NO_OFFER_TO_CANCEL_FOR_THIS_ACCOUNT = "No offers available to cancel"
 ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER = "Account {} does not exist on the ledger or it has been deleted."
 
 ASF_FLAGS = [

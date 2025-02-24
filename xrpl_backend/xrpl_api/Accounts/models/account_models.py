@@ -109,7 +109,6 @@ class AccountConfigurationTransaction(models.Model):
             models.Index(fields=['ledger_index'], name='tx_ledger_idx'),
         ]
 
-
 class AccountConfigurationTransactionMeta(models.Model):
     """
     Metadata for an XRPL account transaction.

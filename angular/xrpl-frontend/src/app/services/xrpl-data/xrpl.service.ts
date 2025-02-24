@@ -12,7 +12,7 @@ export class XrplService {
   constructor(private readonly http: HttpClient) {}
 
   getAccountInfo(wallet_address: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/wallet-info/${wallet_address}/`);
+    return this.http.get(`${this.apiUrl}/account-info/${wallet_address}/`);
   }
 
   getAccountTransactionHistoryWithPagination(wallet_address: string): Observable<any> {

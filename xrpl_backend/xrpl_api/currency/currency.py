@@ -1,6 +1,8 @@
 import logging
 
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from tenacity import retry, wait_exponential, stop_after_attempt
 from xrpl import XRPLException
@@ -25,11 +27,20 @@ from ..utilities.utilities import get_request_param, get_xrpl_client, validate_x
 
 logger = logging.getLogger('xrpl_app')
 
+@method_decorator(csrf_exempt, name="dispatch")
 class Currency(View):
+    def __init__(self):
+        super().__init__()
+        self.client = None  # Lazy-loaded client
 
-    @api_view(['POST'])
+    def post(self, request, *args, **kwargs):
+        return self.send_cross_currency_payment(request)
+
+    def get(self, request, *args, **kwargs):
+        return self.send_cross_currency_payment(request)
+
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def send_cross_currency_payment(self):
+    def send_cross_currency_payment(self, request):
         # Set Up Trust Lines: Ensure both sender and receiver have trust lines to their respective issuers.
         # Create Offers: Add liquidity to the order books (e.g., USD/XRP and XRP/EUR).
         # Test the Payment: Retry the cross-currency payment with sufficient paths.
@@ -41,20 +52,25 @@ class Currency(View):
         #
         # Step 2: Create Liquidity with Offer
         # Step 3: Retry the Payment
+        if not self.client:
+            self.client = get_xrpl_client()
+        if not self.client:
+            raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
         start_time = time.time()
         function_name = 'send_cross_currency_payment'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
             # Extract parameters from the request
-            sender_seed = get_request_param(self, 'sender_seed')  # Sender’s wallet seed
-            destination_address = get_request_param(self, 'destination_address')  # Receiver’s address
-            source_currency = get_request_param(self, 'source_currency')  # e.g., "USD"
-            source_issuer = get_request_param(self, 'source_issuer')  # e.g., rUSDissuer
-            destination_currency = get_request_param(self, 'destination_currency')  # e.g., "EUR"
-            destination_issuer = get_request_param(self, 'destination_issuer')  # e.g., rEURissuer
-            amount_to_deliver = get_request_param(self, 'amount_to_deliver')  # Amount to deliver (e.g., "10" EUR)
-            max_to_spend = get_request_param(self, 'max_to_spend')  # Max to spend (e.g., "12" USD)
+            sender_seed = self.request.GET.get('sender_seed')  # Sender’s wallet seed
+            destination_address = self.request.GET.get('destination_address')  # Receiver’s address
+            source_currency = self.request.GET.get('source_currency') # e.g., "USD"
+            source_issuer = self.request.GET.get('source_issuer')  # e.g., rUSDissuer
+            destination_currency = self.request.GET.get('destination_currency')  # e.g., "EUR"
+            destination_issuer = self.request.GET.get('destination_issuer')  # e.g., rEURissuer
+            amount_to_deliver = self.request.GET.get('amount_to_deliver')  # Amount to deliver (e.g., "10" EUR)
+            max_to_spend = self.request.GET.get('max_to_spend')  # Max to spend (e.g., "12" USD)
 
             if not all([sender_seed, destination_address, source_currency, source_issuer,
                         destination_currency, destination_issuer, amount_to_deliver, max_to_spend]):
@@ -65,17 +81,12 @@ class Currency(View):
                         f"destination_currency: {destination_currency}, destination_issuer: {destination_issuer}, "
                         f"amount_to_deliver: {amount_to_deliver}, max_to_spend: {max_to_spend}")
 
-            # Initialize XRPL client
-            client = get_xrpl_client()  # Assumes this returns a JsonRpcClient
-            if not client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
             # Verify accounts exist
-            if not does_account_exist(destination_address, client):
+            if not does_account_exist(destination_address, self.client):
                 raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(destination_address)))
-            if not does_account_exist(source_issuer, client):
+            if not does_account_exist(source_issuer, self.client):
                 raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(source_issuer)))
-            if not does_account_exist(destination_issuer, client):
+            if not does_account_exist(destination_issuer, self.client):
                 raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(destination_issuer)))
 
             # Load sender wallet
@@ -83,7 +94,7 @@ class Currency(View):
             logger.info(f"Sender wallet: {sender_wallet.classic_address}")
 
             # Fetch sequence number for sender
-            account_info_response = client.request(prepare_account_data(sender_wallet.classic_address, False))
+            account_info_response = self.client.request(prepare_account_data(sender_wallet.classic_address, False))
             if validate_xrpl_response_data(account_info_response):
                 process_transaction_error(account_info_response)
 
@@ -91,7 +102,7 @@ class Currency(View):
             logger.info(f"Fetched sequence number: {sequence_number}")
 
             # Fetch network fee
-            fee_response = client.request(Fee())
+            fee_response = self.client.request(Fee())
             if validate_xrpl_response_data(fee_response):
                 process_transaction_error(fee_response)
 
@@ -99,7 +110,7 @@ class Currency(View):
             logger.info(f"Fetched network fee: {fee}")
 
             # Get current ledger for LastLedgerSequence
-            current_ledger = get_latest_validated_ledger_sequence(client)
+            current_ledger = get_latest_validated_ledger_sequence(self.client)
             logger.info(f"Current ledger: {current_ledger}")
 
             # Create cross-currency Payment transaction
@@ -127,7 +138,7 @@ class Currency(View):
 
             print(f"LastLedgerSequence: {payment_tx.last_ledger_sequence}")
             print(f"Time before submission: {time.time()}")
-            validated_tx_response = submit_and_wait(payment_tx, client, sender_wallet)
+            validated_tx_response = submit_and_wait(payment_tx, self.client, sender_wallet)
             print(f"Time after submission: {time.time()}")
 
             if validate_xrpl_response_data(validated_tx_response):

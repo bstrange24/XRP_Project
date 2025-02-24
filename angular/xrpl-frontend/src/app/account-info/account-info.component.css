@@ -127,6 +127,80 @@ mat-form-field {
   width: 100%;
 }
 
+.table-container {
+  max-height: 500px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.mat-elevation-z8 {
+  width: 100%;
+  border-collapse: collapse; /* Ensures no gaps between rows */
+}
+
+.loading {
+  text-align: center;
+  padding: 10px;
+  color: #667;
+}
+
+/* Header Row */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.cell, .header-cell {
+  flex: 1;
+  flex-shrink: 0; /* Prevent shrinking */
+  min-width: 200px;
+  padding: 12px 16px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: unset; 
+}
+
+/* Target only the Type and Status columns to push them right */
+.type-header, .status-header {
+  flex: 0 0 auto;             /* Prevents them from growing or shrinking, keeping their natural width */
+  margin-left: auto;          /* Pushes them to the right by taking up remaining space on the left */
+}
+
+.transaction-unit {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  width: 100%;
+}
+
+.transaction-unit:hover {
+  background-color: #f5f5f5; /* Hover effect for entire unit */
+}
+
+.main-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.details-row {
+  padding: 20px 20px 24px 16px; /* Increased padding: top, right, bottom, left */
+  font-style: italic;
+  color: #555;
+  border-top: 1px solid #e0e0e0;
+  line-height: 1.5; /* Better line spacing */
+  background-color: #fafafa; /* Slight background for distinction */
+}
+
+.paginator-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px;
+}
+
 .form-container {
   display: block;
   width: 100%;

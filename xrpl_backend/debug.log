@@ -1,341 +1,150 @@
-INFO 2025-02-24 13:06:37,593 [Thread: 2148] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
-INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:28] Environment: testnet
-INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
-INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
-INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
-INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
-INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
-INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
-INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
-INFO 2025-02-24 13:06:37,754 [Thread: 2148] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
-INFO 2025-02-24 13:06:37,754 [Thread: 2148] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
-INFO 2025-02-24 13:06:37,754 [Thread: 2148] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
-INFO 2025-02-24 13:06:38,748 [Thread: 5260] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
-INFO 2025-02-24 13:06:38,829 [Thread: 5260] [apps - ready:28] Environment: testnet
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
-INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
-INFO 2025-02-24 13:39:05,542 [Thread: 2580] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 13:39:05,543 [Thread: 4456] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 13:39:05,544 [Thread: 2580] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 13:39:05,544 [Thread: 4456] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 13:39:07,230 [Thread: 4456] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 13:39:07,236 [Thread: 4456] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 13:39:07,237 [Thread: 4456] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1693
-INFO 2025-02-24 13:39:07,811 [Thread: 2580] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 13:39:07,812 [Thread: 2580] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2269
-INFO 2025-02-24 13:46:43,442 [Thread: 19032] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 13:46:43,442 [Thread: 19032] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 13:46:43,442 [Thread: 15400] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 13:46:43,442 [Thread: 15400] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 13:46:44,632 [Thread: 15400] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 13:46:44,635 [Thread: 15400] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 13:46:44,635 [Thread: 15400] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1192
-INFO 2025-02-24 13:46:45,160 [Thread: 19032] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 13:46:45,160 [Thread: 19032] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1718
-INFO 2025-02-24 13:55:25,992 [Thread: 24644] [ledger - get_ledger_info:80] Entering: get_ledger_info
-INFO 2025-02-24 13:55:26,605 [Thread: 24644] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
-INFO 2025-02-24 13:55:26,612 [Thread: 24644] [ledger - get_ledger_info:103] Successfully saved None in the database
-INFO 2025-02-24 13:55:26,612 [Thread: 24644] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 620
-INFO 2025-02-24 14:14:34,303 [Thread: 16624] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 14:14:34,303 [Thread: 16624] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 14:14:34,304 [Thread: 23820] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 14:14:34,304 [Thread: 23820] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 14:14:35,709 [Thread: 23820] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 14:14:35,712 [Thread: 23820] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 14:14:35,712 [Thread: 23820] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1408
-INFO 2025-02-24 14:14:36,177 [Thread: 16624] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 14:14:36,177 [Thread: 16624] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1874
-INFO 2025-02-24 14:15:04,630 [Thread: 16624] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 14:15:04,631 [Thread: 16624] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 14:15:04,632 [Thread: 23820] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 14:15:04,632 [Thread: 23820] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 14:15:05,914 [Thread: 23820] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 14:15:05,918 [Thread: 23820] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 14:15:05,918 [Thread: 23820] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1286
-INFO 2025-02-24 14:15:06,505 [Thread: 16624] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 14:15:06,505 [Thread: 16624] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1874
-INFO 2025-02-24 14:22:35,371 [Thread: 16624] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 14:22:35,371 [Thread: 16624] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 14:22:35,687 [Thread: 13572] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 14:22:35,687 [Thread: 13572] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 14:22:36,735 [Thread: 13572] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 14:22:36,738 [Thread: 13572] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 14:22:36,738 [Thread: 13572] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1051
-INFO 2025-02-24 14:22:37,027 [Thread: 16624] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 14:22:37,027 [Thread: 16624] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1655
-INFO 2025-02-24 14:29:22,579 [Thread: 200] [ledger - get_ledger_info:80] Entering: get_ledger_info
-INFO 2025-02-24 14:29:23,162 [Thread: 200] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
-INFO 2025-02-24 14:29:23,170 [Thread: 200] [ledger - get_ledger_info:103] Successfully saved None in the database
-INFO 2025-02-24 14:29:23,170 [Thread: 200] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 591
-INFO 2025-02-24 14:30:49,546 [Thread: 200] [ledger - get_ledger_info:80] Entering: get_ledger_info
-INFO 2025-02-24 14:30:50,218 [Thread: 200] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
-INFO 2025-02-24 14:30:50,228 [Thread: 200] [ledger - get_ledger_info:103] Successfully saved None in the database
-INFO 2025-02-24 14:30:50,228 [Thread: 200] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 681
-INFO 2025-02-24 14:31:17,194 [Thread: 200] [ledger - get_ledger_info:80] Entering: get_ledger_info
-INFO 2025-02-24 14:31:17,717 [Thread: 200] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
-INFO 2025-02-24 14:31:17,722 [Thread: 200] [ledger - get_ledger_info:103] Successfully saved None in the database
-INFO 2025-02-24 14:31:17,722 [Thread: 200] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 527
-INFO 2025-02-24 14:31:28,670 [Thread: 200] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 14:31:28,670 [Thread: 200] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 14:31:28,978 [Thread: 20120] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 14:31:28,978 [Thread: 20120] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 14:31:30,249 [Thread: 200] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 14:31:30,252 [Thread: 200] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1582
-INFO 2025-02-24 14:31:30,749 [Thread: 20120] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 14:31:30,750 [Thread: 20120] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 14:31:30,751 [Thread: 20120] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1772
-INFO 2025-02-24 14:31:41,914 [Thread: 2496] [ledger - get_server_info:35] Entering: get_server_info
-INFO 2025-02-24 14:31:41,914 [Thread: 2496] [utilities - get_cached_data:398] Cache missed for wallet address: get_server_info
-INFO 2025-02-24 14:31:42,451 [Thread: 2496] [ledger - get_server_info:58] Successfully fetched ledger information.
-INFO 2025-02-24 14:31:42,460 [Thread: 2496] [ledger - get_server_info:61] Successfully saved server info in the database
-INFO 2025-02-24 14:31:42,460 [Thread: 2496] [ledger - get_server_info:72] Leaving: get_server_info. Total execution time in ms: 545
-INFO 2025-02-24 14:33:15,473 [Thread: 24568] [ledger - get_xrp_reserves:122] Entering: get_xrp_reserves
-INFO 2025-02-24 14:33:15,473 [Thread: 24568] [utilities - validate_xrp_wallet:65] Classic Address: rEB3B28MumpdQtX4GUW623vekyAS8HYhgd
-INFO 2025-02-24 14:33:16,589 [Thread: 24568] [ledger - get_xrp_reserves:156] Successfully fetched XRP reserve information for rEB3B28MumpdQtX4GUW623vekyAS8HYhgd.
-INFO 2025-02-24 14:33:16,589 [Thread: 24568] [ledger - get_xrp_reserves:167] Leaving: get_xrp_reserves. Total execution time in ms: 1116
-INFO 2025-02-24 14:34:31,493 [Thread: 844] [transactions - check_transaction_status:178] Entering: check_transaction_status
-INFO 2025-02-24 14:34:31,493 [Thread: 844] [transactions - check_transaction_status:186] Checking transaction status for hash: 7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594
-INFO 2025-02-24 14:34:32,027 [Thread: 844] [transactions - check_transaction_status:203] Raw XRPL response for transaction 7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594: Response(status=<ResponseStatus.SUCCESS: 'success'>, result={'close_time_iso': '2025-02-17T03:34:50Z', 'ctid': 'C04AFC1700000001', 'hash': '7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594', 'ledger_hash': 'A93C92D810CD7B84C389E97BDC8E29336C77DABDE6885ACC8E8A72EFD66864A4', 'ledger_index': 4914199, 'meta': {'AffectedNodes': [{'ModifiedNode': {'FinalFields': {'Account': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', 'Balance': '858423466279068', 'Flags': 0, 'OwnerCount': 226, 'Sequence': 2235009, 'TicketCount': 226}, 'LedgerEntryType': 'AccountRoot', 'LedgerIndex': '31CCE9D28412FF973E9AB6D0FA219BACF19687D9A2456A0C2ABC3280E9D47E37', 'PreviousFields': {'Balance': '858423566279080', 'OwnerCount': 227, 'TicketCount': 227}, 'PreviousTxnID': 'A84118459F4D19EAD445FFAC3317C55064424F87827D44B9F2721EBEC29F35BB', 'PreviousTxnLgrSeq': 4914184}}, {'ModifiedNode': {'FinalFields': {'Flags': 0, 'IndexNext': '10435', 'IndexPrevious': '103b5', 'Owner': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', 'RootIndex': '781518F4E11A068CB35BF18DA3CBEC220E6CDAF406131C56368453759252A78D'}, 'LedgerEntryType': 'DirectoryNode', 'LedgerIndex': '34EC07BFE753222F0C70B70B6D063B3CF95229C24F44C13D2DF5D3D8B6B8CB5C', 'PreviousTxnID': 'EE1EBC744CF29EC017A15A08EB8925FE6EF95BB11AE2C94E3F0A96020C4B26C8', 'PreviousTxnLgrSeq': 4914169}}, {'DeletedNode': {'FinalFields': {'Account': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', 'Flags': 0, 'OwnerNode': '10434', 'PreviousTxnID': '7522226BE341C6F649D05BB5765F8711658A9346F6A6858DB0159CEAE89CF397', 'PreviousTxnLgrSeq': 4912707, 'TicketSequence': 2234745}, 'LedgerEntryType': 'Ticket', 'LedgerIndex': '6040153BAFFCDA239A80E614508F13F3E8AEF7AD5297C8D60932EFBB0EAF3FD2'}}, {'CreatedNode': {'LedgerEntryType': 'AccountRoot', 'LedgerIndex': 'CF62B5B847570E41EF4A523F7D8AD8FB2747C4724740496264A0A8F5ADA303C4', 'NewFields': {'Account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'Balance': '100000000', 'Sequence': 4914199}}}], 'TransactionIndex': 0, 'TransactionResult': 'tesSUCCESS', 'delivered_amount': '100000000'}, 'tx_json': {'Account': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', 'DeliverMax': '100000000', 'Destination': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'Fee': '12', 'Flags': 0, 'LastLedgerSequence': 4914217, 'Sequence': 0, 'SigningPubKey': '02356E89059A75438887F9FEE2056A2890DB82A68353BE9C0C0C8F89C0018B37FC', 'TicketSequence': 2234745, 'TransactionType': 'Payment', 'TxnSignature': '3044022012F4315671D857499A31258D80E3EE0B163CA192DEF8784825CE2AB49557854B0220672D36118F65F3D191DBE86F34F56189ADDC13AF7B662C79950FD6CC9A124247', 'date': 793078490, 'ledger_index': 4914199}, 'validated': True}, id=None, type=<ResponseType.RESPONSE: 'response'>)
-INFO 2025-02-24 14:34:32,029 [Thread: 844] [transaction_db_operations - save_transaction_history:18] Transaction with hash 7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594 already exists. Skipping insert
-INFO 2025-02-24 14:34:32,029 [Thread: 844] [transactions - check_transaction_status:217] Leaving: check_transaction_status. Total execution time in ms: 536
-INFO 2025-02-24 14:39:52,431 [Thread: 23156] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 14:39:52,431 [Thread: 23156] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 14:39:54,018 [Thread: 23156] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 14:39:54,018 [Thread: 23156] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1586
-INFO 2025-02-24 14:39:57,230 [Thread: 23156] [accounts - check_account_balance:228] Entering: check_wallet_balance
-INFO 2025-02-24 14:39:57,230 [Thread: 23156] [utilities - validate_xrp_wallet:65] Classic Address: rLRYbzsJnf6DGEaQZ7jgh3sLWNnmeCpF3D
-INFO 2025-02-24 14:39:58,307 [Thread: 23156] [accounts - check_account_balance:254] Balance for address rLRYbzsJnf6DGEaQZ7jgh3sLWNnmeCpF3D retrieved successfully: 100.00 XRP
-INFO 2025-02-24 14:39:58,307 [Thread: 23156] [accounts - check_account_balance:266] Leaving: check_wallet_balance. Total execution time in ms: 1077
-INFO 2025-02-24 14:45:49,813 [Thread: 24516] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
-INFO 2025-02-24 14:45:49,865 [Thread: 24516] [apps - ready:28] Environment: testnet
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
-INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
-INFO 2025-02-24 15:01:17,569 [Thread: 4260] [accounts - create_test_account:43] Entering: create_test_account
-INFO 2025-02-24 15:01:24,944 [Thread: 4260] [account_db_operations - save_account_data:16] Saving account to db
-INFO 2025-02-24 15:01:24,951 [Thread: 4260] [account_db_operations - save_account_data:77] Account rnbjD2T4aXgap3Rc8rgDecBQkc3hGtHE6J created and saved.
-INFO 2025-02-24 15:01:24,952 [Thread: 4260] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 7383
-INFO 2025-02-24 15:21:18,188 [Thread: 9364] [accounts - create_test_account:43] Entering: create_test_account
-INFO 2025-02-24 15:21:26,649 [Thread: 9364] [account_db_operations - save_account_data:16] Saving account to db
-INFO 2025-02-24 15:21:26,654 [Thread: 9364] [account_db_operations - save_account_data:77] Account r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb created and saved.
-INFO 2025-02-24 15:21:26,654 [Thread: 9364] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 8466
-INFO 2025-02-24 15:22:35,679 [Thread: 9364] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 15:22:35,679 [Thread: 9364] [utilities - validate_xrp_wallet:65] Classic Address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
-INFO 2025-02-24 15:22:35,988 [Thread: 24056] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 15:22:35,988 [Thread: 24056] [utilities - validate_xrp_wallet:65] Classic Address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
-INFO 2025-02-24 15:22:37,499 [Thread: 9364] [accounts - get_account_info:210] Account found: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 15:22:37,499 [Thread: 9364] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1820
-INFO 2025-02-24 15:22:37,994 [Thread: 24056] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
-INFO 2025-02-24 15:22:38,004 [Thread: 24056] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2016
-INFO 2025-02-24 15:23:28,200 [Thread: 24056] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 15:23:28,201 [Thread: 24056] [utilities - validate_xrp_wallet:65] Classic Address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
-INFO 2025-02-24 15:23:28,203 [Thread: 9364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 15:23:28,204 [Thread: 9364] [utilities - validate_xrp_wallet:65] Classic Address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
-INFO 2025-02-24 15:23:29,518 [Thread: 9364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
-INFO 2025-02-24 15:23:29,520 [Thread: 9364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 21A3D12AC550316FC59557E50DC485AA5193B5A822C823C00142CEDD3360B5FC already exists. Skipping insert
-INFO 2025-02-24 15:23:29,520 [Thread: 9364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1316
-INFO 2025-02-24 15:23:30,030 [Thread: 24056] [accounts - get_account_info:210] Account found: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 15:23:30,030 [Thread: 24056] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1829
-INFO 2025-02-24 17:54:06,546 [Thread: 25612] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
-INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:28] Environment: testnet
-INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
-INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
-INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
-INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
-INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
-INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
-INFO 2025-02-24 17:54:06,594 [Thread: 25612] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
-INFO 2025-02-24 17:54:06,594 [Thread: 25612] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
-INFO 2025-02-24 17:54:06,594 [Thread: 25612] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
-INFO 2025-02-24 17:54:06,594 [Thread: 25612] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
-INFO 2025-02-24 17:54:06,990 [Thread: 25708] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:28] Environment: testnet
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
-INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
-INFO 2025-02-24 21:16:41,210 [Thread: 6644] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:28] Environment: testnet
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
-INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
-INFO 2025-02-24 21:16:41,626 [Thread: 16580] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:28] Environment: testnet
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
-INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
-INFO 2025-02-24 21:40:01,096 [Thread: 8044] [accounts - create_test_account:43] Entering: create_test_account
-INFO 2025-02-24 21:40:10,381 [Thread: 8044] [account_db_operations - save_account_data:16] Saving account to db
-INFO 2025-02-24 21:40:10,388 [Thread: 8044] [account_db_operations - save_account_data:77] Account rJk1myNnj1ur1s6hRbfjABNZuCMLfSNr6D created and saved.
-INFO 2025-02-24 21:40:10,388 [Thread: 8044] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 9292
-INFO 2025-02-24 21:41:54,009 [Thread: 8044] [accounts - create_test_account:43] Entering: create_test_account
-INFO 2025-02-24 21:42:02,859 [Thread: 8044] [account_db_operations - save_account_data:16] Saving account to db
-INFO 2025-02-24 21:42:02,864 [Thread: 8044] [account_db_operations - save_account_data:77] Account rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg created and saved.
-INFO 2025-02-24 21:42:02,865 [Thread: 8044] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 8855
-INFO 2025-02-24 21:42:35,810 [Thread: 8044] [accounts - create_test_account:43] Entering: create_test_account
-INFO 2025-02-24 21:42:45,940 [Thread: 8044] [account_db_operations - save_account_data:16] Saving account to db
-INFO 2025-02-24 21:42:45,946 [Thread: 8044] [account_db_operations - save_account_data:77] Account r92Djmp6x7Vu6roZQ4kVrvLK9DekEZ4d2S created and saved.
-INFO 2025-02-24 21:42:45,946 [Thread: 8044] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 10136
-INFO 2025-02-24 21:43:16,311 [Thread: 15692] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 21:43:16,312 [Thread: 20832] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 21:43:16,312 [Thread: 15692] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 21:43:16,312 [Thread: 20832] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 21:43:17,957 [Thread: 20832] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 21:43:17,963 [Thread: 20832] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 21:43:17,963 [Thread: 20832] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1651
-INFO 2025-02-24 21:43:18,651 [Thread: 15692] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 21:43:18,651 [Thread: 15692] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2340
-INFO 2025-02-24 21:51:08,981 [Thread: 20372] [accounts - create_test_account:43] Entering: create_test_account
-INFO 2025-02-24 21:51:17,648 [Thread: 20372] [account_db_operations - save_account_data:16] Saving account to db
-INFO 2025-02-24 21:51:17,655 [Thread: 20372] [account_db_operations - save_account_data:77] Account rMXxLRrm5jmFm64zbmsAzFDL4cd3FQR7v created and saved.
-INFO 2025-02-24 21:51:17,655 [Thread: 20372] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 8673
-INFO 2025-02-24 21:53:34,470 [Thread: 6272] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 21:53:34,471 [Thread: 1336] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 21:53:34,471 [Thread: 6272] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 21:53:34,471 [Thread: 1336] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 21:53:35,772 [Thread: 1336] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 21:53:35,776 [Thread: 1336] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 21:53:35,777 [Thread: 1336] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1306
-INFO 2025-02-24 21:53:36,264 [Thread: 6272] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 21:53:36,264 [Thread: 6272] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1793
-INFO 2025-02-24 22:04:52,994 [Thread: 20688] [ledger - get_ledger_info:80] Entering: get_ledger_info
-INFO 2025-02-24 22:04:53,515 [Thread: 20688] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
-INFO 2025-02-24 22:04:53,522 [Thread: 20688] [ledger - get_ledger_info:103] Successfully saved None in the database
-INFO 2025-02-24 22:04:53,522 [Thread: 20688] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 527
-INFO 2025-02-24 22:05:17,643 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 22:05:17,643 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:05:17,644 [Thread: 6780] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 22:05:17,645 [Thread: 6780] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:05:18,904 [Thread: 6780] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 22:05:18,909 [Thread: 6780] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 22:05:18,909 [Thread: 6780] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1264
-INFO 2025-02-24 22:05:18,912 [Thread: 6780] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 22:05:18,912 [Thread: 6780] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:05:19,575 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 22:05:19,575 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1932
-INFO 2025-02-24 22:05:19,578 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 22:05:19,578 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:05:20,187 [Thread: 6780] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 22:05:20,191 [Thread: 6780] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 22:05:20,192 [Thread: 6780] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1280
-INFO 2025-02-24 22:05:21,219 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 22:05:21,219 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1641
-INFO 2025-02-24 22:07:05,560 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 22:07:05,560 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:07:05,561 [Thread: 6780] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 22:07:05,561 [Thread: 6780] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:07:05,900 [Thread: 9512] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 22:07:05,901 [Thread: 9512] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:07:06,954 [Thread: 6780] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:07:06,956 [Thread: 6780] [transaction_db_operations - save_transaction_history:18] Transaction with hash 42E6B765743528301548FE9CF9E2D179854FFFCF376A9A854590EE027968DE08 already exists. Skipping insert
-INFO 2025-02-24 22:07:06,957 [Thread: 6780] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1395
-INFO 2025-02-24 22:07:06,960 [Thread: 6780] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 22:07:06,960 [Thread: 6780] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:07:07,122 [Thread: 9512] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 22:07:07,125 [Thread: 9512] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 22:07:07,125 [Thread: 9512] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1225
-INFO 2025-02-24 22:07:07,675 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 22:07:07,675 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2115
-INFO 2025-02-24 22:07:07,678 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 22:07:07,678 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:07:08,278 [Thread: 6780] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:07:08,279 [Thread: 6780] [transaction_db_operations - save_transaction_history:18] Transaction with hash 42E6B765743528301548FE9CF9E2D179854FFFCF376A9A854590EE027968DE08 already exists. Skipping insert
-INFO 2025-02-24 22:07:08,279 [Thread: 6780] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1319
-INFO 2025-02-24 22:07:09,370 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 22:07:09,370 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1692
-INFO 2025-02-24 22:07:09,373 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 22:07:09,373 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 22:07:11,278 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 22:07:11,278 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1905
-INFO 2025-02-24 22:31:28,752 [Thread: 3956] [payments - send_xrp_payment:168] Entering: send_xrp_payment
-INFO 2025-02-24 22:31:28,766 [Thread: 3956] [payments - send_xrp_payment:177] Receiver account: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 22:31:28,766 [Thread: 3956] [payments - send_xrp_payment:178] Sending 0.56 XRP
-INFO 2025-02-24 22:31:28,766 [Thread: 3956] [payments - send_xrp_payment:181] Amount in drops: 560000
-INFO 2025-02-24 22:31:29,062 [Thread: 3956] [payments - send_xrp_payment:188] Balances of wallets before Payment tx
-INFO 2025-02-24 22:31:29,112 [Thread: 3956] [payments - send_xrp_payment:189] Sender Address Balance: 88519380
-INFO 2025-02-24 22:31:29,155 [Thread: 3956] [payments - send_xrp_payment:190] Receiver Address Balance: 4376489650
-INFO 2025-02-24 22:31:39,163 [Thread: 3956] [utilities - fetch_network_fee:335] Network fee in drops: 10
-INFO 2025-02-24 22:31:39,163 [Thread: 3956] [payments - send_xrp_payment:193] fee_drops: 10
-INFO 2025-02-24 22:31:43,846 [Thread: 3956] [payments - send_xrp_payment:199] await process_payment total time: 4683
-INFO 2025-02-24 22:31:43,891 [Thread: 3956] [payments - send_xrp_payment:209] Balances of wallets after Payment tx:
-INFO 2025-02-24 22:31:43,935 [Thread: 3956] [payments - send_xrp_payment:210] Sender Address Balance: 87959370
-INFO 2025-02-24 22:31:43,979 [Thread: 3956] [payments - send_xrp_payment:211] Receiver Address Balance: 4377049650
-INFO 2025-02-24 22:31:43,979 [Thread: 3956] [payments - send_xrp_payment:212] Get balance changes: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '-0.56001'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '0.56'}]}]
-INFO 2025-02-24 22:31:43,980 [Thread: 3956] [payments - send_xrp_payment:213] Get final balances: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '87.95937'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '4377.04965'}]}]
-INFO 2025-02-24 22:31:43,980 [Thread: 13176] [payments_util - process_payment_response:166] Payment successful: 03E7C7539FF98D32C93F055E5107A19142F5D6C199407AAC9C30E8660B0BC574
-INFO 2025-02-24 22:31:43,980 [Thread: 13176] [payments_util - process_payment_response:169] Saving payment data in table
-INFO 2025-02-24 22:31:43,985 [Thread: 13176] [payments_db_operations - save_payment_data:36] Created new transaction for sender r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub with hash 03E7C7539FF98D32C93F055E5107A19142F5D6C199407AAC9C30E8660B0BC574
-INFO 2025-02-24 22:31:44,119 [Thread: 3956] [payments - send_xrp_payment:228] Leaving: send_xrp_payment. Total execution time in ms: 15367
-INFO 2025-02-24 22:49:30,583 [Thread: 18240] [payments - send_xrp_payment:168] Entering: send_xrp_payment
-INFO 2025-02-24 22:49:30,597 [Thread: 18240] [payments - send_xrp_payment:177] Receiver account: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 22:49:30,597 [Thread: 18240] [payments - send_xrp_payment:178] Sending 0.56 XRP
-INFO 2025-02-24 22:49:30,598 [Thread: 18240] [payments - send_xrp_payment:181] Amount in drops: 560000
-INFO 2025-02-24 22:49:30,900 [Thread: 18240] [payments - send_xrp_payment:188] Balances of wallets before Payment tx
-INFO 2025-02-24 22:49:30,966 [Thread: 18240] [payments - send_xrp_payment:189] Sender Address Balance: 87959370
-INFO 2025-02-24 22:49:31,008 [Thread: 18240] [payments - send_xrp_payment:190] Receiver Address Balance: 4377049650
-INFO 2025-02-24 22:49:41,010 [Thread: 18240] [utilities - fetch_network_fee:335] Network fee in drops: 10
-INFO 2025-02-24 22:49:41,010 [Thread: 18240] [payments - send_xrp_payment:193] fee_drops: 10
-INFO 2025-02-24 22:49:46,751 [Thread: 18240] [payments - send_xrp_payment:199] await process_payment total time: 5740
-INFO 2025-02-24 22:49:46,800 [Thread: 18240] [payments - send_xrp_payment:209] Balances of wallets after Payment tx:
-INFO 2025-02-24 22:49:46,834 [Thread: 18240] [payments - send_xrp_payment:210] Sender Address Balance: 87399360
-INFO 2025-02-24 22:49:46,875 [Thread: 18240] [payments - send_xrp_payment:211] Receiver Address Balance: 4377609650
-INFO 2025-02-24 22:49:46,875 [Thread: 18240] [payments - send_xrp_payment:212] Get balance changes: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '-0.56001'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '0.56'}]}]
-INFO 2025-02-24 22:49:46,875 [Thread: 18240] [payments - send_xrp_payment:213] Get final balances: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '87.39936'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '4377.60965'}]}]
-INFO 2025-02-24 22:49:46,876 [Thread: 18420] [payments_util - process_payment_response:166] Payment successful: D61868C034650E1EED8E6AE1E0B99E52720B561C9E1F6E372649D21A3A22705F
-INFO 2025-02-24 22:49:46,876 [Thread: 18420] [payments_util - process_payment_response:169] Saving payment data in table
-INFO 2025-02-24 22:49:46,879 [Thread: 18420] [payments_db_operations - save_payment_data:36] Created new transaction for sender r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub with hash D61868C034650E1EED8E6AE1E0B99E52720B561C9E1F6E372649D21A3A22705F
-INFO 2025-02-24 22:49:47,019 [Thread: 18240] [payments - send_xrp_payment:228] Leaving: send_xrp_payment. Total execution time in ms: 16435
-INFO 2025-02-24 22:54:31,475 [Thread: 11220] [payments - send_xrp_payment:168] Entering: send_xrp_payment
-INFO 2025-02-24 22:54:31,490 [Thread: 11220] [payments - send_xrp_payment:177] Receiver account: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 22:54:31,490 [Thread: 11220] [payments - send_xrp_payment:178] Sending 0.56 XRP
-INFO 2025-02-24 22:54:31,490 [Thread: 11220] [payments - send_xrp_payment:181] Amount in drops: 560000
-INFO 2025-02-24 22:54:31,763 [Thread: 11220] [payments - send_xrp_payment:188] Balances of wallets before Payment tx
-INFO 2025-02-24 22:54:31,822 [Thread: 11220] [payments - send_xrp_payment:189] Sender Address Balance: 87399360
-INFO 2025-02-24 22:54:31,875 [Thread: 11220] [payments - send_xrp_payment:190] Receiver Address Balance: 4377609650
-INFO 2025-02-24 22:54:41,887 [Thread: 11220] [utilities - fetch_network_fee:335] Network fee in drops: 10
-INFO 2025-02-24 22:54:41,887 [Thread: 11220] [payments - send_xrp_payment:193] fee_drops: 10
-INFO 2025-02-24 22:54:45,491 [Thread: 11220] [payments - send_xrp_payment:199] await process_payment total time: 3603
-INFO 2025-02-24 22:54:45,542 [Thread: 11220] [payments - send_xrp_payment:209] Balances of wallets after Payment tx:
-INFO 2025-02-24 22:54:45,583 [Thread: 11220] [payments - send_xrp_payment:210] Sender Address Balance: 86839350
-INFO 2025-02-24 22:54:45,626 [Thread: 11220] [payments - send_xrp_payment:211] Receiver Address Balance: 4378169650
-INFO 2025-02-24 22:54:45,627 [Thread: 11220] [payments - send_xrp_payment:212] Get balance changes: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '-0.56001'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '0.56'}]}]
-INFO 2025-02-24 22:54:45,627 [Thread: 11220] [payments - send_xrp_payment:213] Get final balances: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '86.83935'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '4378.16965'}]}]
-INFO 2025-02-24 22:54:45,627 [Thread: 18420] [payments_util - process_payment_response:166] Payment successful: 00DB58F6D901D9B7C75F731683697BCCD4BCD5A425261078E5E2C15ABE2D2030
-INFO 2025-02-24 22:54:45,627 [Thread: 18420] [payments_util - process_payment_response:169] Saving payment data in table
-INFO 2025-02-24 22:54:45,630 [Thread: 18420] [payments_db_operations - save_payment_data:36] Created new transaction for sender r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub with hash 00DB58F6D901D9B7C75F731683697BCCD4BCD5A425261078E5E2C15ABE2D2030
-INFO 2025-02-24 22:54:45,786 [Thread: 11220] [payments - send_xrp_payment:228] Leaving: send_xrp_payment. Total execution time in ms: 14311
+INFO 2025-02-24 23:16:46,694 [Thread: 11844] [payments - send_xrp_payment_and_delete_account:51] Entering: send_xrp_payment_and_delete_account
+ERROR 2025-02-24 23:16:53,450 [Thread: 11844] [error_handling - handle_error_new:20] Exception caught: MultiValueDictKeyError - 'account'
+ERROR 2025-02-24 23:16:53,450 [Thread: 11844] [error_handling - handle_error_new:24] Leaving: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:16:53,451 [Thread: 11844] [payments - send_xrp_payment_and_delete_account:154] Leaving: send_xrp_payment_and_delete_account. Total execution time in ms: 6757
+ERROR 2025-02-24 23:16:53,455 [Thread: 13924] [log - log_response:248] Internal Server Error: /xrpl/send-xrp-payment-and-delete-account/
+ERROR 2025-02-24 23:16:53,456 [Thread: 13924] [basehttp - log_message:213] "GET /xrpl/send-xrp-payment-and-delete-account/?sender_seed=sEdSc7GENA9Z97eYBD1Nqm362JVRZ24&receiving_account=rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg HTTP/1.1" 500 45
+INFO 2025-02-24 23:18:15,881 [Thread: 14960] [payments - send_xrp_payment_and_delete_account:51] Entering: send_xrp_payment_and_delete_account
+ERROR 2025-02-24 23:18:34,705 [Thread: 14960] [error_handling - handle_error_new:20] Exception caught: MultiValueDictKeyError - 'account'
+ERROR 2025-02-24 23:18:34,705 [Thread: 14960] [error_handling - handle_error_new:24] Leaving: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:18:34,705 [Thread: 14960] [payments - send_xrp_payment_and_delete_account:154] Leaving: send_xrp_payment_and_delete_account. Total execution time in ms: 18824
+ERROR 2025-02-24 23:18:34,708 [Thread: 13924] [log - log_response:248] Internal Server Error: /xrpl/send-xrp-payment-and-delete-account/
+ERROR 2025-02-24 23:18:34,709 [Thread: 13924] [basehttp - log_message:213] "GET /xrpl/send-xrp-payment-and-delete-account/?receiving_account=rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg&sender_seed=sEdSc7GENA9Z97eYBD1Nqm362JVRZ24 HTTP/1.1" 500 45
+INFO 2025-02-24 23:19:59,477 [Thread: 18016] [payments - send_xrp_payment_and_delete_account:51] Entering: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:19:59,479 [Thread: 18016] [utilities - validate_xrp_wallet:65] Classic Address: rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg
+INFO 2025-02-24 23:19:59,937 [Thread: 18016] [payments - send_xrp_payment_and_delete_account:72] await check_account_ledger_entries total time: 53
+INFO 2025-02-24 23:19:59,937 [Thread: 18016] [escrows_util - check_escrow_entries:24] No Escrow entries found.
+INFO 2025-02-24 23:19:59,938 [Thread: 18016] [payments_util - check_pay_channel_entries:108] No PayChannel entries found.
+INFO 2025-02-24 23:19:59,938 [Thread: 18016] [ledger_util - check_ripple_state_entries:70] No RippleState entries found.
+INFO 2025-02-24 23:19:59,938 [Thread: 18016] [account_utils - check_check_entries:106] No Check entries found.
+INFO 2025-02-24 23:19:59,985 [Thread: 18016] [payments - send_xrp_payment_and_delete_account:95] await account_info_response total time: 46
+INFO 2025-02-24 23:20:00,027 [Thread: 18016] [payments - send_xrp_payment_and_delete_account:103] await get_account_reserves total time: 42
+ERROR 2025-02-24 23:20:00,172 [Thread: 18016] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Insufficient balance to cover the reserve and fees.'}
+ERROR 2025-02-24 23:20:00,172 [Thread: 18016] [error_handling - handle_error_new:24] Leaving: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:20:00,173 [Thread: 18016] [payments - send_xrp_payment_and_delete_account:154] Leaving: send_xrp_payment_and_delete_account. Total execution time in ms: 695
+ERROR 2025-02-24 23:20:00,176 [Thread: 13924] [log - log_response:248] Internal Server Error: /xrpl/send-xrp-payment-and-delete-account/
+ERROR 2025-02-24 23:20:00,178 [Thread: 13924] [basehttp - log_message:213] "GET /xrpl/send-xrp-payment-and-delete-account/?account=rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg&sender_seed=sEdSc7GENA9Z97eYBD1Nqm362JVRZ24 HTTP/1.1" 500 87
+INFO 2025-02-24 23:20:44,325 [Thread: 15676] [payments - send_xrp_payment_and_delete_account:51] Entering: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:20:44,326 [Thread: 15676] [utilities - validate_xrp_wallet:65] Classic Address: rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg
+INFO 2025-02-24 23:20:44,635 [Thread: 15676] [payments - send_xrp_payment_and_delete_account:72] await check_account_ledger_entries total time: 61
+INFO 2025-02-24 23:20:44,635 [Thread: 15676] [escrows_util - check_escrow_entries:24] No Escrow entries found.
+INFO 2025-02-24 23:20:44,635 [Thread: 15676] [payments_util - check_pay_channel_entries:108] No PayChannel entries found.
+INFO 2025-02-24 23:20:44,635 [Thread: 15676] [ledger_util - check_ripple_state_entries:70] No RippleState entries found.
+INFO 2025-02-24 23:20:44,636 [Thread: 15676] [account_utils - check_check_entries:106] No Check entries found.
+INFO 2025-02-24 23:20:44,675 [Thread: 15676] [payments - send_xrp_payment_and_delete_account:95] await account_info_response total time: 39
+INFO 2025-02-24 23:20:44,711 [Thread: 15676] [payments - send_xrp_payment_and_delete_account:103] await get_account_reserves total time: 35
+ERROR 2025-02-24 23:20:44,843 [Thread: 15676] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Insufficient balance to cover the reserve and fees.'}
+ERROR 2025-02-24 23:20:44,843 [Thread: 15676] [error_handling - handle_error_new:24] Leaving: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:20:44,844 [Thread: 15676] [payments - send_xrp_payment_and_delete_account:154] Leaving: send_xrp_payment_and_delete_account. Total execution time in ms: 518
+ERROR 2025-02-24 23:20:44,846 [Thread: 13924] [log - log_response:248] Internal Server Error: /xrpl/send-xrp-payment-and-delete-account/
+ERROR 2025-02-24 23:20:44,847 [Thread: 13924] [basehttp - log_message:213] "GET /xrpl/send-xrp-payment-and-delete-account/?account=rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg&sender_seed=sEdSc7GENA9Z97eYBD1Nqm362JVRZ24 HTTP/1.1" 500 87
+INFO 2025-02-24 23:22:07,528 [Thread: 12704] [payments - send_xrp_payment_and_delete_account:51] Entering: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:22:07,529 [Thread: 12704] [utilities - validate_xrp_wallet:65] Classic Address: rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg
+INFO 2025-02-24 23:22:07,867 [Thread: 12704] [payments - send_xrp_payment_and_delete_account:72] await check_account_ledger_entries total time: 43
+INFO 2025-02-24 23:22:07,867 [Thread: 12704] [escrows_util - check_escrow_entries:24] No Escrow entries found.
+INFO 2025-02-24 23:22:07,867 [Thread: 12704] [payments_util - check_pay_channel_entries:108] No PayChannel entries found.
+INFO 2025-02-24 23:22:07,867 [Thread: 12704] [ledger_util - check_ripple_state_entries:70] No RippleState entries found.
+INFO 2025-02-24 23:22:07,867 [Thread: 12704] [account_utils - check_check_entries:106] No Check entries found.
+INFO 2025-02-24 23:22:07,920 [Thread: 12704] [payments - send_xrp_payment_and_delete_account:95] await account_info_response total time: 52
+INFO 2025-02-24 23:22:07,968 [Thread: 12704] [payments - send_xrp_payment_and_delete_account:103] await get_account_reserves total time: 48
+ERROR 2025-02-24 23:22:08,118 [Thread: 12704] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Insufficient balance to cover the reserve and fees.'}
+ERROR 2025-02-24 23:22:08,118 [Thread: 12704] [error_handling - handle_error_new:24] Leaving: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:22:08,118 [Thread: 12704] [payments - send_xrp_payment_and_delete_account:154] Leaving: send_xrp_payment_and_delete_account. Total execution time in ms: 590
+ERROR 2025-02-24 23:22:08,121 [Thread: 13924] [log - log_response:248] Internal Server Error: /xrpl/send-xrp-payment-and-delete-account/
+ERROR 2025-02-24 23:22:08,122 [Thread: 13924] [basehttp - log_message:213] "GET /xrpl/send-xrp-payment-and-delete-account/?account=rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg&sender_seed=sEdSc7GENA9Z97eYBD1Nqm362JVRZ24 HTTP/1.1" 500 87
+INFO 2025-02-24 23:24:31,010 [Thread: 20620] [payments - send_xrp_payment_and_delete_account:51] Entering: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:24:31,011 [Thread: 20620] [utilities - validate_xrp_wallet:65] Classic Address: rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg
+INFO 2025-02-24 23:24:31,375 [Thread: 20620] [payments - send_xrp_payment_and_delete_account:72] await check_account_ledger_entries total time: 57
+INFO 2025-02-24 23:24:31,375 [Thread: 20620] [escrows_util - check_escrow_entries:24] No Escrow entries found.
+INFO 2025-02-24 23:24:31,375 [Thread: 20620] [payments_util - check_pay_channel_entries:108] No PayChannel entries found.
+INFO 2025-02-24 23:24:31,376 [Thread: 20620] [ledger_util - check_ripple_state_entries:70] No RippleState entries found.
+INFO 2025-02-24 23:24:31,376 [Thread: 20620] [account_utils - check_check_entries:106] No Check entries found.
+INFO 2025-02-24 23:24:31,419 [Thread: 20620] [payments - send_xrp_payment_and_delete_account:95] await account_info_response total time: 42
+INFO 2025-02-24 23:24:31,454 [Thread: 20620] [payments - send_xrp_payment_and_delete_account:103] await get_account_reserves total time: 35
+ERROR 2025-02-24 23:24:31,587 [Thread: 20620] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Insufficient balance to cover the reserve and fees.'}
+ERROR 2025-02-24 23:24:31,587 [Thread: 20620] [error_handling - handle_error_new:24] Leaving: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:24:31,587 [Thread: 20620] [payments - send_xrp_payment_and_delete_account:154] Leaving: send_xrp_payment_and_delete_account. Total execution time in ms: 577
+ERROR 2025-02-24 23:24:31,590 [Thread: 13924] [log - log_response:248] Internal Server Error: /xrpl/send-xrp-payment-and-delete-account/
+ERROR 2025-02-24 23:24:31,590 [Thread: 13924] [basehttp - log_message:213] "GET /xrpl/send-xrp-payment-and-delete-account/?account=rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg&sender_seed=sEdSc7GENA9Z97eYBD1Nqm362JVRZ24 HTTP/1.1" 500 87
+INFO 2025-02-24 23:25:44,064 [Thread: 12904] [payments - send_xrp_payment_and_delete_account:51] Entering: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:25:44,065 [Thread: 12904] [utilities - validate_xrp_wallet:65] Classic Address: rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg
+ERROR 2025-02-24 23:25:44,066 [Thread: 12904] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Sender seed is invalid.'}
+ERROR 2025-02-24 23:25:44,066 [Thread: 12904] [error_handling - handle_error_new:24] Leaving: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:25:44,066 [Thread: 12904] [payments - send_xrp_payment_and_delete_account:154] Leaving: send_xrp_payment_and_delete_account. Total execution time in ms: 2
+ERROR 2025-02-24 23:25:44,070 [Thread: 396] [log - log_response:248] Internal Server Error: /xrpl/send-xrp-payment-and-delete-account/
+ERROR 2025-02-24 23:25:44,071 [Thread: 396] [basehttp - log_message:213] "GET /xrpl/send-xrp-payment-and-delete-account/?account=rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg&sender_seed=rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg HTTP/1.1" 500 59
+INFO 2025-02-24 23:26:04,594 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:51] Entering: send_xrp_payment_and_delete_account
+INFO 2025-02-24 23:26:04,595 [Thread: 9648] [utilities - validate_xrp_wallet:65] Classic Address: rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg
+INFO 2025-02-24 23:26:04,946 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:72] await check_account_ledger_entries total time: 46
+INFO 2025-02-24 23:26:04,946 [Thread: 9648] [escrows_util - check_escrow_entries:24] No Escrow entries found.
+INFO 2025-02-24 23:26:04,946 [Thread: 9648] [payments_util - check_pay_channel_entries:108] No PayChannel entries found.
+INFO 2025-02-24 23:26:04,947 [Thread: 9648] [ledger_util - check_ripple_state_entries:70] No RippleState entries found.
+INFO 2025-02-24 23:26:04,947 [Thread: 9648] [account_utils - check_check_entries:106] No Check entries found.
+INFO 2025-02-24 23:26:04,995 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:95] await account_info_response total time: 48
+INFO 2025-02-24 23:26:05,047 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:103] await get_account_reserves total time: 51
+INFO 2025-02-24 23:26:10,846 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:119] await process_payment total time: 5799
+INFO 2025-02-24 23:26:10,894 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:124] await calculate_last_ledger_sequence total time: 47
+INFO 2025-02-24 23:26:17,731 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:135] await process_payment total time: 6836
+INFO 2025-02-24 23:26:17,731 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:137] Get balance changes: [{'account': 'rMXxLRrm5jmFm64zbmsAzFDL4cd3FQR7v', 'balances': [{'currency': 'XRP', 'value': '-99.00001'}]}, {'account': 'rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg', 'balances': [{'currency': 'XRP', 'value': '99'}]}]
+INFO 2025-02-24 23:26:17,731 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:138] Get final balances: [{'account': 'rMXxLRrm5jmFm64zbmsAzFDL4cd3FQR7v', 'balances': [{'currency': 'XRP', 'value': '0.99999'}]}, {'account': 'rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg', 'balances': [{'currency': 'XRP', 'value': '298'}]}]
+INFO 2025-02-24 23:26:17,732 [Thread: 396] [payments_util - save_account_delete_tx_response:129] Payment transaction hash: A0FE9CCE62D4955BA5CF1A597BDB5BE843F99B5B81F026B26AB915C7ADD2BB0A, Sender: rMXxLRrm5jmFm64zbmsAzFDL4cd3FQR7v
+INFO 2025-02-24 23:26:17,732 [Thread: 396] [payments_util - save_account_delete_tx_response:130] Delete transaction hash: EA85D5F26E231842EA90D0129FBFA88FB9749DCC6445F51AD0BD395AA7BC158C, Sender: rMXxLRrm5jmFm64zbmsAzFDL4cd3FQR7v
+INFO 2025-02-24 23:26:17,732 [Thread: 396] [payments_util - save_account_delete_tx_response:133] Saving payment response data in table
+INFO 2025-02-24 23:26:17,749 [Thread: 396] [payments_db_operations - save_payment_data:36] Created new transaction for sender rMXxLRrm5jmFm64zbmsAzFDL4cd3FQR7v with hash A0FE9CCE62D4955BA5CF1A597BDB5BE843F99B5B81F026B26AB915C7ADD2BB0A
+INFO 2025-02-24 23:26:17,802 [Thread: 396] [payments_util - save_account_delete_tx_response:138] Saving delete response data in table
+INFO 2025-02-24 23:26:17,811 [Thread: 396] [payments_db_operations - save_payment_data:36] Created new transaction for sender rMXxLRrm5jmFm64zbmsAzFDL4cd3FQR7v with hash EA85D5F26E231842EA90D0129FBFA88FB9749DCC6445F51AD0BD395AA7BC158C
+INFO 2025-02-24 23:26:17,994 [Thread: 9648] [payments - send_xrp_payment_and_delete_account:154] Leaving: send_xrp_payment_and_delete_account. Total execution time in ms: 13400
+INFO 2025-02-24 23:53:02,113 [Thread: 20796] [trust_line - get_account_trust_lines:39] Entering: get_account_trust_lines
+INFO 2025-02-24 23:53:02,114 [Thread: 20796] [utilities - validate_xrp_wallet:65] Classic Address: rENh1oGGTxs6Kgn5SGFmbjY8nUBCRnUpnk
+INFO 2025-02-24 23:53:03,684 [Thread: 20796] [trust_line - get_account_trust_lines:95] Account Lines fetched for address: rENh1oGGTxs6Kgn5SGFmbjY8nUBCRnUpnk
+INFO 2025-02-24 23:53:03,684 [Thread: 20796] [trust_line - get_account_trust_lines:107] Leaving: get_account_trust_lines. Total execution time in ms: 1571
+INFO 2025-02-25 00:02:15,719 [Thread: 20420] [trust_line - get_account_trust_lines:39] Entering: get_account_trust_lines
+INFO 2025-02-25 00:02:15,719 [Thread: 20420] [utilities - validate_xrp_wallet:65] Classic Address: rENh1oGGTxs6Kgn5SGFmbjY8nUBCRnUpnk
+INFO 2025-02-25 00:02:16,983 [Thread: 20420] [trust_line - get_account_trust_lines:95] Account Lines fetched for address: rENh1oGGTxs6Kgn5SGFmbjY8nUBCRnUpnk
+INFO 2025-02-25 00:02:16,984 [Thread: 20420] [trust_line - get_account_trust_lines:107] Leaving: get_account_trust_lines. Total execution time in ms: 1264
+INFO 2025-02-25 00:13:20,558 [Thread: 5488] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:13:20,559 [Thread: 5488] [utilities - validate_xrp_wallet:65] Classic Address: rJtwFcaWJKTXpyv7FEBxJzd6hBzmjGhKKR
+INFO 2025-02-25 00:13:21,577 [Thread: 5488] [account_offers - get_account_offers:94] Found 1 offers for wallet rJtwFcaWJKTXpyv7FEBxJzd6hBzmjGhKKR.
+INFO 2025-02-25 00:13:21,579 [Thread: 5488] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1021
+INFO 2025-02-25 00:17:39,178 [Thread: 1080] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:17:39,179 [Thread: 1080] [utilities - validate_xrp_wallet:65] Classic Address: rJtwFcaWJKTXpyv7FEBxJzd6hBzmjGhKKR
+INFO 2025-02-25 00:17:40,332 [Thread: 1080] [account_offers - get_account_offers:94] Found 1 offers for wallet rJtwFcaWJKTXpyv7FEBxJzd6hBzmjGhKKR.
+INFO 2025-02-25 00:17:40,332 [Thread: 1080] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1154
+INFO 2025-02-25 00:20:24,176 [Thread: 2136] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:20:24,177 [Thread: 2136] [utilities - validate_xrp_wallet:65] Classic Address: r9tdjfM6MvAK6VG69nJEhtAveH21x2Arro
+INFO 2025-02-25 00:20:25,395 [Thread: 2136] [account_offers - get_account_offers:96] No offers found for wallet r9tdjfM6MvAK6VG69nJEhtAveH21x2Arro in this batch.
+INFO 2025-02-25 00:20:25,396 [Thread: 2136] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1220
+INFO 2025-02-25 00:20:34,270 [Thread: 2136] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:20:34,271 [Thread: 2136] [utilities - validate_xrp_wallet:65] Classic Address: rP7hpZkY9hyfopDzVtmyYfW7f4wGVrqnfn
+INFO 2025-02-25 00:20:35,340 [Thread: 2136] [account_offers - get_account_offers:96] No offers found for wallet rP7hpZkY9hyfopDzVtmyYfW7f4wGVrqnfn in this batch.
+INFO 2025-02-25 00:20:35,341 [Thread: 2136] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1070
+INFO 2025-02-25 00:20:50,910 [Thread: 2136] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:20:50,911 [Thread: 2136] [utilities - validate_xrp_wallet:65] Classic Address: rh8sRJr29ZEqfgtj8PZaGjzampu677Jj4K
+INFO 2025-02-25 00:20:51,999 [Thread: 2136] [account_offers - get_account_offers:96] No offers found for wallet rh8sRJr29ZEqfgtj8PZaGjzampu677Jj4K in this batch.
+INFO 2025-02-25 00:20:52,000 [Thread: 2136] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1090
+INFO 2025-02-25 00:21:22,726 [Thread: 2136] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:21:22,726 [Thread: 2136] [utilities - validate_xrp_wallet:65] Classic Address: r3po3SnWLsxifM3CaT34e1vWBp1Mroq8Lh
+INFO 2025-02-25 00:21:23,799 [Thread: 2136] [account_offers - get_account_offers:94] Found 2 offers for wallet r3po3SnWLsxifM3CaT34e1vWBp1Mroq8Lh.
+INFO 2025-02-25 00:21:23,800 [Thread: 2136] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1074
+INFO 2025-02-25 00:21:38,287 [Thread: 2136] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:21:38,287 [Thread: 2136] [utilities - validate_xrp_wallet:65] Classic Address: r3sBwabABuCvL1dPvPrYKe3ZLk4Ugu3rFf
+INFO 2025-02-25 00:21:39,391 [Thread: 2136] [account_offers - get_account_offers:96] No offers found for wallet r3sBwabABuCvL1dPvPrYKe3ZLk4Ugu3rFf in this batch.
+INFO 2025-02-25 00:21:39,392 [Thread: 2136] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1105
+INFO 2025-02-25 00:21:47,643 [Thread: 2136] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:21:47,644 [Thread: 2136] [utilities - validate_xrp_wallet:65] Classic Address: r3sBwabABuCvL1dPvPrYKe3ZLk4Ugu3rFf
+INFO 2025-02-25 00:21:48,643 [Thread: 2136] [account_offers - get_account_offers:96] No offers found for wallet r3sBwabABuCvL1dPvPrYKe3ZLk4Ugu3rFf in this batch.
+INFO 2025-02-25 00:21:48,644 [Thread: 2136] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1000
+INFO 2025-02-25 00:21:58,454 [Thread: 2136] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:21:58,455 [Thread: 2136] [utilities - validate_xrp_wallet:65] Classic Address: r3po3SnWLsxifM3CaT34e1vWBp1Mroq8Lh
+INFO 2025-02-25 00:21:59,697 [Thread: 2136] [account_offers - get_account_offers:94] Found 2 offers for wallet r3po3SnWLsxifM3CaT34e1vWBp1Mroq8Lh.
+INFO 2025-02-25 00:21:59,699 [Thread: 2136] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1244
+INFO 2025-02-25 00:22:09,958 [Thread: 2136] [account_offers - cancel_account_offers:174] Entering: cancel_account_offers
+INFO 2025-02-25 00:22:10,554 [Thread: 2136] [account_offers - cancel_account_offers:190] Sender wallet retrieved: r3po3SnWLsxifM3CaT34e1vWBp1Mroq8Lh Sender Address Balance: 99999950
+INFO 2025-02-25 00:22:10,554 [Thread: 2136] [account_offers - get_account_offers:61] Entering: get_account_offers
+INFO 2025-02-25 00:22:10,554 [Thread: 2136] [utilities - validate_xrp_wallet:65] Classic Address: r3po3SnWLsxifM3CaT34e1vWBp1Mroq8Lh
+INFO 2025-02-25 00:22:11,713 [Thread: 2136] [account_offers - get_account_offers:94] Found 2 offers for wallet r3po3SnWLsxifM3CaT34e1vWBp1Mroq8Lh.
+INFO 2025-02-25 00:22:11,715 [Thread: 2136] [account_offers - get_account_offers:127] Leaving: get_account_offers. Total execution time in ms: 1161
+INFO 2025-02-25 00:22:13,295 [Thread: 2136] [account_offers - cancel_account_offers:232] Fetched network fee: 10
+INFO 2025-02-25 00:22:19,151 [Thread: 2136] [account_offers - cancel_account_offers:250] Offer 5015950 cancelled successfully.
+ERROR 2025-02-25 00:22:19,160 [Thread: 2136] [account_offers_db_operations - save_offer_cancel_response:66] Unexpected exception caught saving transaction history data: no such table: xrpl_offer_cancel_data
+INFO 2025-02-25 00:22:19,161 [Thread: 2136] [account_offers - cancel_account_offers:265] Leaving: cancel_account_offers. Total execution time in ms: 9203

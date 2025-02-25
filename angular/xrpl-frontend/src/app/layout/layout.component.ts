@@ -183,7 +183,37 @@ navigateToSendPayment() {
   this.router.navigate(['/send-payment']);
 }
 
-  navigateToHome() {
-    this.router.navigate(['']);
+// Navigate to Send Payment and Delete Account page
+navigateToSendPaymentAndDeleteAccount() {
+  this.router.navigate(['/send-payment-and-delete-account']);
+}
+
+// Navigate to Send Payment and Black Hole Account page
+navigateToSendPaymentAndBlackHoleAccount() {
+  this.router.navigate(['/send-payment-and-black-hole-account']);
+}
+
+  // Navigate to Send Currency Payment page
+  navigateToSendCurrencyPayment() {
+    this.router.navigate(['/send-currency-payment']);
   }
+
+  // Navigate to Get Trust Lines page
+  navigateToGetTrustLines() {
+    this.router.navigate(['/get-trust-lines']);
+  }
+    
+  // Navigate to Get Account Offers page
+  navigateToGetAccountOffers() {
+    this.router.navigate(['/get-account-offers']);
+  }
+
+// Navigate to Cancel Account Offers page
+navigateToCancelAccountOffers() {
+  this.router.navigate(['/cancel-account-offers']);
+}
+
+navigateToHome() {
+  this.router.navigate(['']);
+}
 }

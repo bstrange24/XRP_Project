@@ -1,0 +1,86 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <!-- Card Content -->
+        <mat-card-content>
+          <div class="offers-box">
+            <!-- Offers Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Account Address</mat-label>
+                <input matInput [(ngModel)]="account" placeholder="Enter XRP account address (e.g., rJtwFcaWJKTXpyv7FEBxJzd6hBzmjGhKKR)" required>
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="getAccountOffers()" [disabled]="isLoading">
+                {{ isLoading ? 'Loading...' : 'Get Offers' }}
+              </button>
+            </div>
+  
+            <!-- Display Offers Table if status is "success" and offers exist -->
+            <div class="table-container" *ngIf="offers.length > 0 && !errorMessage">
+              <table mat-table [dataSource]="offers" class="mat-elevation-z8">
+                <!-- Flags Column -->
+                <ng-container matColumnDef="flags">
+                  <th mat-header-cell *matHeaderCellDef>Flags</th>
+                  <td mat-cell *matCellDef="let offer">{{ offer.flags }}</td>
+                </ng-container>
+  
+                <!-- Quality Column -->
+                <ng-container matColumnDef="quality">
+                  <th mat-header-cell *matHeaderCellDef>Quality</th>
+                  <td mat-cell *matCellDef="let offer">{{ offer.quality }}</td>
+                </ng-container>
+  
+                <!-- Sequence Column -->
+                <ng-container matColumnDef="seq">
+                  <th mat-header-cell *matHeaderCellDef>Sequence</th>
+                  <td mat-cell *matCellDef="let offer">{{ offer.seq }}</td>
+                </ng-container>
+  
+                <!-- Taker Gets Column -->
+                <ng-container matColumnDef="taker_gets">
+                  <th mat-header-cell *matHeaderCellDef>Taker Gets</th>
+                  <td mat-cell *matCellDef="let offer">{{ offer.taker_gets }}</td>
+                </ng-container>
+  
+                <!-- Taker Pays Currency Column -->
+                <ng-container matColumnDef="taker_pays_currency">
+                  <th mat-header-cell *matHeaderCellDef>Taker Pays Currency</th>
+                  <td mat-cell *matCellDef="let offer">{{ offer.taker_pays.currency }}</td>
+                </ng-container>
+  
+                <!-- Taker Pays Issuer Column -->
+                <ng-container matColumnDef="taker_pays_issuer">
+                  <th mat-header-cell *matHeaderCellDef>Taker Pays Issuer</th>
+                  <td mat-cell *matCellDef="let offer">{{ offer.taker_pays.issuer }}</td>
+                </ng-container>
+  
+                <!-- Taker Pays Value Column -->
+                <ng-container matColumnDef="taker_pays_value">
+                  <th mat-header-cell *matHeaderCellDef>Taker Pays Value</th>
+                  <td mat-cell *matCellDef="let offer">{{ offer.taker_pays.value }}</td>
+                </ng-container>
+  
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+  
+              <!-- Paginator -->
+              <mat-paginator [length]="totalOffers" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25]" (page)="onPageChange($event)"></mat-paginator>
+            </div>
+  
+            <!-- Display Error Message if there’s an error -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div *ngIf="!offers.length && !errorMessage && !isLoading" class="loading">
+              Enter an account address and click "Get Offers" to retrieve account offers.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+      <!-- Card Content -->
+    </mat-card>
+  </div>

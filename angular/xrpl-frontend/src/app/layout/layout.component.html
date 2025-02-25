@@ -24,24 +24,53 @@
 <!-- Main Content -->
 <mat-card-header>
     <div class="form-container">
-        <mat-form-field class="wide-form-field" appearance="fill">
-            <mat-label></mat-label>
-            <input matInput [(ngModel)]="user_search_input" placeholder="Serach by Address or Ledger" (keydown.enter)="onEnter()"
-                class="full-width-input">
-        </mat-form-field>
-        <button mat-button color="primary" (click)="createNewWallet()" class="create-button">Create Wallet</button>
-        <button mat-button color="primary" (click)="navigateToCreateTrustLine()" class="create-button">Create Trust Line</button>
-        <button mat-button color="primary" (click)="navigateToRemoveTrustLine()" class="create-button">Remove Trust Line</button>
-        <button mat-button color="primary" (click)="navigateToSendPayment()" class="create-button">Send Payment</button>
-        <button mat-button color="primary" (click)="createNewWallet()" class="create-button">Create Offer</button>
+        <div class="input-button-container">
+            <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label></mat-label>
+                <input matInput [(ngModel)]="user_search_input" placeholder="Search by Address or Ledger" (keydown.enter)="onEnter()"
+                    class="full-width-input">
+            </mat-form-field>
+            <button mat-button color="primary" (click)="createNewWallet()" class="create-button">Create Wallet</button>
+            <button mat-button [matMenuTriggerFor]="trustLinesMenu" class="create-button">Trust Lines</button>
+            <button mat-button [matMenuTriggerFor]="tpaymentsMenu" class="create-button">Payments</button>
+            <button mat-button [matMenuTriggerFor]="toffersMenu" class="create-button">Offers</button>
+            <!-- <button mat-button color="primary" (click)="navigateToSendPayment()" class="create-button">Send Payment</button> -->
+            <!-- <button mat-button color="primary" (click)="navigateToSendPaymentAndDeleteAccount()" class="create-button">Send Payment and Delete Account</button> -->
+            <!-- <button mat-button color="primary" (click)="navigateToSendPaymentAndBlackHoleAccount()" class="create-button">Send Payment and Black Hole Account</button> -->
+            <!-- <button mat-button color="primary" (click)="navigateToSendCurrencyPayment()" class="create-button">Send Currency Payment</button> -->
+            <!-- <button mat-button color="primary" (click)="createNewWallet()" class="create-button">Create Offer</button> -->
+        </div>
     </div>
 </mat-card-header>
+
+<!-- Trust Lines Dropdown Menu -->
+<mat-menu #trustLinesMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetTrustLines()">Get Trust Lines</button>
+    <button mat-menu-item (click)="navigateToCreateTrustLine()">Create Trust Line</button>
+    <button mat-menu-item (click)="navigateToRemoveTrustLine()">Remove Trust Line</button>
+</mat-menu>
+
+<!-- Payment Dropdown Menu -->
+<mat-menu #tpaymentsMenu="matMenu">
+    <button mat-menu-item (click)="navigateToSendPayment()">Send Payment</button>
+    <button mat-menu-item (click)="navigateToSendPaymentAndDeleteAccount()">Send Payment and Delete Account</button>
+    <button mat-menu-item (click)="navigateToSendPaymentAndBlackHoleAccount()">Send Payment and Black Hole Account</button>
+    <button mat-menu-item (click)="navigateToSendCurrencyPayment()">Send Currency Payment</button>
+</mat-menu>
+
+<!-- Payment Dropdown Menu -->
+<mat-menu #toffersMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Get Offers</button>
+    <button mat-menu-item (click)="navigateToSendPayment()">Create Offers</button>
+    <button mat-menu-item (click)="navigateToCancelAccountOffers()">Cancel Offers</button>
+    <button mat-menu-item (click)="navigateToSendCurrencyPayment()">Get Order Book Offers</button>
+</mat-menu>
 
 <!-- Router Outlet (Where other page content will be displayed) -->
 <router-outlet></router-outlet>
 
 <!-- Card Footer -->
 <mat-card-footer>
-    <p>&copy; 2025 XRPL. All rights reserved.</p>
+    <p>© 2025 XRPL. All rights reserved.</p>
 </mat-card-footer>
 <!-- Card Footer -->

@@ -5,6 +5,12 @@ import { CreateAccountComponent } from './create-account/create-account.componen
 import { CreateTrustLineComponent } from './create-trust-line/create-trust-line.component'; // Import the new component
 import { RemoveTrustLineComponent } from './remove-trust-line/remove-trust-line.component'; // Import the new component
 import { SendPaymentComponent } from './send-payment/send-payment.component'; // Import the new component
+import { SendPaymentAndDeleteAccountComponent } from './send-payment-and-delete-account/send-payment-and-delete-account.component'; // Import the new component
+import { SendPaymentAndBlackHoleAccountComponent } from './send-payment-and-black-hole-account/send-payment-and-black-hole-account.component'; // Import the new component
+import { SendCurrencyPaymentComponent } from './send-currency-payment/send-currency-payment.component'; // Import the new component
+import { CancelAccountOffersComponent } from './cancel-account-offers/cancel-account-offers.component'; // Import the new component
+import { GetTrustLinesComponent } from './get-trust-lines/get-trust-lines.component'; // Import the new component
+import { GetAccountOffersComponent } from './get-account-offers/get-account-offers.component'; // Import the new component
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { HomeComponent } from './home/home.component';
@@ -19,7 +25,13 @@ export const routes: Routes = [
       { path: 'create-account', component: CreateAccountComponent },
       { path: 'create-trust-line', component: CreateTrustLineComponent },
       { path: 'remove-trust-line', component: RemoveTrustLineComponent },
-      { path: 'send-payment', component: SendPaymentComponent }, // Add this route
+      { path: 'send-payment', component: SendPaymentComponent }, // Add this rout
+      { path: 'send-payment-and-delete-account', component: SendPaymentAndDeleteAccountComponent }, // Add this route
+      { path: 'send-payment-and-black-hole-account', component: SendPaymentAndBlackHoleAccountComponent }, // Add this route
+      { path: 'send-currency-payment', component: SendCurrencyPaymentComponent }, // Add this route
+      { path: 'get-trust-lines', component: GetTrustLinesComponent }, // Add this route
+      { path: 'get-account-offers', component: GetAccountOffersComponent }, // Add this route
+      { path: 'cancel-account-offers', component: CancelAccountOffersComponent }, // Add this route
       { path: 'account-info/:walletAddress', component: AccountInfoComponent },
       { path: 'get-ledger-info/:ledgerIndex', component: LedgerDetailComponent },
       { path: '**', redirectTo: 'account-info/' }, // Remove or adjust the wildcard to avoid unintended redirects to account-info

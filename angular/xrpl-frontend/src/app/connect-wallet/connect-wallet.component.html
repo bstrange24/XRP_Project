@@ -1,0 +1,50 @@
+<div class="app">
+  <mat-card>
+    <div class="centered-container">
+      <mat-card-content>
+        <div class="wallet-connection-box">
+          <h2>Connect Your Xaman Wallet</h2>
+          <p>Scan the QR code below with your Xaman app to connect your wallet.</p>
+
+          <div class="button-group">
+            <button
+              mat-button
+              color="primary"
+              (click)="onConnectButtonClick()"
+              [disabled]="isLoading || connectedWallet"
+            >
+              {{ isLoading ? 'Connecting...' : 'Connect Wallet' }}
+            </button>
+
+            <button
+              mat-button
+              color="warn"
+              (click)="disconnectWallet()"
+              [disabled]="!connectedWallet || isLoading"
+            >
+              Disconnect Wallet
+            </button>
+          </div>
+
+          <div class="qr-code-container" *ngIf="!connectedWallet && !isLoading">
+            <ngx-qrcode-styling [data]="qrData" [width]="200" [height]="200"></ngx-qrcode-styling>
+            <p>Scan this QR code with your Xaman app to connect.</p>
+          </div>
+
+          <div class="connection-status" *ngIf="connectedWallet">
+            <h3>Wallet Connected</h3>
+            <p>Address: {{ getWalletAddress() }}</p>
+          </div>
+
+          <div class="error-message" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <div class="loading" *ngIf="isLoading && !connectedWallet && !errorMessage">
+            Connecting to Xaman wallet, please wait...
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</div>

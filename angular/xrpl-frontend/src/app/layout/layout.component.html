@@ -30,15 +30,12 @@
                 <input matInput [(ngModel)]="user_search_input" placeholder="Search by Address or Ledger" (keydown.enter)="onEnter()"
                     class="full-width-input">
             </mat-form-field>
-            <button mat-button color="primary" (click)="createNewWallet()" class="create-button">Create Wallet</button>
+            <button mat-button color="primary" (click)="navigateToConnectWallet()" class="create-button">Connect Wallet</button>
+            <button mat-button [matMenuTriggerFor]="taccountMenu" class="create-button">Accounts</button> 
             <button mat-button [matMenuTriggerFor]="trustLinesMenu" class="create-button">Trust Lines</button>
             <button mat-button [matMenuTriggerFor]="tpaymentsMenu" class="create-button">Payments</button>
             <button mat-button [matMenuTriggerFor]="toffersMenu" class="create-button">Offers</button>
-            <!-- <button mat-button color="primary" (click)="navigateToSendPayment()" class="create-button">Send Payment</button> -->
-            <!-- <button mat-button color="primary" (click)="navigateToSendPaymentAndDeleteAccount()" class="create-button">Send Payment and Delete Account</button> -->
-            <!-- <button mat-button color="primary" (click)="navigateToSendPaymentAndBlackHoleAccount()" class="create-button">Send Payment and Black Hole Account</button> -->
-            <!-- <button mat-button color="primary" (click)="navigateToSendCurrencyPayment()" class="create-button">Send Currency Payment</button> -->
-            <!-- <button mat-button color="primary" (click)="createNewWallet()" class="create-button">Create Offer</button> -->
+            <button mat-button color="primary" (click)="navigateToGetServerInfo()" class="create-button">XRPL Server Info</button>
         </div>
     </div>
 </mat-card-header>
@@ -58,12 +55,19 @@
     <button mat-menu-item (click)="navigateToSendCurrencyPayment()">Send Currency Payment</button>
 </mat-menu>
 
-<!-- Payment Dropdown Menu -->
+<!-- Offers Dropdown Menu -->
 <mat-menu #toffersMenu="matMenu">
     <button mat-menu-item (click)="navigateToGetAccountOffers()">Get Offers</button>
     <button mat-menu-item (click)="navigateToSendPayment()">Create Offers</button>
     <button mat-menu-item (click)="navigateToCancelAccountOffers()">Cancel Offers</button>
     <button mat-menu-item (click)="navigateToSendCurrencyPayment()">Get Order Book Offers</button>
+</mat-menu>
+
+<!-- Account Dropdown Menu -->
+<mat-menu #taccountMenu="matMenu">
+    <button mat-menu-item (click)="createNewWallet()">Create Wallet</button>
+    <button mat-menu-item (click)="navigateToGetAccountConfig()">Get Account Config</button>
+    <button mat-menu-item (click)="navigateToUpdateAccountConfig()">Update Account Config</button>
 </mat-menu>
 
 <!-- Router Outlet (Where other page content will be displayed) -->

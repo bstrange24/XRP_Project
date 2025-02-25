@@ -213,6 +213,26 @@ navigateToCancelAccountOffers() {
   this.router.navigate(['/cancel-account-offers']);
 }
 
+ // Navigate to Get Server Info page
+ navigateToGetServerInfo() {
+  this.router.navigate(['/get-server-info']);
+}
+
+// Navigate to Get Account Config page
+navigateToGetAccountConfig() {
+  this.router.navigate(['/get-account-config']);
+}
+
+ // Navigate to Update Account Config page
+ navigateToUpdateAccountConfig() {
+  this.router.navigate(['/update-account-config']);
+}
+
+ // Navigate to Connect Wallet page
+ navigateToConnectWallet() {
+  this.router.navigate(['/connect-wallet']);
+}
+
 navigateToHome() {
   this.router.navigate(['']);
 }

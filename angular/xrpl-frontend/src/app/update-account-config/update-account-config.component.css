@@ -1,0 +1,135 @@
+/* update-account-config.component.css */
+.app {
+  background-color: white;
+  color: black;
+}
+
+.centered-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 0 15px;
+  margin-top: 20px; /* Ensure space from the top (header and search bar) */
+  margin-bottom: 20px; /* Ensure space from the bottom (footer) */
+  max-width: 1200px; /* Limit width to prevent overflow */
+  width: 100%;
+  min-height: calc(100vh - 200px); /* Ensure minimum height, accounting for header and footer */
+  overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+.account-config-box {
+  background-color: white;
+  padding: 20px;
+  width: 100%; /* Full width within centered-container, up to max-width */
+  max-width: 1000px; /* Wider max-width to accommodate the grid, adjust as needed */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better visual separation */
+  margin: 0 auto; /* Center the box horizontally within centered-container */
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Increased spacing for better layout */
+  width: 100%; /* Full width within account-config-box */
+  max-width: 900px; /* Wider to fit the grid, adjust as needed */
+  margin: 0 auto; /* Center the form horizontally within account-config-box */
+  align-items: center; /* Center-align items horizontally within the form */
+}
+
+.address-field {
+  width: 100%; /* Full width within form-container */
+  max-width: 900px; /* Match form-container width for consistency */
+}
+
+.wide-form-field {
+  width: 100%; /* Full width within fields-grid */
+  max-width: 300px; /* Limit field width for grid layout (one-third of max-width) */
+  margin: 0 auto; /* Center each field horizontally */
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three columns of equal width */
+  gap: 15px; /* Spacing between grid items */
+  width: 100%; /* Full width within form-container */
+  max-width: 900px; /* Match form-container width for consistency */
+  margin: 0 auto; /* Center the grid horizontally */
+}
+
+.grid-spacer {
+  width: 100%; /* Ensure spacer takes full width for grid layout */
+  height: 0; /* No visual height, just for layout */
+}
+
+mat-form-field {
+  display: block; /* Ensure mat-form-field behaves as a block element for centering */
+  width: 100%; /* Full width within wide-form-field or fields-grid */
+}
+
+mat-select, button {
+  width: 100%; /* Ensure selects and buttons match the width of the form field */
+  max-width: 300px; /* Match wide-form-field max-width for consistency in grid */
+  margin: 0 auto; /* Center the select and button horizontally */
+}
+
+.result-container {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  width: 100%; /* Full width within account-config-box */
+  max-width: 900px; /* Match form-container width for consistency, adjust as needed */
+  margin: 0 auto; /* Center the result container */
+  text-align: center; /* Center text within the result container */
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  padding: 20px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 900px; /* Match form-container width for consistency, adjust as needed */
+  margin: 0 auto; /* Center the error message */
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  width: 100%;
+  max-width: 900px; /* Match form-container width for consistency, adjust as needed */
+  margin: 0 auto; /* Center the loading message */
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 1024px) {
+  .account-config-box {
+    max-width: 100%; /* Full width on tablets and smaller */
+    padding: 15px;
+  }
+
+  .form-container, .fields-grid, .result-container, .error-message, .loading {
+    max-width: 100%; /* Full width on smaller screens */
+  }
+
+  .wide-form-field, mat-select, button {
+    max-width: 100%; /* Full width on smaller screens */
+  }
+
+  .fields-grid {
+    grid-template-columns: repeat(2, 1fr); /* Two columns on tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  .fields-grid {
+    grid-template-columns: 1fr; /* Single column on mobile */
+  }
+
+  .address-field, .wide-form-field, mat-select, button {
+    max-width: 100%; /* Full width on mobile */
+  }
+}

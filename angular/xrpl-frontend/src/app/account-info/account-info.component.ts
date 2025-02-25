@@ -67,6 +67,7 @@ export class AccountInfoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('Inside AccountInfoComponent ngOnInit');
     this.sharedDataService.walletAddress$.subscribe(address => {
       if (address) {
         this.wallet_address = address;
@@ -224,42 +225,6 @@ export class AccountInfoComponent implements OnInit {
       }
     );
   }
-
-  // loadMoreTransactions(): void {
-  //   if (!this.hasMore || this.isLoading) return;
-
-  //   this.isLoading = true;
-  //   console.log('Fetching with page:', this.currentPage, 'pageSize:', this.pageSize);
-  //   this.xrplService.getAccountTransactionHistoryWithPaginations(this.wallet_address, this.currentPage, this.pageSize).subscribe(
-  //     data => {
-  //       console.log('API Response:', data);
-  //       if (data.transactions) {
-  //         const newTransactions = data.transactions.map((tx: any) => ({
-  //           ...tx.tx_json,
-  //           date: tx.close_time_iso,
-  //           delivered_amount: tx.meta.delivered_amount ?? '',
-  //           transaction_result: tx.meta.TransactionResult.indexOf('SUCCESS') > -1 ? 'Success' : tx.meta.TransactionResult,
-  //           additonal_information: tx.tx_json.TransactionType.indexOf('TrustSet') > -1 ? 'Set Trust Limit': tx.tx_json.TransactionType,
-  //           transaction_hash: tx.hash,
-  //         }));
-  //         this.transactions = [...this.transactions, ...newTransactions];
-  //         this.totalItems = data.total_offers;
-  //         this.currentPage++;
-  //         this.hasMore = this.currentPage <= data.total_pages;
-  //         console.log('Transactions:', this.transactions);
-  //         console.log('Total items:', this.totalItems, 'Loaded:', this.transactions.length, 'Has more:', this.hasMore);
-  //       } else {
-  //         console.error('No transactions found in the API response');
-  //         this.hasMore = false;
-  //       }
-  //       this.isLoading = false;
-  //     },
-  //     error => {
-  //       console.error('Error fetching account transactions:', error);
-  //       this.isLoading = false;
-  //     }
-  //   );
-  // }
 
   navigateToTransaction(wallet_address: string, transaction_hash: string): void {
     console.log('Navigating to:', wallet_address);

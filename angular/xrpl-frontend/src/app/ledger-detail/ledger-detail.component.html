@@ -1,0 +1,87 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <!-- Card Content -->
+        <mat-card-content>
+          <div class="ledger-box" *ngIf="ledgerInfo">
+            <!-- Display Ledger Info if status is "success" -->
+            <div class="box ledger-header" *ngIf="ledgerInfo.status === 'success'">
+              <div class="section box-header">
+                <div class="title">Ledger Details</div>
+                <h1 class="classic">Ledger Index: {{ ledgerInfo.ledger_info.ledger_index }}</h1>
+              </div>
+              <div class="box-content">
+                <div class="section header-container">
+                  <div class="column third">
+                    <div class="secondary details">
+                      <ul>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Ledger Hash:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger_hash }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Account Hash:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.account_hash }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Close Time (Human):</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.close_time_human }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Close Time (ISO):</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.close_time_iso }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Close Time Resolution:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.close_time_resolution }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Closed:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.closed ? 'Yes' : 'No' }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Parent Hash:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.parent_hash }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Total Coins:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.total_coins }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Transaction Hash:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.transaction_hash }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Validated:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.validated ? 'Yes' : 'No' }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Close Flags:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.close_flags }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Parent Close Time:</span>
+                          <b style="display: inline-block;">{{ ledgerInfo.ledger_info.ledger.parent_close_time }}</b>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message if status is not "success" -->
+            <div class="error-message" *ngIf="ledgerInfo.status !== 'success'">
+              <p>Error: {{ ledgerInfo.message || 'Failed to fetch ledger information. Please try again.' }}</p>
+            </div>
+          </div>
+  
+          <!-- Loading or No Data State (optional) -->
+          <div *ngIf="!ledgerInfo" class="loading">
+            Loading ledger details...
+          </div>
+        </mat-card-content>
+      </div>
+      <!-- Card Content -->
+    </mat-card>
+  </div>

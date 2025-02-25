@@ -318,8 +318,8 @@ class Accounts(View):
 
         try:
             # Validate and extract request parameters
-            sender_seed = get_request_param(self, 'sender_seed')
-            if not is_valid_xrpl_seed(sender_seed):
+            wallet_seed = get_request_param(self, 'wallet_seed')
+            if not is_valid_xrpl_seed(wallet_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
             # Initialize XRPL client and wallet
@@ -327,7 +327,7 @@ class Accounts(View):
             if not client:
                 raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
-            sender_wallet = Wallet.from_seed(sender_seed)
+            sender_wallet = Wallet.from_seed(wallet_seed)
             sender_address = sender_wallet.classic_address
             logger.info(f"Processing account config for {sender_address}")
 

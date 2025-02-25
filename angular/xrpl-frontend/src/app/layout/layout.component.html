@@ -25,10 +25,15 @@
 <mat-card-header>
     <div class="form-container">
         <mat-form-field class="wide-form-field" appearance="fill">
-            <mat-label>Search by Address</mat-label>
-            <input matInput [(ngModel)]="wallet_address" placeholder="Enter XRPL Address" (keydown.enter)="onEnter()"
+            <mat-label></mat-label>
+            <input matInput [(ngModel)]="user_search_input" placeholder="Serach by Address or Ledger" (keydown.enter)="onEnter()"
                 class="full-width-input">
         </mat-form-field>
+        <button mat-button color="primary" (click)="createNewWallet()" class="create-button">Create Wallet</button>
+        <button mat-button color="primary" (click)="navigateToCreateTrustLine()" class="create-button">Create Trust Line</button>
+        <button mat-button color="primary" (click)="navigateToRemoveTrustLine()" class="create-button">Remove Trust Line</button>
+        <button mat-button color="primary" (click)="navigateToSendPayment()" class="create-button">Send Payment</button>
+        <button mat-button color="primary" (click)="createNewWallet()" class="create-button">Create Offer</button>
     </div>
 </mat-card-header>
 

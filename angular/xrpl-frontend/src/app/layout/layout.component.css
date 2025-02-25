@@ -19,6 +19,12 @@
   padding: 0;
 }
 
+/* In layout.component.css */
+.error-snackbar {
+  background-color: #f44336; /* Red background for errors */
+  color: white;
+}
+
 .nav-bar a {
   color: white;
   text-decoration: none;

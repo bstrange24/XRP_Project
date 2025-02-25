@@ -22,15 +22,6 @@ html, body {
     word-wrap: break-word;
   }
   
-  /* app-root, app-account-info {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 100%;
-    color: green;
-    background-color: white;
-  } */
-  
   /* Ensure the input takes the full width of the form field */
   input[matInput] {
     width: 100%;  /* Make sure the input field fills the entire width of the form field */

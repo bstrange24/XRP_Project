@@ -1,762 +1,341 @@
-INFO 2025-02-24 11:05:15,863 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:05:15,863 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:15,864 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:05:15,865 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:17,993 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:05:17,994 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2130
-INFO 2025-02-24 11:05:17,997 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:05:17,997 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:18,544 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:18,546 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:05:18,547 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2682
-INFO 2025-02-24 11:05:18,550 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:05:18,550 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:19,967 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:05:19,967 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1970
-INFO 2025-02-24 11:05:20,880 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:20,881 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:05:20,881 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2331
-INFO 2025-02-24 11:05:49,355 [Thread: 12364] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:05:49,355 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:49,357 [Thread: 31820] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:05:49,357 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:51,197 [Thread: 12364] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:05:51,197 [Thread: 12364] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1841
-INFO 2025-02-24 11:05:51,200 [Thread: 12364] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:05:51,200 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:51,633 [Thread: 31820] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:51,635 [Thread: 31820] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:05:51,635 [Thread: 31820] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2277
-INFO 2025-02-24 11:05:51,637 [Thread: 31820] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:05:51,637 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:53,179 [Thread: 12364] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:05:53,179 [Thread: 12364] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1979
-INFO 2025-02-24 11:05:54,134 [Thread: 31820] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:54,135 [Thread: 31820] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:05:54,136 [Thread: 31820] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2498
-INFO 2025-02-24 11:05:54,726 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:05:54,727 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:54,729 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:05:54,729 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:54,767 [Thread: 35368] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:05:54,768 [Thread: 35368] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:56,814 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:05:56,814 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2087
-INFO 2025-02-24 11:05:56,817 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:05:56,817 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:57,472 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:57,473 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:05:57,474 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2745
-INFO 2025-02-24 11:05:57,477 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:05:57,477 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:57,518 [Thread: 35368] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:05:57,519 [Thread: 35368] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:05:57,520 [Thread: 35368] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2752
-INFO 2025-02-24 11:05:58,722 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:05:58,723 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1905
-INFO 2025-02-24 11:05:58,725 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:05:58,725 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:00,032 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:00,034 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:06:00,034 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2557
-INFO 2025-02-24 11:06:00,488 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:00,489 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1764
-INFO 2025-02-24 11:06:08,091 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:08,092 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:08,100 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:08,100 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:08,122 [Thread: 35368] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:08,122 [Thread: 35368] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:08,144 [Thread: 26812] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:08,144 [Thread: 26812] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:10,492 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:10,492 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2400
-INFO 2025-02-24 11:06:10,494 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:10,494 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:11,120 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:11,122 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 699D774B2FB200C3428A1E8CD1BE6DE1EA4410909A44B9F8A404E795F3233322 already exists. Skipping insert
-INFO 2025-02-24 11:06:11,123 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3023
-INFO 2025-02-24 11:06:11,126 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:11,126 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:11,323 [Thread: 35368] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:11,326 [Thread: 35368] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:06:11,327 [Thread: 35368] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3204
-INFO 2025-02-24 11:06:11,330 [Thread: 26812] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:11,332 [Thread: 26812] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:06:11,332 [Thread: 26812] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3188
-INFO 2025-02-24 11:06:12,557 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:12,557 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2062
-INFO 2025-02-24 11:06:12,559 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:12,559 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:13,585 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:13,586 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 699D774B2FB200C3428A1E8CD1BE6DE1EA4410909A44B9F8A404E795F3233322 already exists. Skipping insert
-INFO 2025-02-24 11:06:13,587 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2460
-INFO 2025-02-24 11:06:14,262 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:14,262 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1702
-INFO 2025-02-24 11:06:14,264 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:14,264 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:15,830 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:15,830 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1566
-INFO 2025-02-24 11:06:37,571 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:37,571 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:37,573 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:37,573 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:37,584 [Thread: 26812] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:37,584 [Thread: 26812] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:37,590 [Thread: 35368] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:37,590 [Thread: 35368] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:37,930 [Thread: 26580] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:37,930 [Thread: 26580] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:40,093 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:40,093 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2521
-INFO 2025-02-24 11:06:40,095 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:40,096 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:40,760 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:40,763 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash DBBB7FD9C46F267B430BA47524DE2CB8C02951E1836B6D8579D7BEFF34408203 already exists. Skipping insert
-INFO 2025-02-24 11:06:40,764 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3190
-INFO 2025-02-24 11:06:40,769 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:06:40,769 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:41,162 [Thread: 26812] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:41,164 [Thread: 26812] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:06:41,165 [Thread: 26812] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3581
-INFO 2025-02-24 11:06:41,174 [Thread: 35368] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:41,176 [Thread: 35368] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:06:41,177 [Thread: 35368] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3586
-INFO 2025-02-24 11:06:41,217 [Thread: 26580] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:41,219 [Thread: 26580] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:06:41,220 [Thread: 26580] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3289
-INFO 2025-02-24 11:06:42,392 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:42,392 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2296
-INFO 2025-02-24 11:06:42,395 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:42,395 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:43,240 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:43,241 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash DBBB7FD9C46F267B430BA47524DE2CB8C02951E1836B6D8579D7BEFF34408203 already exists. Skipping insert
-INFO 2025-02-24 11:06:43,241 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2472
-INFO 2025-02-24 11:06:44,151 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:44,151 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1755
-INFO 2025-02-24 11:06:44,153 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:44,154 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:45,911 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:45,911 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1757
-INFO 2025-02-24 11:06:45,914 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:06:45,914 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:06:47,459 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:06:47,459 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1545
-INFO 2025-02-24 11:07:38,473 [Thread: 31820] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:07:38,473 [Thread: 31820] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:07:38,475 [Thread: 12364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:07:38,475 [Thread: 12364] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:07:40,175 [Thread: 31820] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:07:40,175 [Thread: 31820] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1701
-INFO 2025-02-24 11:07:40,666 [Thread: 12364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:07:40,667 [Thread: 12364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:07:40,668 [Thread: 12364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2193
-INFO 2025-02-24 11:15:04,240 [Thread: 30840] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:15:04,240 [Thread: 30840] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:15:06,351 [Thread: 30840] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:15:06,352 [Thread: 30840] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:15:06,352 [Thread: 30840] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2112
-INFO 2025-02-24 11:15:27,412 [Thread: 30840] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:15:27,412 [Thread: 30840] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:15:27,413 [Thread: 10532] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:15:27,413 [Thread: 10532] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:15:27,744 [Thread: 18128] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:15:27,745 [Thread: 18128] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:15:29,250 [Thread: 30840] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:15:29,251 [Thread: 30840] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1839
-INFO 2025-02-24 11:15:29,253 [Thread: 30840] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:15:29,253 [Thread: 30840] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:15:29,815 [Thread: 10532] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:15:29,817 [Thread: 10532] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:15:29,817 [Thread: 10532] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2403
-INFO 2025-02-24 11:15:30,107 [Thread: 18128] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:15:30,108 [Thread: 18128] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:15:30,109 [Thread: 18128] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2364
-INFO 2025-02-24 11:15:30,946 [Thread: 30840] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:15:30,946 [Thread: 30840] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1692
-INFO 2025-02-24 11:21:32,722 [Thread: 32520] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:21:32,722 [Thread: 32520] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:21:32,723 [Thread: 27292] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:21:32,723 [Thread: 27292] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:21:34,480 [Thread: 32520] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:21:34,480 [Thread: 32520] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1758
-INFO 2025-02-24 11:21:34,922 [Thread: 27292] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:21:34,929 [Thread: 27292] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:21:34,931 [Thread: 27292] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2207
-INFO 2025-02-24 11:26:02,229 [Thread: 27292] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:26:02,230 [Thread: 27292] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:26:02,231 [Thread: 32520] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:26:02,231 [Thread: 32520] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:26:02,558 [Thread: 29044] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:26:02,558 [Thread: 29044] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:26:04,264 [Thread: 27292] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:26:04,264 [Thread: 27292] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2034
-INFO 2025-02-24 11:26:04,267 [Thread: 27292] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:26:04,268 [Thread: 27292] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:26:04,797 [Thread: 32520] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:26:04,799 [Thread: 32520] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:26:04,799 [Thread: 32520] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2568
-INFO 2025-02-24 11:26:04,956 [Thread: 29044] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:26:04,958 [Thread: 29044] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:26:04,958 [Thread: 29044] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2400
-INFO 2025-02-24 11:26:06,056 [Thread: 27292] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:26:06,057 [Thread: 27292] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1789
-INFO 2025-02-24 11:29:34,884 [Thread: 27292] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:29:34,885 [Thread: 27292] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:29:37,156 [Thread: 27292] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:29:37,158 [Thread: 27292] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:29:37,158 [Thread: 27292] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2273
-INFO 2025-02-24 11:38:18,423 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:38:18,423 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:38:20,696 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:38:20,698 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:38:20,699 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2275
-INFO 2025-02-24 11:38:45,709 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:38:45,710 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:38:47,814 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:38:47,815 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 699D774B2FB200C3428A1E8CD1BE6DE1EA4410909A44B9F8A404E795F3233322 already exists. Skipping insert
-INFO 2025-02-24 11:38:47,815 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2106
-INFO 2025-02-24 11:38:49,115 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:38:49,115 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:38:51,342 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:38:51,344 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash DBBB7FD9C46F267B430BA47524DE2CB8C02951E1836B6D8579D7BEFF34408203 already exists. Skipping insert
-INFO 2025-02-24 11:38:51,344 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2228
-INFO 2025-02-24 11:39:39,111 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:39:39,111 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:41,437 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:41,439 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash A66A7CD505E074FA5AD80425B7C30E00F61637143ECED048B0C2BF687D812AFF already exists. Skipping insert
-INFO 2025-02-24 11:39:41,439 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2328
-INFO 2025-02-24 11:39:48,004 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:39:48,004 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:48,315 [Thread: 15140] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:39:48,316 [Thread: 17208] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:39:48,316 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:48,317 [Thread: 17208] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:48,346 [Thread: 17532] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:39:48,346 [Thread: 17532] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:50,101 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:39:50,101 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2097
-INFO 2025-02-24 11:39:50,104 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:39:50,104 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:51,441 [Thread: 17532] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:51,443 [Thread: 17532] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:39:51,443 [Thread: 17532] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3096
-INFO 2025-02-24 11:39:51,510 [Thread: 17208] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:51,512 [Thread: 17208] [transaction_db_operations - save_transaction_history:18] Transaction with hash F2307226725A155F45CAE0CAD4BA15F4BA0B0A984DF71980265530AD2227AED4 already exists. Skipping insert
-INFO 2025-02-24 11:39:51,513 [Thread: 17208] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3196
-INFO 2025-02-24 11:39:51,559 [Thread: 15140] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:51,560 [Thread: 15140] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:39:51,561 [Thread: 15140] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3245
-INFO 2025-02-24 11:39:52,146 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:39:52,147 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2043
-INFO 2025-02-24 11:39:52,151 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:39:52,151 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:52,512 [Thread: 15140] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:39:52,512 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:54,075 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:39:54,075 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1924
-INFO 2025-02-24 11:39:54,957 [Thread: 15140] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:39:54,959 [Thread: 15140] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:39:54,959 [Thread: 15140] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2447
-INFO 2025-02-24 11:42:29,007 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:42:29,007 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:29,008 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:42:29,008 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:29,012 [Thread: 17208] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:42:29,013 [Thread: 17208] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:29,017 [Thread: 17532] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:42:29,017 [Thread: 17532] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:29,359 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:42:29,359 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:31,410 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:42:31,410 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2403
-INFO 2025-02-24 11:42:31,413 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:42:31,413 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:32,236 [Thread: 17532] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:32,238 [Thread: 17532] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:42:32,238 [Thread: 17532] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3221
-INFO 2025-02-24 11:42:32,294 [Thread: 17208] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:32,295 [Thread: 17208] [transaction_db_operations - save_transaction_history:18] Transaction with hash CD32F1F97F204511A84F59943A2E616101245F319CD775E7A304FF7473C8B6E7 already exists. Skipping insert
-INFO 2025-02-24 11:42:32,295 [Thread: 17208] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3282
-INFO 2025-02-24 11:42:32,383 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:32,390 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 699D774B2FB200C3428A1E8CD1BE6DE1EA4410909A44B9F8A404E795F3233322 already exists. Skipping insert
-INFO 2025-02-24 11:42:32,392 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3383
-INFO 2025-02-24 11:42:32,436 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:32,438 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:42:32,438 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3079
-INFO 2025-02-24 11:42:33,519 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:42:33,520 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2106
-INFO 2025-02-24 11:42:33,528 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:42:33,528 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:34,643 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:42:34,643 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:35,285 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:42:35,285 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1756
-INFO 2025-02-24 11:42:35,286 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:42:35,287 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:37,333 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:42:37,335 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:42:37,336 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2692
-INFO 2025-02-24 11:42:37,381 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:42:37,382 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2095
-INFO 2025-02-24 11:43:28,011 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:43:28,011 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:28,013 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:43:28,013 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:28,018 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:43:28,018 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:28,024 [Thread: 17208] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:43:28,024 [Thread: 17208] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:28,029 [Thread: 17532] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:43:28,030 [Thread: 17532] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:28,378 [Thread: 26476] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:43:28,379 [Thread: 26476] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:30,754 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:43:30,754 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2743
-INFO 2025-02-24 11:43:30,756 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:43:30,756 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:31,668 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:31,674 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash DBBB7FD9C46F267B430BA47524DE2CB8C02951E1836B6D8579D7BEFF34408203 already exists. Skipping insert
-INFO 2025-02-24 11:43:31,676 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3662
-INFO 2025-02-24 11:43:31,715 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:31,716 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 04EBE5FE86C2BE793635EBA564BDA33CE3B082874F0B0B415B73F611DD25835F already exists. Skipping insert
-INFO 2025-02-24 11:43:31,717 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3698
-INFO 2025-02-24 11:43:31,724 [Thread: 17208] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:31,725 [Thread: 17208] [transaction_db_operations - save_transaction_history:18] Transaction with hash 699D774B2FB200C3428A1E8CD1BE6DE1EA4410909A44B9F8A404E795F3233322 already exists. Skipping insert
-INFO 2025-02-24 11:43:31,726 [Thread: 17208] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3702
-INFO 2025-02-24 11:43:31,727 [Thread: 17532] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:31,730 [Thread: 17532] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:43:31,731 [Thread: 17532] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3701
-INFO 2025-02-24 11:43:31,733 [Thread: 26476] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:31,734 [Thread: 26476] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:43:31,735 [Thread: 26476] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3356
-INFO 2025-02-24 11:43:32,968 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:43:32,968 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2211
-INFO 2025-02-24 11:43:32,970 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:43:32,970 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:34,610 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:43:34,610 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1639
-INFO 2025-02-24 11:43:34,612 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:43:34,612 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:35,167 [Thread: 26476] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:43:35,168 [Thread: 26476] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:36,639 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:43:36,639 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2027
-INFO 2025-02-24 11:43:36,642 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:43:36,642 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:37,859 [Thread: 26476] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:43:37,861 [Thread: 26476] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:43:37,861 [Thread: 26476] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2693
-INFO 2025-02-24 11:43:38,307 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:43:38,307 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1665
-INFO 2025-02-24 11:47:04,762 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:04,762 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:04,764 [Thread: 26476] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:04,764 [Thread: 26476] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:04,771 [Thread: 17532] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:04,771 [Thread: 17532] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:04,778 [Thread: 17208] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:04,779 [Thread: 17208] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:04,786 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:04,786 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:04,793 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:04,794 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:08,377 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:08,379 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:47:08,379 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3585
-INFO 2025-02-24 11:47:08,586 [Thread: 17208] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:08,593 [Thread: 17208] [transaction_db_operations - save_transaction_history:18] Transaction with hash DBBB7FD9C46F267B430BA47524DE2CB8C02951E1836B6D8579D7BEFF34408203 already exists. Skipping insert
-INFO 2025-02-24 11:47:08,595 [Thread: 17208] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3816
-INFO 2025-02-24 11:47:08,639 [Thread: 26476] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:08,641 [Thread: 26476] [transaction_db_operations - save_transaction_history:18] Transaction with hash A66A7CD505E074FA5AD80425B7C30E00F61637143ECED048B0C2BF687D812AFF already exists. Skipping insert
-INFO 2025-02-24 11:47:08,641 [Thread: 26476] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3877
-INFO 2025-02-24 11:47:08,690 [Thread: 17532] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:08,692 [Thread: 17532] [transaction_db_operations - save_transaction_history:18] Transaction with hash C7E566CDA1235AA657167EC9F27693760AB37D2841808CD2597B2BE3BE45C38B already exists. Skipping insert
-INFO 2025-02-24 11:47:08,692 [Thread: 17532] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3921
-INFO 2025-02-24 11:47:08,705 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:08,706 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 3943
-INFO 2025-02-24 11:47:08,708 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:08,708 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:08,803 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:08,805 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 699D774B2FB200C3428A1E8CD1BE6DE1EA4410909A44B9F8A404E795F3233322 already exists. Skipping insert
-INFO 2025-02-24 11:47:08,806 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 4020
-INFO 2025-02-24 11:47:09,986 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-ERROR 2025-02-24 11:47:09,986 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:09,987 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: KeyError - 'error'
-INFO 2025-02-24 11:47:09,987 [Thread: 17532] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-ERROR 2025-02-24 11:47:09,987 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_wallet_info
-ERROR 2025-02-24 11:47:09,988 [Thread: 17532] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-INFO 2025-02-24 11:47:09,988 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2
-ERROR 2025-02-24 11:47:09,988 [Thread: 17532] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Invalid wallet format passed in request.'}
-ERROR 2025-02-24 11:47:09,989 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/account-info/rBKnvc/
-ERROR 2025-02-24 11:47:09,989 [Thread: 17532] [error_handling - handle_error_new:24] Leaving: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:09,989 [Thread: 17532] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1
-ERROR 2025-02-24 11:47:09,989 [Thread: 17532] [log - log_response:248] Internal Server Error: /xrpl/transaction-history-with-pag/rBKnvc/
-ERROR 2025-02-24 11:47:09,990 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/account-info/rBKnvc/ HTTP/1.1" 500 43
-ERROR 2025-02-24 11:47:09,990 [Thread: 17532] [basehttp - log_message:213] "GET /xrpl/transaction-history-with-pag/rBKnvc/?page=7&page_size=10 HTTP/1.1" 500 76
-INFO 2025-02-24 11:47:09,992 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-ERROR 2025-02-24 11:47:09,992 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:09,992 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: KeyError - 'error'
-ERROR 2025-02-24 11:47:09,992 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_wallet_info
-INFO 2025-02-24 11:47:09,992 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 0
-ERROR 2025-02-24 11:47:09,993 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/account-info/rBKnvc/
-ERROR 2025-02-24 11:47:09,993 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/account-info/rBKnvc/ HTTP/1.1" 500 43
-INFO 2025-02-24 11:47:09,995 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-ERROR 2025-02-24 11:47:09,995 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:09,996 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Invalid wallet format passed in request.'}
-ERROR 2025-02-24 11:47:09,996 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:09,996 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 0
-ERROR 2025-02-24 11:47:09,996 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/transaction-history-with-pag/rBKnvc/
-ERROR 2025-02-24 11:47:09,996 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/transaction-history-with-pag/rBKnvc/?page=11&page_size=10 HTTP/1.1" 500 76
-INFO 2025-02-24 11:47:09,999 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-ERROR 2025-02-24 11:47:09,999 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:09,999 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: KeyError - 'error'
-ERROR 2025-02-24 11:47:09,999 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_wallet_info
-INFO 2025-02-24 11:47:10,000 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 0
-ERROR 2025-02-24 11:47:10,000 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/account-info/rBKnvc/
-ERROR 2025-02-24 11:47:10,000 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/account-info/rBKnvc/ HTTP/1.1" 500 43
-INFO 2025-02-24 11:47:10,003 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-ERROR 2025-02-24 11:47:10,003 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:10,003 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Invalid wallet format passed in request.'}
-ERROR 2025-02-24 11:47:10,003 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:10,004 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 0
-ERROR 2025-02-24 11:47:10,004 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/transaction-history-with-pag/rBKnvc/
-ERROR 2025-02-24 11:47:10,004 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/transaction-history-with-pag/rBKnvc/?page=6&page_size=10 HTTP/1.1" 500 76
-INFO 2025-02-24 11:47:10,006 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-ERROR 2025-02-24 11:47:10,006 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:10,006 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: KeyError - 'error'
-ERROR 2025-02-24 11:47:10,006 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_wallet_info
-INFO 2025-02-24 11:47:10,007 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 0
-ERROR 2025-02-24 11:47:10,007 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/account-info/rBKnvc/
-ERROR 2025-02-24 11:47:10,007 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/account-info/rBKnvc/ HTTP/1.1" 500 43
-INFO 2025-02-24 11:47:10,009 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-ERROR 2025-02-24 11:47:10,009 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:10,009 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Invalid wallet format passed in request.'}
-ERROR 2025-02-24 11:47:10,009 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:10,010 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 0
-ERROR 2025-02-24 11:47:10,010 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/transaction-history-with-pag/rBKnvc/
-ERROR 2025-02-24 11:47:10,010 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/transaction-history-with-pag/rBKnvc/?page=5&page_size=10 HTTP/1.1" 500 76
-INFO 2025-02-24 11:47:10,013 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-ERROR 2025-02-24 11:47:10,013 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:10,013 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: KeyError - 'error'
-ERROR 2025-02-24 11:47:10,013 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_wallet_info
-INFO 2025-02-24 11:47:10,013 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 0
-ERROR 2025-02-24 11:47:10,013 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/account-info/rBKnvc/
-ERROR 2025-02-24 11:47:10,014 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/account-info/rBKnvc/ HTTP/1.1" 500 43
-INFO 2025-02-24 11:47:10,015 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-ERROR 2025-02-24 11:47:10,015 [Thread: 35656] [utilities - validate_xrp_wallet:71] Invalid Address: rBKnvc
-ERROR 2025-02-24 11:47:10,015 [Thread: 35656] [error_handling - handle_error_new:20] Exception caught: XRPLException - {'status': 'failure', 'message': 'Invalid wallet format passed in request.'}
-ERROR 2025-02-24 11:47:10,015 [Thread: 35656] [error_handling - handle_error_new:24] Leaving: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:10,016 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 0
-ERROR 2025-02-24 11:47:10,016 [Thread: 35656] [log - log_response:248] Internal Server Error: /xrpl/transaction-history-with-pag/rBKnvc/
-ERROR 2025-02-24 11:47:10,016 [Thread: 35656] [basehttp - log_message:213] "GET /xrpl/transaction-history-with-pag/rBKnvc/?page=4&page_size=10 HTTP/1.1" 500 76
-INFO 2025-02-24 11:47:10,456 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:10,456 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1748
-INFO 2025-02-24 11:47:10,462 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:10,462 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:12,546 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:12,546 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2084
-INFO 2025-02-24 11:47:12,549 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:12,549 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:14,091 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:14,091 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1542
-INFO 2025-02-24 11:47:14,093 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:14,093 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:15,370 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:47:15,370 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:15,678 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:15,679 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1585
-INFO 2025-02-24 11:47:15,681 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:15,681 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:17,570 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:17,571 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1889
-INFO 2025-02-24 11:47:17,573 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:17,573 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:17,595 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:17,596 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:47:17,596 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2226
-INFO 2025-02-24 11:47:20,096 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:20,096 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2522
-INFO 2025-02-24 11:47:20,099 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:20,099 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:21,530 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:21,530 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1431
-INFO 2025-02-24 11:47:21,533 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:21,533 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:23,087 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:23,087 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1554
-INFO 2025-02-24 11:47:23,090 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:23,090 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:24,618 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:24,618 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1528
-INFO 2025-02-24 11:47:24,621 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:47:24,621 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:47:26,415 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:47:26,415 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1793
-INFO 2025-02-24 11:51:08,794 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:51:08,794 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:51:08,797 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:51:08,797 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:51:11,076 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:51:11,076 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2282
-INFO 2025-02-24 11:51:11,591 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:51:11,593 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:51:11,593 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2796
-INFO 2025-02-24 11:52:02,242 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:52:02,242 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:52:02,244 [Thread: 15140] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:52:02,244 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:52:04,357 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:52:04,357 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2115
-INFO 2025-02-24 11:52:04,684 [Thread: 15140] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:52:04,691 [Thread: 15140] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:52:04,693 [Thread: 15140] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2449
-INFO 2025-02-24 11:55:23,534 [Thread: 15140] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 11:55:23,534 [Thread: 15140] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:55:23,538 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:55:23,538 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:55:25,413 [Thread: 15140] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 11:55:25,413 [Thread: 15140] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1879
-INFO 2025-02-24 11:55:26,055 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:55:26,062 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 11:55:26,063 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2525
-INFO 2025-02-24 11:58:39,009 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:58:39,010 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:41,281 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:41,283 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 11:58:41,283 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2273
-INFO 2025-02-24 11:58:47,186 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:58:47,186 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:49,298 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:49,304 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 11:58:49,305 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2118
-INFO 2025-02-24 11:58:50,726 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:58:50,726 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:52,890 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:52,892 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 699D774B2FB200C3428A1E8CD1BE6DE1EA4410909A44B9F8A404E795F3233322 already exists. Skipping insert
-INFO 2025-02-24 11:58:52,893 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2166
-INFO 2025-02-24 11:58:54,390 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:58:54,390 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:56,425 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:56,429 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash DBBB7FD9C46F267B430BA47524DE2CB8C02951E1836B6D8579D7BEFF34408203 already exists. Skipping insert
-INFO 2025-02-24 11:58:56,430 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2040
-INFO 2025-02-24 11:58:57,711 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:58:57,711 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:59,744 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:58:59,751 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash A66A7CD505E074FA5AD80425B7C30E00F61637143ECED048B0C2BF687D812AFF already exists. Skipping insert
-INFO 2025-02-24 11:58:59,752 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2041
-INFO 2025-02-24 11:59:00,898 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:59:00,898 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:02,974 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:02,980 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash F2307226725A155F45CAE0CAD4BA15F4BA0B0A984DF71980265530AD2227AED4 already exists. Skipping insert
-INFO 2025-02-24 11:59:02,981 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2083
-INFO 2025-02-24 11:59:04,012 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:59:04,012 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:06,008 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:06,010 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash CD32F1F97F204511A84F59943A2E616101245F319CD775E7A304FF7473C8B6E7 already exists. Skipping insert
-INFO 2025-02-24 11:59:06,010 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1997
-INFO 2025-02-24 11:59:24,456 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:59:24,456 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:26,621 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:26,622 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 04EBE5FE86C2BE793635EBA564BDA33CE3B082874F0B0B415B73F611DD25835F already exists. Skipping insert
-INFO 2025-02-24 11:59:26,623 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2167
-INFO 2025-02-24 11:59:27,645 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:59:27,645 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:29,555 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:29,556 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash C7E566CDA1235AA657167EC9F27693760AB37D2841808CD2597B2BE3BE45C38B already exists. Skipping insert
-INFO 2025-02-24 11:59:29,557 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1911
-INFO 2025-02-24 11:59:30,993 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:59:30,994 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:32,987 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:32,997 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2003
-INFO 2025-02-24 11:59:34,094 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 11:59:34,094 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:36,076 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 11:59:36,077 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594 already exists. Skipping insert
-INFO 2025-02-24 11:59:36,078 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1983
-INFO 2025-02-24 12:01:45,897 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:01:45,898 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:01:46,238 [Thread: 24256] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:01:46,238 [Thread: 24256] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:01:47,622 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:01:47,623 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1725
-INFO 2025-02-24 12:01:47,625 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:01:47,625 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:01:48,691 [Thread: 24256] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:01:48,692 [Thread: 24256] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:01:48,693 [Thread: 24256] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2454
-INFO 2025-02-24 12:01:49,239 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:01:49,240 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1614
-INFO 2025-02-24 12:05:15,730 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:05:15,730 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:15,733 [Thread: 24256] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:05:15,733 [Thread: 24256] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:16,060 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:05:16,060 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:17,652 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:05:17,652 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1922
-INFO 2025-02-24 12:05:17,655 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:05:17,655 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:18,064 [Thread: 24256] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:18,066 [Thread: 24256] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 12:05:18,066 [Thread: 24256] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2333
-INFO 2025-02-24 12:05:18,631 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:18,633 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:05:18,633 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2573
-INFO 2025-02-24 12:05:19,956 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:05:19,956 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2301
-INFO 2025-02-24 12:05:19,959 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:05:19,959 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:21,606 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:05:21,607 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:21,788 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:05:21,788 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1829
-INFO 2025-02-24 12:05:24,044 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:05:24,045 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 12:05:24,045 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2438
-INFO 2025-02-24 12:06:15,183 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:06:15,183 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:06:17,295 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:06:17,296 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 12:06:17,297 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2113
-INFO 2025-02-24 12:08:15,052 [Thread: 14432] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:08:15,052 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 12:08:15,053 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:08:15,053 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-INFO 2025-02-24 12:08:16,306 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
-ERROR 2025-02-24 12:08:16,310 [Thread: 35656] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
-INFO 2025-02-24 12:08:16,310 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1257
-INFO 2025-02-24 12:08:16,779 [Thread: 14432] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:08:16,779 [Thread: 14432] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1726
-INFO 2025-02-24 12:08:26,859 [Thread: 14432] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:08:26,859 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:26,860 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:08:26,860 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:28,640 [Thread: 14432] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:08:28,640 [Thread: 14432] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1781
-INFO 2025-02-24 12:08:29,163 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:29,165 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 12:08:29,166 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2305
-INFO 2025-02-24 12:08:30,323 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:08:30,323 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:30,324 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:08:30,325 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:30,350 [Thread: 24256] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:08:30,350 [Thread: 24256] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:32,746 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:08:32,746 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2423
-INFO 2025-02-24 12:08:32,755 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:08:32,755 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:32,962 [Thread: 24256] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:32,964 [Thread: 24256] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:08:32,964 [Thread: 24256] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2614
-INFO 2025-02-24 12:08:32,972 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:32,974 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 12:08:32,975 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2650
-INFO 2025-02-24 12:08:34,381 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:08:34,382 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:34,427 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:08:34,427 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1672
-INFO 2025-02-24 12:08:36,773 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:08:36,774 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 12:08:36,775 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2393
-INFO 2025-02-24 12:12:26,944 [Thread: 14432] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:12:26,945 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:12:26,950 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:12:26,950 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:12:28,767 [Thread: 14432] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:12:28,768 [Thread: 14432] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1823
-INFO 2025-02-24 12:12:29,244 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:12:29,246 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:12:29,247 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2297
-INFO 2025-02-24 12:13:55,140 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:13:55,141 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:13:55,143 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:13:55,143 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:13:57,164 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:13:57,164 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2023
-INFO 2025-02-24 12:13:58,769 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:13:58,771 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:13:58,771 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3628
-INFO 2025-02-24 12:15:35,186 [Thread: 14432] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:15:35,186 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:15:35,187 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:15:35,187 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:15:36,975 [Thread: 14432] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:15:36,975 [Thread: 14432] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1789
-INFO 2025-02-24 12:15:37,355 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:15:37,356 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:15:37,357 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2169
-INFO 2025-02-24 12:15:41,163 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:15:41,163 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:15:44,451 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:15:44,453 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 12:15:44,454 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 3290
-INFO 2025-02-24 12:16:27,931 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:16:27,931 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:16:27,933 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:16:27,933 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:16:29,745 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:16:29,745 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1814
-INFO 2025-02-24 12:16:30,217 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:16:30,219 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:16:30,220 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2287
-INFO 2025-02-24 12:17:28,771 [Thread: 14432] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:17:28,771 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:17:28,772 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:17:28,773 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:17:30,918 [Thread: 14432] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:17:30,918 [Thread: 14432] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2146
-INFO 2025-02-24 12:17:31,227 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:17:31,228 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:17:31,229 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2456
-INFO 2025-02-24 12:17:36,277 [Thread: 35656] [transactions - get_transaction_history:36] Entering: get_transaction_history
-INFO 2025-02-24 12:17:36,278 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:17:37,875 [Thread: 14432] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:17:37,875 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:17:38,014 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash C825D70448E34D2FD8CCEA5C1F1AD8A18CFE79B41416440E378F579ECAC6EDB9 already exists. Skipping insert
-INFO 2025-02-24 12:17:38,015 [Thread: 35656] [transactions - get_transaction_history:93] Leaving: get_transaction_history. Total execution time in ms: 1737
-INFO 2025-02-24 12:17:38,017 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:17:38,017 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:17:39,700 [Thread: 14432] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:17:39,700 [Thread: 14432] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1824
-INFO 2025-02-24 12:17:40,693 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:17:40,695 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:17:40,695 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2678
-INFO 2025-02-24 12:18:01,730 [Thread: 35656] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:18:01,730 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:01,731 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:18:01,731 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:03,552 [Thread: 35656] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:18:03,552 [Thread: 35656] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1822
-INFO 2025-02-24 12:18:04,236 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:04,237 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:18:04,238 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2506
-INFO 2025-02-24 12:18:23,417 [Thread: 14432] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:18:23,418 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:23,419 [Thread: 35656] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:18:23,420 [Thread: 35656] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:23,442 [Thread: 32612] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:18:23,443 [Thread: 32612] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:25,436 [Thread: 14432] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:18:25,437 [Thread: 14432] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2019
-INFO 2025-02-24 12:18:25,439 [Thread: 14432] [accounts - get_account_info:178] Entering: get_wallet_info
-INFO 2025-02-24 12:18:25,440 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:26,154 [Thread: 32612] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:26,156 [Thread: 32612] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
-INFO 2025-02-24 12:18:26,156 [Thread: 32612] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2713
-INFO 2025-02-24 12:18:26,203 [Thread: 35656] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:26,205 [Thread: 35656] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 12:18:26,205 [Thread: 35656] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2785
-INFO 2025-02-24 12:18:27,311 [Thread: 14432] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
-INFO 2025-02-24 12:18:27,312 [Thread: 14432] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1872
-INFO 2025-02-24 12:18:41,775 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:18:41,775 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:44,040 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:44,043 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash F0A3DF44A81C1E80D2CB6A1B83E269D94A102E0FBF6413D259421B637FA6A784 already exists. Skipping insert
-INFO 2025-02-24 12:18:44,043 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2267
-INFO 2025-02-24 12:18:45,190 [Thread: 14432] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
-INFO 2025-02-24 12:18:45,190 [Thread: 14432] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:47,330 [Thread: 14432] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
-INFO 2025-02-24 12:18:47,332 [Thread: 14432] [transaction_db_operations - save_transaction_history:18] Transaction with hash 5C6310BA536D5813BF892943DFF3983881CC276CC1751640770D5FE7B24B03C2 already exists. Skipping insert
-INFO 2025-02-24 12:18:47,332 [Thread: 14432] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2141
+INFO 2025-02-24 13:06:37,593 [Thread: 2148] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
+INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:28] Environment: testnet
+INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
+INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
+INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
+INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
+INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
+INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
+INFO 2025-02-24 13:06:37,753 [Thread: 2148] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
+INFO 2025-02-24 13:06:37,754 [Thread: 2148] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
+INFO 2025-02-24 13:06:37,754 [Thread: 2148] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
+INFO 2025-02-24 13:06:37,754 [Thread: 2148] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
+INFO 2025-02-24 13:06:38,748 [Thread: 5260] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
+INFO 2025-02-24 13:06:38,829 [Thread: 5260] [apps - ready:28] Environment: testnet
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
+INFO 2025-02-24 13:06:38,830 [Thread: 5260] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
+INFO 2025-02-24 13:39:05,542 [Thread: 2580] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 13:39:05,543 [Thread: 4456] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 13:39:05,544 [Thread: 2580] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 13:39:05,544 [Thread: 4456] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 13:39:07,230 [Thread: 4456] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 13:39:07,236 [Thread: 4456] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 13:39:07,237 [Thread: 4456] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1693
+INFO 2025-02-24 13:39:07,811 [Thread: 2580] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 13:39:07,812 [Thread: 2580] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2269
+INFO 2025-02-24 13:46:43,442 [Thread: 19032] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 13:46:43,442 [Thread: 19032] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 13:46:43,442 [Thread: 15400] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 13:46:43,442 [Thread: 15400] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 13:46:44,632 [Thread: 15400] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 13:46:44,635 [Thread: 15400] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 13:46:44,635 [Thread: 15400] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1192
+INFO 2025-02-24 13:46:45,160 [Thread: 19032] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 13:46:45,160 [Thread: 19032] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1718
+INFO 2025-02-24 13:55:25,992 [Thread: 24644] [ledger - get_ledger_info:80] Entering: get_ledger_info
+INFO 2025-02-24 13:55:26,605 [Thread: 24644] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
+INFO 2025-02-24 13:55:26,612 [Thread: 24644] [ledger - get_ledger_info:103] Successfully saved None in the database
+INFO 2025-02-24 13:55:26,612 [Thread: 24644] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 620
+INFO 2025-02-24 14:14:34,303 [Thread: 16624] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 14:14:34,303 [Thread: 16624] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 14:14:34,304 [Thread: 23820] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 14:14:34,304 [Thread: 23820] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 14:14:35,709 [Thread: 23820] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 14:14:35,712 [Thread: 23820] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 14:14:35,712 [Thread: 23820] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1408
+INFO 2025-02-24 14:14:36,177 [Thread: 16624] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 14:14:36,177 [Thread: 16624] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1874
+INFO 2025-02-24 14:15:04,630 [Thread: 16624] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 14:15:04,631 [Thread: 16624] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 14:15:04,632 [Thread: 23820] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 14:15:04,632 [Thread: 23820] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 14:15:05,914 [Thread: 23820] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 14:15:05,918 [Thread: 23820] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 14:15:05,918 [Thread: 23820] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1286
+INFO 2025-02-24 14:15:06,505 [Thread: 16624] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 14:15:06,505 [Thread: 16624] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1874
+INFO 2025-02-24 14:22:35,371 [Thread: 16624] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 14:22:35,371 [Thread: 16624] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 14:22:35,687 [Thread: 13572] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 14:22:35,687 [Thread: 13572] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 14:22:36,735 [Thread: 13572] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 14:22:36,738 [Thread: 13572] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 14:22:36,738 [Thread: 13572] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1051
+INFO 2025-02-24 14:22:37,027 [Thread: 16624] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 14:22:37,027 [Thread: 16624] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1655
+INFO 2025-02-24 14:29:22,579 [Thread: 200] [ledger - get_ledger_info:80] Entering: get_ledger_info
+INFO 2025-02-24 14:29:23,162 [Thread: 200] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
+INFO 2025-02-24 14:29:23,170 [Thread: 200] [ledger - get_ledger_info:103] Successfully saved None in the database
+INFO 2025-02-24 14:29:23,170 [Thread: 200] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 591
+INFO 2025-02-24 14:30:49,546 [Thread: 200] [ledger - get_ledger_info:80] Entering: get_ledger_info
+INFO 2025-02-24 14:30:50,218 [Thread: 200] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
+INFO 2025-02-24 14:30:50,228 [Thread: 200] [ledger - get_ledger_info:103] Successfully saved None in the database
+INFO 2025-02-24 14:30:50,228 [Thread: 200] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 681
+INFO 2025-02-24 14:31:17,194 [Thread: 200] [ledger - get_ledger_info:80] Entering: get_ledger_info
+INFO 2025-02-24 14:31:17,717 [Thread: 200] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
+INFO 2025-02-24 14:31:17,722 [Thread: 200] [ledger - get_ledger_info:103] Successfully saved None in the database
+INFO 2025-02-24 14:31:17,722 [Thread: 200] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 527
+INFO 2025-02-24 14:31:28,670 [Thread: 200] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 14:31:28,670 [Thread: 200] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
+INFO 2025-02-24 14:31:28,978 [Thread: 20120] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 14:31:28,978 [Thread: 20120] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
+INFO 2025-02-24 14:31:30,249 [Thread: 200] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 14:31:30,252 [Thread: 200] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1582
+INFO 2025-02-24 14:31:30,749 [Thread: 20120] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
+INFO 2025-02-24 14:31:30,750 [Thread: 20120] [transaction_db_operations - save_transaction_history:18] Transaction with hash 1F9D20219FD115F641734A94893E4B1039599010029745CFB570DC2E5A7C2F52 already exists. Skipping insert
+INFO 2025-02-24 14:31:30,751 [Thread: 20120] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1772
+INFO 2025-02-24 14:31:41,914 [Thread: 2496] [ledger - get_server_info:35] Entering: get_server_info
+INFO 2025-02-24 14:31:41,914 [Thread: 2496] [utilities - get_cached_data:398] Cache missed for wallet address: get_server_info
+INFO 2025-02-24 14:31:42,451 [Thread: 2496] [ledger - get_server_info:58] Successfully fetched ledger information.
+INFO 2025-02-24 14:31:42,460 [Thread: 2496] [ledger - get_server_info:61] Successfully saved server info in the database
+INFO 2025-02-24 14:31:42,460 [Thread: 2496] [ledger - get_server_info:72] Leaving: get_server_info. Total execution time in ms: 545
+INFO 2025-02-24 14:33:15,473 [Thread: 24568] [ledger - get_xrp_reserves:122] Entering: get_xrp_reserves
+INFO 2025-02-24 14:33:15,473 [Thread: 24568] [utilities - validate_xrp_wallet:65] Classic Address: rEB3B28MumpdQtX4GUW623vekyAS8HYhgd
+INFO 2025-02-24 14:33:16,589 [Thread: 24568] [ledger - get_xrp_reserves:156] Successfully fetched XRP reserve information for rEB3B28MumpdQtX4GUW623vekyAS8HYhgd.
+INFO 2025-02-24 14:33:16,589 [Thread: 24568] [ledger - get_xrp_reserves:167] Leaving: get_xrp_reserves. Total execution time in ms: 1116
+INFO 2025-02-24 14:34:31,493 [Thread: 844] [transactions - check_transaction_status:178] Entering: check_transaction_status
+INFO 2025-02-24 14:34:31,493 [Thread: 844] [transactions - check_transaction_status:186] Checking transaction status for hash: 7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594
+INFO 2025-02-24 14:34:32,027 [Thread: 844] [transactions - check_transaction_status:203] Raw XRPL response for transaction 7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594: Response(status=<ResponseStatus.SUCCESS: 'success'>, result={'close_time_iso': '2025-02-17T03:34:50Z', 'ctid': 'C04AFC1700000001', 'hash': '7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594', 'ledger_hash': 'A93C92D810CD7B84C389E97BDC8E29336C77DABDE6885ACC8E8A72EFD66864A4', 'ledger_index': 4914199, 'meta': {'AffectedNodes': [{'ModifiedNode': {'FinalFields': {'Account': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', 'Balance': '858423466279068', 'Flags': 0, 'OwnerCount': 226, 'Sequence': 2235009, 'TicketCount': 226}, 'LedgerEntryType': 'AccountRoot', 'LedgerIndex': '31CCE9D28412FF973E9AB6D0FA219BACF19687D9A2456A0C2ABC3280E9D47E37', 'PreviousFields': {'Balance': '858423566279080', 'OwnerCount': 227, 'TicketCount': 227}, 'PreviousTxnID': 'A84118459F4D19EAD445FFAC3317C55064424F87827D44B9F2721EBEC29F35BB', 'PreviousTxnLgrSeq': 4914184}}, {'ModifiedNode': {'FinalFields': {'Flags': 0, 'IndexNext': '10435', 'IndexPrevious': '103b5', 'Owner': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', 'RootIndex': '781518F4E11A068CB35BF18DA3CBEC220E6CDAF406131C56368453759252A78D'}, 'LedgerEntryType': 'DirectoryNode', 'LedgerIndex': '34EC07BFE753222F0C70B70B6D063B3CF95229C24F44C13D2DF5D3D8B6B8CB5C', 'PreviousTxnID': 'EE1EBC744CF29EC017A15A08EB8925FE6EF95BB11AE2C94E3F0A96020C4B26C8', 'PreviousTxnLgrSeq': 4914169}}, {'DeletedNode': {'FinalFields': {'Account': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', 'Flags': 0, 'OwnerNode': '10434', 'PreviousTxnID': '7522226BE341C6F649D05BB5765F8711658A9346F6A6858DB0159CEAE89CF397', 'PreviousTxnLgrSeq': 4912707, 'TicketSequence': 2234745}, 'LedgerEntryType': 'Ticket', 'LedgerIndex': '6040153BAFFCDA239A80E614508F13F3E8AEF7AD5297C8D60932EFBB0EAF3FD2'}}, {'CreatedNode': {'LedgerEntryType': 'AccountRoot', 'LedgerIndex': 'CF62B5B847570E41EF4A523F7D8AD8FB2747C4724740496264A0A8F5ADA303C4', 'NewFields': {'Account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'Balance': '100000000', 'Sequence': 4914199}}}], 'TransactionIndex': 0, 'TransactionResult': 'tesSUCCESS', 'delivered_amount': '100000000'}, 'tx_json': {'Account': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe', 'DeliverMax': '100000000', 'Destination': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'Fee': '12', 'Flags': 0, 'LastLedgerSequence': 4914217, 'Sequence': 0, 'SigningPubKey': '02356E89059A75438887F9FEE2056A2890DB82A68353BE9C0C0C8F89C0018B37FC', 'TicketSequence': 2234745, 'TransactionType': 'Payment', 'TxnSignature': '3044022012F4315671D857499A31258D80E3EE0B163CA192DEF8784825CE2AB49557854B0220672D36118F65F3D191DBE86F34F56189ADDC13AF7B662C79950FD6CC9A124247', 'date': 793078490, 'ledger_index': 4914199}, 'validated': True}, id=None, type=<ResponseType.RESPONSE: 'response'>)
+INFO 2025-02-24 14:34:32,029 [Thread: 844] [transaction_db_operations - save_transaction_history:18] Transaction with hash 7A588FFBCCE9A655F76D6FE34D285C0FFCF2D069151A886D8A76BA230B138594 already exists. Skipping insert
+INFO 2025-02-24 14:34:32,029 [Thread: 844] [transactions - check_transaction_status:217] Leaving: check_transaction_status. Total execution time in ms: 536
+INFO 2025-02-24 14:39:52,431 [Thread: 23156] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 14:39:52,431 [Thread: 23156] [utilities - validate_xrp_wallet:65] Classic Address: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
+INFO 2025-02-24 14:39:54,018 [Thread: 23156] [accounts - get_account_info:210] Account found: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm, Balance: 4376.49, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 14:39:54,018 [Thread: 23156] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1586
+INFO 2025-02-24 14:39:57,230 [Thread: 23156] [accounts - check_account_balance:228] Entering: check_wallet_balance
+INFO 2025-02-24 14:39:57,230 [Thread: 23156] [utilities - validate_xrp_wallet:65] Classic Address: rLRYbzsJnf6DGEaQZ7jgh3sLWNnmeCpF3D
+INFO 2025-02-24 14:39:58,307 [Thread: 23156] [accounts - check_account_balance:254] Balance for address rLRYbzsJnf6DGEaQZ7jgh3sLWNnmeCpF3D retrieved successfully: 100.00 XRP
+INFO 2025-02-24 14:39:58,307 [Thread: 23156] [accounts - check_account_balance:266] Leaving: check_wallet_balance. Total execution time in ms: 1077
+INFO 2025-02-24 14:45:49,813 [Thread: 24516] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
+INFO 2025-02-24 14:45:49,865 [Thread: 24516] [apps - ready:28] Environment: testnet
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
+INFO 2025-02-24 14:45:49,866 [Thread: 24516] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
+INFO 2025-02-24 15:01:17,569 [Thread: 4260] [accounts - create_test_account:43] Entering: create_test_account
+INFO 2025-02-24 15:01:24,944 [Thread: 4260] [account_db_operations - save_account_data:16] Saving account to db
+INFO 2025-02-24 15:01:24,951 [Thread: 4260] [account_db_operations - save_account_data:77] Account rnbjD2T4aXgap3Rc8rgDecBQkc3hGtHE6J created and saved.
+INFO 2025-02-24 15:01:24,952 [Thread: 4260] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 7383
+INFO 2025-02-24 15:21:18,188 [Thread: 9364] [accounts - create_test_account:43] Entering: create_test_account
+INFO 2025-02-24 15:21:26,649 [Thread: 9364] [account_db_operations - save_account_data:16] Saving account to db
+INFO 2025-02-24 15:21:26,654 [Thread: 9364] [account_db_operations - save_account_data:77] Account r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb created and saved.
+INFO 2025-02-24 15:21:26,654 [Thread: 9364] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 8466
+INFO 2025-02-24 15:22:35,679 [Thread: 9364] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 15:22:35,679 [Thread: 9364] [utilities - validate_xrp_wallet:65] Classic Address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
+INFO 2025-02-24 15:22:35,988 [Thread: 24056] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 15:22:35,988 [Thread: 24056] [utilities - validate_xrp_wallet:65] Classic Address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
+INFO 2025-02-24 15:22:37,499 [Thread: 9364] [accounts - get_account_info:210] Account found: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 15:22:37,499 [Thread: 9364] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1820
+INFO 2025-02-24 15:22:37,994 [Thread: 24056] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
+INFO 2025-02-24 15:22:38,004 [Thread: 24056] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 2016
+INFO 2025-02-24 15:23:28,200 [Thread: 24056] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 15:23:28,201 [Thread: 24056] [utilities - validate_xrp_wallet:65] Classic Address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
+INFO 2025-02-24 15:23:28,203 [Thread: 9364] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 15:23:28,204 [Thread: 9364] [utilities - validate_xrp_wallet:65] Classic Address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
+INFO 2025-02-24 15:23:29,518 [Thread: 9364] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb
+INFO 2025-02-24 15:23:29,520 [Thread: 9364] [transaction_db_operations - save_transaction_history:18] Transaction with hash 21A3D12AC550316FC59557E50DC485AA5193B5A822C823C00142CEDD3360B5FC already exists. Skipping insert
+INFO 2025-02-24 15:23:29,520 [Thread: 9364] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1316
+INFO 2025-02-24 15:23:30,030 [Thread: 24056] [accounts - get_account_info:210] Account found: r94Sow8HWzKxJqEeK1xYmFxhw9KES83FSb, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 15:23:30,030 [Thread: 24056] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1829
+INFO 2025-02-24 17:54:06,546 [Thread: 25612] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
+INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:28] Environment: testnet
+INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
+INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
+INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
+INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
+INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
+INFO 2025-02-24 17:54:06,593 [Thread: 25612] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
+INFO 2025-02-24 17:54:06,594 [Thread: 25612] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
+INFO 2025-02-24 17:54:06,594 [Thread: 25612] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
+INFO 2025-02-24 17:54:06,594 [Thread: 25612] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
+INFO 2025-02-24 17:54:06,594 [Thread: 25612] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
+INFO 2025-02-24 17:54:06,990 [Thread: 25708] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:28] Environment: testnet
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
+INFO 2025-02-24 17:54:07,032 [Thread: 25708] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
+INFO 2025-02-24 21:16:41,210 [Thread: 6644] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:28] Environment: testnet
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
+INFO 2025-02-24 21:16:41,271 [Thread: 6644] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
+INFO 2025-02-24 21:16:41,626 [Thread: 16580] [apps - XrplApiConfig:24] ----------------- App started ----------------- 
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:28] Environment: testnet
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:53] Using XRP URL: https://s.altnet.rippletest.net:51234/
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:54] Using XRP FAUCET URL: https://faucet.altnet.rippletest.net/accounts
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:55] Using XRP WEB SOCKET URL: wss://s.altnet.rippletest.net:51233/
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:56] Using XRPL TEST LABS NETWORK URL: https://testnet.xrpl-labs.com/
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:57] Using XRPL TEST LABS WEB SOCKET NETWORK URL: wss://testnet.xrpl-labs.com/
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:58] Using XRPL TEST CLIO NETWORK URL: https://clio.altnet.rippletest.net:51234/
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:59] Using XRPL TEST CLIO WEB SOCKET NETWORK URL: wss://clio.altnet.rippletest.net:51233/
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:60] XRP_ACCOUNT_DELETE_FEE_IN_DROPS: 20
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:61] XRP_SEND_ACCOUNT_FEE_IN_DROPS: 20
+INFO 2025-02-24 21:16:41,666 [Thread: 16580] [apps - ready:62] BLACK_HOLE_ADDRESS: rrrrrrrrrrrrrrrrrrrrBZbvji
+INFO 2025-02-24 21:40:01,096 [Thread: 8044] [accounts - create_test_account:43] Entering: create_test_account
+INFO 2025-02-24 21:40:10,381 [Thread: 8044] [account_db_operations - save_account_data:16] Saving account to db
+INFO 2025-02-24 21:40:10,388 [Thread: 8044] [account_db_operations - save_account_data:77] Account rJk1myNnj1ur1s6hRbfjABNZuCMLfSNr6D created and saved.
+INFO 2025-02-24 21:40:10,388 [Thread: 8044] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 9292
+INFO 2025-02-24 21:41:54,009 [Thread: 8044] [accounts - create_test_account:43] Entering: create_test_account
+INFO 2025-02-24 21:42:02,859 [Thread: 8044] [account_db_operations - save_account_data:16] Saving account to db
+INFO 2025-02-24 21:42:02,864 [Thread: 8044] [account_db_operations - save_account_data:77] Account rfkDe3oxHbhGfWGozL6z8Xw6vCx7pLutTg created and saved.
+INFO 2025-02-24 21:42:02,865 [Thread: 8044] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 8855
+INFO 2025-02-24 21:42:35,810 [Thread: 8044] [accounts - create_test_account:43] Entering: create_test_account
+INFO 2025-02-24 21:42:45,940 [Thread: 8044] [account_db_operations - save_account_data:16] Saving account to db
+INFO 2025-02-24 21:42:45,946 [Thread: 8044] [account_db_operations - save_account_data:77] Account r92Djmp6x7Vu6roZQ4kVrvLK9DekEZ4d2S created and saved.
+INFO 2025-02-24 21:42:45,946 [Thread: 8044] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 10136
+INFO 2025-02-24 21:43:16,311 [Thread: 15692] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 21:43:16,312 [Thread: 20832] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 21:43:16,312 [Thread: 15692] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 21:43:16,312 [Thread: 20832] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 21:43:17,957 [Thread: 20832] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 21:43:17,963 [Thread: 20832] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 21:43:17,963 [Thread: 20832] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1651
+INFO 2025-02-24 21:43:18,651 [Thread: 15692] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 21:43:18,651 [Thread: 15692] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2340
+INFO 2025-02-24 21:51:08,981 [Thread: 20372] [accounts - create_test_account:43] Entering: create_test_account
+INFO 2025-02-24 21:51:17,648 [Thread: 20372] [account_db_operations - save_account_data:16] Saving account to db
+INFO 2025-02-24 21:51:17,655 [Thread: 20372] [account_db_operations - save_account_data:77] Account rMXxLRrm5jmFm64zbmsAzFDL4cd3FQR7v created and saved.
+INFO 2025-02-24 21:51:17,655 [Thread: 20372] [accounts - create_test_account:95] Leaving: create_test_account. Total execution time in ms: 8673
+INFO 2025-02-24 21:53:34,470 [Thread: 6272] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 21:53:34,471 [Thread: 1336] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 21:53:34,471 [Thread: 6272] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 21:53:34,471 [Thread: 1336] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 21:53:35,772 [Thread: 1336] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 21:53:35,776 [Thread: 1336] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 21:53:35,777 [Thread: 1336] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1306
+INFO 2025-02-24 21:53:36,264 [Thread: 6272] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 21:53:36,264 [Thread: 6272] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1793
+INFO 2025-02-24 22:04:52,994 [Thread: 20688] [ledger - get_ledger_info:80] Entering: get_ledger_info
+INFO 2025-02-24 22:04:53,515 [Thread: 20688] [ledger - get_ledger_info:100] Successfully retrieved ledger info for 5117831/None
+INFO 2025-02-24 22:04:53,522 [Thread: 20688] [ledger - get_ledger_info:103] Successfully saved None in the database
+INFO 2025-02-24 22:04:53,522 [Thread: 20688] [ledger - get_ledger_info:114] Leaving: get_ledger_info. Total execution time in ms: 527
+INFO 2025-02-24 22:05:17,643 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 22:05:17,643 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:05:17,644 [Thread: 6780] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 22:05:17,645 [Thread: 6780] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:05:18,904 [Thread: 6780] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 22:05:18,909 [Thread: 6780] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 22:05:18,909 [Thread: 6780] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1264
+INFO 2025-02-24 22:05:18,912 [Thread: 6780] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 22:05:18,912 [Thread: 6780] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:05:19,575 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 22:05:19,575 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1932
+INFO 2025-02-24 22:05:19,578 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 22:05:19,578 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:05:20,187 [Thread: 6780] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 22:05:20,191 [Thread: 6780] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 22:05:20,192 [Thread: 6780] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1280
+INFO 2025-02-24 22:05:21,219 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 22:05:21,219 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1641
+INFO 2025-02-24 22:07:05,560 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 22:07:05,560 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:07:05,561 [Thread: 6780] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 22:07:05,561 [Thread: 6780] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:07:05,900 [Thread: 9512] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 22:07:05,901 [Thread: 9512] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:07:06,954 [Thread: 6780] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:07:06,956 [Thread: 6780] [transaction_db_operations - save_transaction_history:18] Transaction with hash 42E6B765743528301548FE9CF9E2D179854FFFCF376A9A854590EE027968DE08 already exists. Skipping insert
+INFO 2025-02-24 22:07:06,957 [Thread: 6780] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1395
+INFO 2025-02-24 22:07:06,960 [Thread: 6780] [transactions - get_transaction_history_with_pagination:101] Entering: get_transaction_history_with_pagination
+INFO 2025-02-24 22:07:06,960 [Thread: 6780] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:07:07,122 [Thread: 9512] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+ERROR 2025-02-24 22:07:07,125 [Thread: 9512] [transaction_db_operations - save_transaction_history:117] Unexpected exception caught saving transaction history data: 'delivered_amount'
+INFO 2025-02-24 22:07:07,125 [Thread: 9512] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1225
+INFO 2025-02-24 22:07:07,675 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 22:07:07,675 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 2115
+INFO 2025-02-24 22:07:07,678 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 22:07:07,678 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:07:08,278 [Thread: 6780] [transactions - get_transaction_history_with_pagination:155] Transaction history fetched for address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:07:08,279 [Thread: 6780] [transaction_db_operations - save_transaction_history:18] Transaction with hash 42E6B765743528301548FE9CF9E2D179854FFFCF376A9A854590EE027968DE08 already exists. Skipping insert
+INFO 2025-02-24 22:07:08,279 [Thread: 6780] [transactions - get_transaction_history_with_pagination:170] Leaving: get_transaction_history_with_pagination. Total execution time in ms: 1319
+INFO 2025-02-24 22:07:09,370 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 22:07:09,370 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1692
+INFO 2025-02-24 22:07:09,373 [Thread: 20688] [accounts - get_account_info:178] Entering: get_wallet_info
+INFO 2025-02-24 22:07:09,373 [Thread: 20688] [utilities - validate_xrp_wallet:65] Classic Address: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y
+INFO 2025-02-24 22:07:11,278 [Thread: 20688] [accounts - get_account_info:210] Account found: r4fhC9xtM1YbCkPJNnWQeytdV7KJSbhy1y, Balance: 100.00, Base Reserve: 1, Reserve Increment: 0
+INFO 2025-02-24 22:07:11,278 [Thread: 20688] [accounts - get_account_info:221] Leaving: get_wallet_info. Total execution time in ms: 1905
+INFO 2025-02-24 22:31:28,752 [Thread: 3956] [payments - send_xrp_payment:168] Entering: send_xrp_payment
+INFO 2025-02-24 22:31:28,766 [Thread: 3956] [payments - send_xrp_payment:177] Receiver account: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
+INFO 2025-02-24 22:31:28,766 [Thread: 3956] [payments - send_xrp_payment:178] Sending 0.56 XRP
+INFO 2025-02-24 22:31:28,766 [Thread: 3956] [payments - send_xrp_payment:181] Amount in drops: 560000
+INFO 2025-02-24 22:31:29,062 [Thread: 3956] [payments - send_xrp_payment:188] Balances of wallets before Payment tx
+INFO 2025-02-24 22:31:29,112 [Thread: 3956] [payments - send_xrp_payment:189] Sender Address Balance: 88519380
+INFO 2025-02-24 22:31:29,155 [Thread: 3956] [payments - send_xrp_payment:190] Receiver Address Balance: 4376489650
+INFO 2025-02-24 22:31:39,163 [Thread: 3956] [utilities - fetch_network_fee:335] Network fee in drops: 10
+INFO 2025-02-24 22:31:39,163 [Thread: 3956] [payments - send_xrp_payment:193] fee_drops: 10
+INFO 2025-02-24 22:31:43,846 [Thread: 3956] [payments - send_xrp_payment:199] await process_payment total time: 4683
+INFO 2025-02-24 22:31:43,891 [Thread: 3956] [payments - send_xrp_payment:209] Balances of wallets after Payment tx:
+INFO 2025-02-24 22:31:43,935 [Thread: 3956] [payments - send_xrp_payment:210] Sender Address Balance: 87959370
+INFO 2025-02-24 22:31:43,979 [Thread: 3956] [payments - send_xrp_payment:211] Receiver Address Balance: 4377049650
+INFO 2025-02-24 22:31:43,979 [Thread: 3956] [payments - send_xrp_payment:212] Get balance changes: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '-0.56001'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '0.56'}]}]
+INFO 2025-02-24 22:31:43,980 [Thread: 3956] [payments - send_xrp_payment:213] Get final balances: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '87.95937'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '4377.04965'}]}]
+INFO 2025-02-24 22:31:43,980 [Thread: 13176] [payments_util - process_payment_response:166] Payment successful: 03E7C7539FF98D32C93F055E5107A19142F5D6C199407AAC9C30E8660B0BC574
+INFO 2025-02-24 22:31:43,980 [Thread: 13176] [payments_util - process_payment_response:169] Saving payment data in table
+INFO 2025-02-24 22:31:43,985 [Thread: 13176] [payments_db_operations - save_payment_data:36] Created new transaction for sender r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub with hash 03E7C7539FF98D32C93F055E5107A19142F5D6C199407AAC9C30E8660B0BC574
+INFO 2025-02-24 22:31:44,119 [Thread: 3956] [payments - send_xrp_payment:228] Leaving: send_xrp_payment. Total execution time in ms: 15367
+INFO 2025-02-24 22:49:30,583 [Thread: 18240] [payments - send_xrp_payment:168] Entering: send_xrp_payment
+INFO 2025-02-24 22:49:30,597 [Thread: 18240] [payments - send_xrp_payment:177] Receiver account: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
+INFO 2025-02-24 22:49:30,597 [Thread: 18240] [payments - send_xrp_payment:178] Sending 0.56 XRP
+INFO 2025-02-24 22:49:30,598 [Thread: 18240] [payments - send_xrp_payment:181] Amount in drops: 560000
+INFO 2025-02-24 22:49:30,900 [Thread: 18240] [payments - send_xrp_payment:188] Balances of wallets before Payment tx
+INFO 2025-02-24 22:49:30,966 [Thread: 18240] [payments - send_xrp_payment:189] Sender Address Balance: 87959370
+INFO 2025-02-24 22:49:31,008 [Thread: 18240] [payments - send_xrp_payment:190] Receiver Address Balance: 4377049650
+INFO 2025-02-24 22:49:41,010 [Thread: 18240] [utilities - fetch_network_fee:335] Network fee in drops: 10
+INFO 2025-02-24 22:49:41,010 [Thread: 18240] [payments - send_xrp_payment:193] fee_drops: 10
+INFO 2025-02-24 22:49:46,751 [Thread: 18240] [payments - send_xrp_payment:199] await process_payment total time: 5740
+INFO 2025-02-24 22:49:46,800 [Thread: 18240] [payments - send_xrp_payment:209] Balances of wallets after Payment tx:
+INFO 2025-02-24 22:49:46,834 [Thread: 18240] [payments - send_xrp_payment:210] Sender Address Balance: 87399360
+INFO 2025-02-24 22:49:46,875 [Thread: 18240] [payments - send_xrp_payment:211] Receiver Address Balance: 4377609650
+INFO 2025-02-24 22:49:46,875 [Thread: 18240] [payments - send_xrp_payment:212] Get balance changes: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '-0.56001'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '0.56'}]}]
+INFO 2025-02-24 22:49:46,875 [Thread: 18240] [payments - send_xrp_payment:213] Get final balances: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '87.39936'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '4377.60965'}]}]
+INFO 2025-02-24 22:49:46,876 [Thread: 18420] [payments_util - process_payment_response:166] Payment successful: D61868C034650E1EED8E6AE1E0B99E52720B561C9E1F6E372649D21A3A22705F
+INFO 2025-02-24 22:49:46,876 [Thread: 18420] [payments_util - process_payment_response:169] Saving payment data in table
+INFO 2025-02-24 22:49:46,879 [Thread: 18420] [payments_db_operations - save_payment_data:36] Created new transaction for sender r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub with hash D61868C034650E1EED8E6AE1E0B99E52720B561C9E1F6E372649D21A3A22705F
+INFO 2025-02-24 22:49:47,019 [Thread: 18240] [payments - send_xrp_payment:228] Leaving: send_xrp_payment. Total execution time in ms: 16435
+INFO 2025-02-24 22:54:31,475 [Thread: 11220] [payments - send_xrp_payment:168] Entering: send_xrp_payment
+INFO 2025-02-24 22:54:31,490 [Thread: 11220] [payments - send_xrp_payment:177] Receiver account: rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm
+INFO 2025-02-24 22:54:31,490 [Thread: 11220] [payments - send_xrp_payment:178] Sending 0.56 XRP
+INFO 2025-02-24 22:54:31,490 [Thread: 11220] [payments - send_xrp_payment:181] Amount in drops: 560000
+INFO 2025-02-24 22:54:31,763 [Thread: 11220] [payments - send_xrp_payment:188] Balances of wallets before Payment tx
+INFO 2025-02-24 22:54:31,822 [Thread: 11220] [payments - send_xrp_payment:189] Sender Address Balance: 87399360
+INFO 2025-02-24 22:54:31,875 [Thread: 11220] [payments - send_xrp_payment:190] Receiver Address Balance: 4377609650
+INFO 2025-02-24 22:54:41,887 [Thread: 11220] [utilities - fetch_network_fee:335] Network fee in drops: 10
+INFO 2025-02-24 22:54:41,887 [Thread: 11220] [payments - send_xrp_payment:193] fee_drops: 10
+INFO 2025-02-24 22:54:45,491 [Thread: 11220] [payments - send_xrp_payment:199] await process_payment total time: 3603
+INFO 2025-02-24 22:54:45,542 [Thread: 11220] [payments - send_xrp_payment:209] Balances of wallets after Payment tx:
+INFO 2025-02-24 22:54:45,583 [Thread: 11220] [payments - send_xrp_payment:210] Sender Address Balance: 86839350
+INFO 2025-02-24 22:54:45,626 [Thread: 11220] [payments - send_xrp_payment:211] Receiver Address Balance: 4378169650
+INFO 2025-02-24 22:54:45,627 [Thread: 11220] [payments - send_xrp_payment:212] Get balance changes: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '-0.56001'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '0.56'}]}]
+INFO 2025-02-24 22:54:45,627 [Thread: 11220] [payments - send_xrp_payment:213] Get final balances: [{'account': 'r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub', 'balances': [{'currency': 'XRP', 'value': '86.83935'}]}, {'account': 'rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm', 'balances': [{'currency': 'XRP', 'value': '4378.16965'}]}]
+INFO 2025-02-24 22:54:45,627 [Thread: 18420] [payments_util - process_payment_response:166] Payment successful: 00DB58F6D901D9B7C75F731683697BCCD4BCD5A425261078E5E2C15ABE2D2030
+INFO 2025-02-24 22:54:45,627 [Thread: 18420] [payments_util - process_payment_response:169] Saving payment data in table
+INFO 2025-02-24 22:54:45,630 [Thread: 18420] [payments_db_operations - save_payment_data:36] Created new transaction for sender r4VTKrMSL2xeh3fLLSA7sugMihNDzBFVub with hash 00DB58F6D901D9B7C75F731683697BCCD4BCD5A425261078E5E2C15ABE2D2030
+INFO 2025-02-24 22:54:45,786 [Thread: 11220] [payments - send_xrp_payment:228] Leaving: send_xrp_payment. Total execution time in ms: 14311

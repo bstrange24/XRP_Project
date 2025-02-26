@@ -10,7 +10,7 @@
             <button
               mat-button
               color="primary"
-              (click)="onConnectButtonClick()"
+              (click)="onConnectButtonClick();"
               [disabled]="isLoading || connectedWallet"
             >
               {{ isLoading ? 'Connecting...' : 'Connect Wallet' }}
@@ -19,7 +19,7 @@
             <button
               mat-button
               color="warn"
-              (click)="disconnectWallet()"
+              (click)="disconnectWallet();"
               [disabled]="!connectedWallet || isLoading"
             >
               Disconnect Wallet
@@ -27,7 +27,13 @@
           </div>
 
           <div class="qr-code-container" *ngIf="!connectedWallet && !isLoading">
-            <ngx-qrcode-styling [data]="qrData" [width]="200" [height]="200"></ngx-qrcode-styling>
+            <ngx-qrcode-styling
+              *ngIf="qrData"
+              [data]="qrData"
+              [width]="300"
+              [height]="300"
+              [margin]="10"
+            ></ngx-qrcode-styling>
             <p>Scan this QR code with your Xaman app to connect.</p>
           </div>
 

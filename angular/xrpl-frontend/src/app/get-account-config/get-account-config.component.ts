@@ -96,7 +96,6 @@ export class GetAccountConfigComponent implements OnInit {
      } else {
       console.log('No wallet is connected. We need to get the user to input one.')
      }
-    // Optionally pre-load with a default or empty state
   }
 
   async getAccountConfig(): Promise<void> {

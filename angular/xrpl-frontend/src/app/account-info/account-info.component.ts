@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { XrplService } from '../services/xrpl-data/xrpl.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -63,21 +63,40 @@ export class AccountInfoComponent implements OnInit {
     private readonly datePipe: DatePipe,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly sharedDataService: SharedDataService
+    private readonly sharedDataService: SharedDataService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     console.log('Inside AccountInfoComponent ngOnInit');
-    this.sharedDataService.walletAddress$.subscribe(address => {
-      if (address) {
-        this.wallet_address = address;
-        console.log('Wallet Address from Shared Service:', address);
-        console.log('Received wallet_address:', this.wallet_address);
+
+    // Handle route parameters
+    this.route.params.subscribe(params => {
+      console.log('Route Params:', params);
+      if (params['wallet_address']) {
+        this.wallet_address = params['wallet_address'];
+        this.resetState(); // Reset state before fetching new data
+        this.sharedDataService.setWalletAddress(this.wallet_address);
+        this.isVisible = true;
         this.fetchAccountInfo(this.wallet_address);
         this.loadMoreTransactions();
+        this.cdr.detectChanges();
+      }
+    });
+
+    // Subscribe to shared service for real-time updates
+    this.sharedDataService.walletAddress$.subscribe(address => {
+      console.log('Wallet Address subscription triggered with:', address);
+      if (address) {
+        this.wallet_address = address;
+        this.resetState(); // Reset state before fetching new data
         this.isVisible = true;
+        this.fetchAccountInfo(this.wallet_address);
+        this.loadMoreTransactions();
+        this.cdr.detectChanges();
       } else {
-        console.warn('Wallet Address not found');
+        this.isVisible = false;
+        this.cdr.detectChanges();
       }
     });
 
@@ -85,10 +104,17 @@ export class AccountInfoComponent implements OnInit {
       this.transactionHash = transactionHash;
       console.log('Transaction Hash from Shared Service:', transactionHash);
     });
+  }
 
-    this.route.params.subscribe(params => {
-      console.log('Route Params:', params);
-    });
+  // Add resetState method to clear previous state
+  private resetState(): void {
+    this.transactions = []; // Clear previous transactions
+    this.currentPage = 1; // Reset pagination
+    this.totalItems = 0; // Reset total items
+    this.hasMore = true; // Reset pagination flag
+    this.accountInfo = null; // Clear previous account info
+    this.errorMessage = ''; // Clear errors
+    this.isLoading = false; // Reset loading state
   }
 
   @HostListener('wheel', ['$event'])
@@ -120,10 +146,12 @@ export class AccountInfoComponent implements OnInit {
         this.accountInfo = data;
         this.errorMessage = '';
         console.log('Account Info:', data);
+        this.cdr.detectChanges(); // Ensure UI updates
       },
       (error) => {
         this.errorMessage = 'Error fetching account info. Please check the account ID.';
         console.error('Error fetching account info:', error);
+        this.cdr.detectChanges(); // Ensure UI updates
       }
     );
   }

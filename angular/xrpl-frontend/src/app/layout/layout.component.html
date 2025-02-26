@@ -4,10 +4,11 @@
     <div class="logo">
         <h1>XRPL</h1>
     </div>
+    <p class="welcome-text">Welcome to the XRPL! Explore your XRPL accounts and transactions.</p>
     <div class="nav-bar">
         <nav>
             <ul>
-                <li><a routerLink="/">Home</a></li>
+                <li><a (click)="navigateToHome()">Home</a></li>
                 <li><a (click)="navigateToHome()">About</a></li>
                 <li><a routerLink="/docs">Docs</a></li>
                 <li><a routerLink="/contact">Contact</a></li>
@@ -16,29 +17,51 @@
     </div>
 </header>
 
-<!-- Banner -->
-<div class="banner">
-    <p>Welcome to the XRPL! Explore your XRPL accounts and transactions.</p>
-</div>
-
-<!-- Main Content -->
-<mat-card-header>
-    <div class="form-container">
-        <div class="input-button-container">
-            <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label></mat-label>
-                <input matInput [(ngModel)]="user_search_input" placeholder="Search by Address or Ledger" (keydown.enter)="onEnter()"
-                    class="full-width-input">
-            </mat-form-field>
-            <button mat-button color="primary" (click)="navigateToConnectWallet()" class="create-button">Connect Wallet</button>
-            <button mat-button [matMenuTriggerFor]="taccountMenu" class="create-button">Accounts</button> 
-            <button mat-button [matMenuTriggerFor]="trustLinesMenu" class="create-button">Trust Lines</button>
-            <button mat-button [matMenuTriggerFor]="tpaymentsMenu" class="create-button">Payments</button>
-            <button mat-button [matMenuTriggerFor]="toffersMenu" class="create-button">Offers</button>
-            <button mat-button color="primary" (click)="navigateToGetServerInfo()" class="create-button">XRPL Server Info</button>
+<!-- Sidenav Container -->
+<mat-sidenav-container class="sidenav-container">
+    <!-- Sidenav (Full-height on left) -->
+    <mat-sidenav #sidenav mode="side" opened="true" position="start" class="sidenav">
+        <div class="sidenav-content">
+            <div class="input-button-container">
+                <button mat-button [matMenuTriggerFor]="taccountMenu" class="create-button">Accounts</button> 
+                <button mat-button [matMenuTriggerFor]="trustLinesMenu" class="create-button">Trust Lines</button>
+                <button mat-button [matMenuTriggerFor]="tpaymentsMenu" class="create-button">Payments</button>
+                <button mat-button [matMenuTriggerFor]="toffersMenu" class="create-button">Offers</button>
+                <button mat-button color="primary" (click)="navigateToGetServerInfo()" class="create-button">XRPL Server Info</button>
+            </div>
         </div>
-    </div>
-</mat-card-header>
+    </mat-sidenav>
+
+    <!-- Sidenav Content (Banner, Main Area, and Footer on right) -->
+    <mat-sidenav-content class="main-content">
+        <!-- Banner (Pushed to right of sidenav, reduced white space) -->
+        <div class="banner">
+            <div class="wallet-controls">
+                <button mat-button color="primary" (click)="openConnectWalletDialog()" *ngIf="!walletConnected">
+                    Connect Wallet
+                </button>
+                <ng-container *ngIf="walletConnected">
+                    <button mat-button color="warn" (click)="disconnectWallet()">
+                        Disconnect Wallet
+                    </button>
+                    <span class="wallet-address">{{ walletAddress }}</span>
+                </ng-container>
+                <mat-form-field class="wide-form-field" appearance="fill">
+                    <mat-label></mat-label>
+                    <input matInput [(ngModel)]="user_search_input" placeholder="Search by Address or Ledger" (keydown.enter)="onEnter()"
+                        class="full-width-input">
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <router-outlet></router-outlet>
+
+        <mat-card-footer class="footer">
+            <p>© 2025 XRPL. All rights reserved.</p>
+        </mat-card-footer>
+    </mat-sidenav-content>
+</mat-sidenav-container>
 
 <!-- Trust Lines Dropdown Menu -->
 <mat-menu #trustLinesMenu="matMenu">
@@ -69,12 +92,3 @@
     <button mat-menu-item (click)="navigateToGetAccountConfig()">Get Account Config</button>
     <button mat-menu-item (click)="navigateToUpdateAccountConfig()">Update Account Config</button>
 </mat-menu>
-
-<!-- Router Outlet (Where other page content will be displayed) -->
-<router-outlet></router-outlet>
-
-<!-- Card Footer -->
-<mat-card-footer>
-    <p>© 2025 XRPL. All rights reserved.</p>
-</mat-card-footer>
-<!-- Card Footer -->

@@ -10,6 +10,8 @@ import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { XummService } from '../services/xumm-data/xumm.service';
 import { WalletService } from '../services/wallet-services/wallet.service';
+import { MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon'; // Add this import
 
 // Define interfaces for Xaman wallet data
 interface XamanWalletData {
@@ -25,7 +27,8 @@ interface XamanWalletData {
     MatButtonModule,
     MatCardModule,
     MatSnackBarModule,
-    NgxQrcodeStylingModule
+    NgxQrcodeStylingModule,
+    MatIconModule
   ],
   templateUrl: './connect-wallet.component.html',
   styleUrls: ['./connect-wallet.component.css']
@@ -37,28 +40,27 @@ export class ConnectWalletComponent implements OnInit {
   errorMessage: string = '';
   private payloadId: string | null = null;
   private payloadExpiration: number | null = null; // Store expiration time in seconds
-
-  // Storage key for wallet data
-  private readonly WALLET_STORAGE_KEY = 'xamanWallet';
-
-  // Flag to prevent multiple simultaneous generateQrCode calls
-  private isGenerating: boolean = false;
-
-  // Development flag to simulate signing (for testing without Xaman)
-  private readonly IS_DEVELOPMENT = true; // Set to false for production
-
-  // Initialize the Xumm SDK with your API credentials
-  private readonly xumm = new XummSdk('93b47736-fd5d-4d16-968f-c1c565c8e54f', '3a89cac1-613b-49b5-b125-1d1a8ba3b35b');
+  private readonly WALLET_STORAGE_KEY = 'xamanWallet';  // Storage key for wallet data
+  public isGenerating: boolean = false; // Flag to prevent multiple simultaneous generateQrCode calls
+  private readonly IS_DEVELOPMENT = true; // Development flag to simulate signing (for testing without Xaman) Set to false for production
+  private readonly xumm = new XummSdk('93b47736-fd5d-4d16-968f-c1c565c8e54f', '3a89cac1-613b-49b5-b125-1d1a8ba3b35b'); // Initialize the Xumm SDK with your API credentials
 
   constructor(
     private readonly snackBar: MatSnackBar,
     private readonly http: HttpClient,
     private readonly xummService: XummService,
-    private cdr: ChangeDetectorRef,
-    private walletService: WalletService // Inject WalletService if used
+    private readonly cdr: ChangeDetectorRef,
+    private readonly walletService: WalletService, // Inject WalletService if used
+    public dialogRef: MatDialogRef<ConnectWalletComponent> 
   ) {}
 
   ngOnInit(): void {
+    console.log('ngOnInit called. Current state:', {
+      storedWallet: sessionStorage.getItem(this.WALLET_STORAGE_KEY),
+      connectedWallet: this.connectedWallet,
+      isLoading: this.isLoading,
+      qrData: this.qrData
+    });
     const storedWallet = sessionStorage.getItem(this.WALLET_STORAGE_KEY);
     if (storedWallet) {
       this.connectedWallet = JSON.parse(storedWallet);
@@ -66,17 +68,14 @@ export class ConnectWalletComponent implements OnInit {
       console.log('Restored wallet from sessionStorage:', this.connectedWallet);
       
       // Clear payloadId and qrData on init, but only if not actively connecting
-      if (!this.isLoading && !this.qrData) {
+      if (this.connectedWallet && !this.qrData) {
+        console.log('Wallet already connected, no QR data generated.');
         this.payloadId = null;
         this.qrData = '';
         this.payloadExpiration = null;
-        console.log('Cleared payloadId, qrData, and payloadExpiration on init to prevent using expired payloads.');
+        this.snackBar.open('Wallet already connected. Disconnect to generate a new QR code.', 'Close', { duration: 3000 });
       }
     }
-  }
-
-  getWalletAddress(): string | null {
-    return this.connectedWallet?.address || null;
   }
 
   // Generate a QR code for Xaman wallet connection with adjusted expiration
@@ -138,7 +137,7 @@ export class ConnectWalletComponent implements OnInit {
           'error' in error && error.error !== null && typeof error.error === 'object' &&
           'message' in error.error && typeof error.error.message === 'string' && error.error.message.includes('expire')
         ) {
-          errorMessage = 'Invalid expiration time requested. Using default expiration (120 seconds).';
+          console.warn('Invalid expiration time requested. Using default expiration (120 seconds).');
           const defaultPayload = { txjson: { TransactionType: 'SignIn' as const }, options: { expire: 2 } };
           try {
             const defaultResponse = await lastValueFrom(this.xummService.createPayload(defaultPayload));
@@ -178,18 +177,6 @@ export class ConnectWalletComponent implements OnInit {
     }
   }
 
-  private handlePayloadError(error: any, defaultMessage: string): void {
-    let errorMessage: string = defaultMessage;
-    if (error.status === 400 && error.error?.message?.includes('expire')) {
-      errorMessage += ' Xumm rejected the expiration time. Using default expiration.';
-    }
-    this.errorMessage = errorMessage;
-    this.snackBar.open(this.errorMessage, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
-    this.cdr.detectChanges();
-    this.cdr.markForCheck(); // Ensure change detection triggers for the error
-    throw error;
-  }
-
   // Handle connection after scanning QR code with Xaman, with extended delays and retries
   async connectXamanWallet(): Promise<void> {
     this.isLoading = true;
@@ -210,7 +197,7 @@ export class ConnectWalletComponent implements OnInit {
         const checkStart = Date.now();
         const payloadStatus = await lastValueFrom(this.xummService.getPayloadStatus(this.payloadId));
         console.log(`Status check took ${Date.now() - checkStart}ms`);
-        // console.log('Payload status:', JSON.stringify(payloadStatus, null, 2));
+        console.log('Payload status:', JSON.stringify(payloadStatus, null, 2));
   
         if (!payloadStatus) {
           throw new Error('Failed to retrieve payload status or payload not found.');
@@ -228,6 +215,7 @@ export class ConnectWalletComponent implements OnInit {
           console.log('Connected Xaman wallet:', this.connectedWallet);
           this.snackBar.open('Successfully connected to Xaman wallet!', 'Close', { duration: 3000 });
           this.qrData = '';
+          this.dialogRef.close({ connected: true }); // Close dialog on success
           break;
         }
   
@@ -250,6 +238,7 @@ export class ConnectWalletComponent implements OnInit {
           this.walletService.setWallet(this.connectedWallet);
           this.snackBar.open('Wallet connected (simulated for development)', 'Close', { duration: 3000 });
           this.qrData = '';
+          this.dialogRef.close({ connected: true }); // Close dialog in dev mode
         } else {
           throw new Error('User did not sign the payload within the time limit. Please try again.');
         }
@@ -311,11 +300,9 @@ export class ConnectWalletComponent implements OnInit {
       this.errorMessage = 'Failed to disconnect wallet. Please try again.';
       this.snackBar.open(this.errorMessage, 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
       this.cdr.detectChanges(); // Force update after error
-      this.cdr.markForCheck(); // Ensure change detection triggers for the error
     } finally {
       this.isLoading = false; // Clear loading state
       this.cdr.detectChanges(); // Force Angular to detect changes and update the UI
-      this.cdr.markForCheck(); // Ensure change detection triggers for the state
     }
   }
 
@@ -327,5 +314,26 @@ export class ConnectWalletComponent implements OnInit {
     }
     // No need to call connectXamanWallet here; it’s already triggered in generateQrCode
     console.log('After button click, State:', { isLoading: this.isLoading, connectedWallet: this.connectedWallet, qrData: this.qrData, isGenerating: this.isGenerating });
+  }
+
+   // Add close method
+   closeDialog(): void {
+    this.dialogRef.close();
+  }
+
+  getWalletAddress(): string | null {
+    return this.connectedWallet?.address || null;
+  }
+
+  private handlePayloadError(error: any, defaultMessage: string): void {
+    let errorMessage: string = defaultMessage;
+    if (error.status === 400 && error.error?.message?.includes('expire')) {
+      errorMessage += ' Xumm rejected the expiration time. Using default expiration.';
+    }
+    this.errorMessage = errorMessage;
+    this.snackBar.open(this.errorMessage, 'Close', { duration: 5000, panelClass: ['error-snackbar'] });
+    this.cdr.detectChanges();
+    this.cdr.markForCheck(); // Ensure change detection triggers for the error
+    throw error;
   }
 }

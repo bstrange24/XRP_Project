@@ -4,10 +4,10 @@ body {
   margin: 0;
 }
 
-.app {
+/* .app {
   color: black;
   background-color: white;
-}
+} */
 
 .wide-form-field {
   width: 100%;
@@ -31,17 +31,18 @@ input[matInput] {
   background-color: white;
 }
 
-.centered-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  height: calc(100vh - 0px - 0px);
-  padding: 0 15px;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  background-color: white;
-}
+/* .centered-container { */
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
+  /* flex-direction: column; */
+  /* height: calc(100vh - 0px - 0px); */
+  /* padding: 0 15px; */
+  /* margin-top: 0px; */
+  /* margin-bottom: 0px; */
+  /* background-color: peru; */
+  /* color: aqua; */
+/* } */
 
 mat-expansion-panel {
   margin-top: 10px;
@@ -55,70 +56,18 @@ table.mat-table tr.mat-row:hover {
   background-color: #f5f5f5;
 }
 
-mat-card-header {
-  text-align: center;
-  font-size: 12px;
-  color: black;
-  background-color: white;
-  padding: 20px;
-  display: block;
-}
-
-mat-card-footer {
-  text-align: center;
-  font-size: 12px;
-  color: black;
-  background-color: white;
-  padding: 10px;
-}
-
 mat-card {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 mat-card-content {
-  max-width: 1200px;
+  /* max-width: 1200px; */
   width: 100%;
   box-sizing: border-box;
   color: black;
   background-color: white;
-}
-
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: black;
-  padding: 10px 20px;
-  color: white;
-}
-
-.top-bar .logo h1 {
-  margin: 0;
-  font-size: 1.8em;
-}
-
-.top-bar .nav-bar nav ul {
-  display: flex;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-.top-bar .nav-bar nav ul li {
-  margin: 0 15px;
-}
-
-.top-bar .nav-bar nav ul li a {
-  color: white;
-  text-decoration: none;
-  font-size: 1.1em;
-}
-
-.top-bar .nav-bar nav ul li a:hover {
-  text-decoration: underline;
 }
 
 mat-form-field {
@@ -131,11 +80,13 @@ mat-form-field {
   max-height: 500px;
   overflow-y: auto;
   position: relative;
+  color: blueviolet;
+  background-color: tomato;
 }
 
 .mat-elevation-z8 {
   width: 100%;
-  border-collapse: collapse; /* Ensures no gaps between rows */
+  border-collapse: collapse;
 }
 
 .loading {
@@ -144,7 +95,6 @@ mat-form-field {
   color: #667;
 }
 
-/* Header Row */
 .header-row {
   display: flex;
   justify-content: space-between;
@@ -153,7 +103,7 @@ mat-form-field {
 
 .cell, .header-cell {
   flex: 1;
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
   min-width: 200px;
   padding: 12px 16px;
   text-align: left;
@@ -162,10 +112,9 @@ mat-form-field {
   text-overflow: unset; 
 }
 
-/* Target only the Type and Status columns to push them right */
 .type-header, .status-header {
-  flex: 0 0 auto;             /* Prevents them from growing or shrinking, keeping their natural width */
-  margin-left: auto;          /* Pushes them to the right by taking up remaining space on the left */
+  flex: 0 0 auto;
+  margin-left: auto;
 }
 
 .transaction-unit {
@@ -176,7 +125,7 @@ mat-form-field {
 }
 
 .transaction-unit:hover {
-  background-color: #f5f5f5; /* Hover effect for entire unit */
+  background-color: lightgreen;
 }
 
 .main-row {
@@ -186,12 +135,12 @@ mat-form-field {
 }
 
 .details-row {
-  padding: 20px 20px 24px 16px; /* Increased padding: top, right, bottom, left */
+  padding: 20px 20px 24px 16px;
   font-style: italic;
   color: #555;
-  border-top: 1px solid #e0e0e0;
-  line-height: 1.5; /* Better line spacing */
-  background-color: #fafafa; /* Slight background for distinction */
+  border-top: 1px solid greenyellow;
+  line-height: 1.5;
+  background-color: lightseagreen;
 }
 
 .paginator-container {
@@ -201,23 +150,23 @@ mat-form-field {
   padding: 10px;
 }
 
-.form-container {
+/* .form-container {
   display: block;
   width: 100%;
   margin: 0 auto;
-}
+} */
 
-.icon {
+/* .icon {
   margin-right: 8px;
-}
+} */
 
-.mat-form-field {
+/* .mat-form-field {
   flex-grow: 1;
-}
+} */
 
-.action-link {
+/* .action-link {
   align-self: center;
   text-decoration: none;
-  color: white;
+  color: purple;
   cursor: pointer;
-}
+} */

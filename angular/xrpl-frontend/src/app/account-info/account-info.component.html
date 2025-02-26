@@ -3,14 +3,6 @@
     <div class="centered-container">
       <!-- Card Content -->
       <mat-card-content>
-        <!-- Display New Account Info -->
-        <!-- <div *ngIf="newAccount">
-          <h3>New Account Details</h3>
-          <p><strong>Address:</strong> {{ newAccount.address }}</p>
-          <p><strong>Secret:</strong> {{ newAccount.secret }}</p>
-          <p><strong>Message:</strong> {{ newAccount.message }}</p>
-        </div> -->
-
         <div class="account-box">
           <!-- Account Info Section -->
           <div class="box account-header" *ngIf="isVisible">
@@ -67,9 +59,6 @@
                         <span class="cell">{{ tx.date | date: 'M/d/yyyy, h:mm:ss a' : 'UTC' }}</span>
                       </div>
 
-                      <!-- <div class="details-row" *ngIf="tx.tx_json?.TransactionType !== 'AccountDelete'"> -->
-                        <!-- {{ tx.additional_information }} -->
-                      <!-- </div> -->
                       <div class="details-row">
                         {{ tx.additional_information }}
                       </div>

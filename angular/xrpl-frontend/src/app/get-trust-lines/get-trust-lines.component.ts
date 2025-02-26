@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
+import { WalletService } from '../services/wallet-services/wallet.service';
 
 // Define the interface for the API response
 interface TrustLinesResponse {
@@ -32,6 +33,11 @@ interface TrustLinesResponse {
   current_page: number;
 }
 
+interface XamanWalletData {
+  address: string;
+  seed?: string; // Optional, as Xaman doesn’t expose seeds
+}
+
 @Component({
   selector: 'app-get-trust-lines',
   standalone: true,
@@ -48,10 +54,12 @@ export class GetTrustLinesComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
   displayedColumns: string[] = ['account', 'balance', 'currency', 'limit', 'limit_peer', 'no_ripple', 'no_ripple_peer', 'quality_in', 'quality_out'];
+  connectedWallet: XamanWalletData | null = null;
 
   constructor(
     private readonly snackBar: MatSnackBar,
-    private readonly http: HttpClient
+    private readonly http: HttpClient,
+    private readonly walletService: WalletService
   ) {}
 
   // Validate XRP wallet address using xrpl
@@ -67,7 +75,13 @@ export class GetTrustLinesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Optionally pre-load with a default or empty state
+     // Get the wallet from the service when the component initializes
+     this.connectedWallet = this.walletService.getWallet();
+     if (this.connectedWallet) {
+       this.account = this.connectedWallet.address;
+     } else {
+      console.log('No wallet is connected. We need to get the user to input one.')
+     }
   }
 
   async getTrustLines(): Promise<void> {

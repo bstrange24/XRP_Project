@@ -15,9 +15,6 @@ import { GetServerInfoComponent } from './get-server-info/get-server-info.compon
 import { GetAccountConfigComponent } from './get-account-config/get-account-config.component'; // Import the new component
 import { UpdateAccountConfigComponent } from './update-account-config/update-account-config.component'; // Import the new component
 import { ConnectWalletComponent } from './connect-wallet/connect-wallet.component'; // Import the new component
-
-
-
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { HomeComponent } from './home/home.component';

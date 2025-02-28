@@ -1,7 +1,8 @@
+import json
 import logging
 import time
 
-from django.http import JsonResponse
+from django.core.paginator import Paginator
 from django.views import View
 from rest_framework.decorators import api_view
 from tenacity import wait_exponential, stop_after_attempt, retry
@@ -11,11 +12,11 @@ from xrpl.asyncio.wallet import XRPLFaucetException
 from xrpl.clients import XRPLRequestFailureException
 from xrpl.core import addresscodec
 from xrpl.core.addresscodec import XRPLAddressCodecException
-from xrpl.transaction import submit_and_wait
 from xrpl.utils import XRPRangeException
 from xrpl.wallet import generate_faucet_wallet, Wallet
 
-from .account_utils import process_all_flags
+from .account_utils import process_all_flags, prepare_account_tx_for_hash_account, \
+    account_tx_with_pagination_response, prepare_account_object_with_filter
 from .db_operations.account_db_operations import save_account_data, save_account_configuration_transaction
 from ..accounts.account_utils import create_multiple_account_response, \
     create_account_response, create_wallet_info_response, get_account_reserves, create_wallet_balance_response, \
@@ -23,8 +24,10 @@ from ..accounts.account_utils import create_multiple_account_response, \
 from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
     ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, ERROR_CREATING_TEST_WALLET, INVALID_XRP_BALANCE, \
-    CLASSIC_XRP_ADDRESS, X_XRP_ADDRESS, FAILED_TO_FETCH_RESERVE_DATA, SENDER_SEED_IS_INVALID
+    CLASSIC_XRP_ADDRESS, X_XRP_ADDRESS, FAILED_TO_FETCH_RESERVE_DATA, SENDER_SEED_IS_INVALID, \
+    MISSING_REQUEST_PARAMETERS, ACCOUNT_OBJECTS_TYPE
 from ..errors.error_handling import process_transaction_error, handle_error_new, error_response
+from ..transactions.transactions_util import prepare_tx
 from ..utilities.utilities import get_request_param, get_xrpl_client, convert_drops_to_xrp, \
     total_execution_time_in_millis, validate_xrp_wallet, is_valid_xrpl_seed, validate_xrpl_response_data
 
@@ -210,6 +213,107 @@ class Accounts(View):
             logger.info(f"Account found: {account}, Balance: {xrp_balance}, Base Reserve: {base_reserve}, Reserve Increment: {reserve_increment}")
 
             return create_wallet_info_response(base_reserve, reserve_increment, account_info_response.result)
+
+        except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        except Exception as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        finally:
+            logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
+    @api_view(['GET'])
+    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
+    def get_account_info_from_hash(self):
+        start_time = time.time()  # Capture the start time
+        function_name = 'get_account_info_from_hash'
+        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+
+        try:
+            tx_hash = get_request_param(self, 'tx_hash')
+            get_account_objects = get_request_param(self, 'get_account_objects')
+            get_all_tx_for_account = get_request_param(self, 'get_all_tx_for_account')
+            filter_account_object = get_request_param(self, 'filter_account_object')
+
+            if not all([tx_hash, get_account_objects, get_all_tx_for_account]):
+                raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
+
+            if get_account_objects == 'True' and get_all_tx_for_account == 'True':
+                raise ValueError(error_response('Getting all transactions and account object at the same time is not supported.'))
+
+            # Check if value is in the list using 'in'
+            if filter_account_object in ACCOUNT_OBJECTS_TYPE:
+                print(f"{filter_account_object} is a valid account object type!")
+            else:
+                print(f"{filter_account_object} is not in the list. Defaulting to no object type")
+                filter_account_object = None
+
+            # Get an instance of the XRPL client
+            client = get_xrpl_client()
+            if not client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+            transactions = []
+            marker = None
+
+            tx_hash_request = prepare_tx(tx_hash)
+            tx_response = client.request(tx_hash_request)
+            account = tx_response.result['tx_json']["Account"]  # The account that initiated the transaction
+            logger.info(f"Account associated with hash {tx_hash}: {account}")
+
+            if get_account_objects == 'True':
+                # Loop to fetch all transactions for the account, using pagination through 'marker'
+                while True:
+                    account_objects_request = prepare_account_object_with_filter(account, filter_account_object)
+                    account_objects_response = client.request(account_objects_request)
+                    logger.info("Account Objects (Escrows, Offers, etc.):")
+                    if account_objects_response.result["account_objects"]:
+                        logger.debug(f"Account Objects: {account_objects_response.result["account_objects"]}")
+                    else:
+                        logger.info("No account objects found.")
+
+                    transactions.extend(account_objects_response.result["account_objects"])
+                    logger.debug(json.dumps(account_objects_response.result["account_objects"], indent=4, sort_keys=True))
+
+                    # Check if there are more pages of transactions to fetch
+                    marker = account_objects_response.result.get("marker")
+                    if not marker:
+                        break
+            else:
+                # Loop to fetch all transactions for the account, using pagination through 'marker'
+                while True:
+                    # Get transaction history (payments, etc.)
+                    account_tx_request = prepare_account_tx_for_hash_account(account, marker)
+                    account_tx_response = client.request(account_tx_request)
+                    transactions.extend(account_tx_response.result["transactions"])
+                    logger.debug(json.dumps(account_tx_response.result["transactions"], indent=4, sort_keys=True))
+
+                    if account_tx_response.result["transactions"]:
+                        for tx in account_tx_response.result["transactions"]:
+                            logger.debug(f"Tx Hash: {tx['hash']}, Type: {tx['tx_json']['TransactionType']}, Result: {tx['meta']['TransactionResult']}")
+                    else:
+                        logger.info("No transactions found.")
+
+                    # Check if there are more pages of transactions to fetch
+                    marker = account_tx_response.result.get("marker")
+                    if not marker:
+                        break
+
+            # Extract pagination parameters from the request
+            page = self.GET.get('page', 1)
+            page = int(page) if page else 1
+
+            page_size = self.GET.get('page_size', 10)
+            page_size = int(page_size) if page_size else 1
+
+            # Paginate the transactions
+            paginator = Paginator(transactions, page_size)
+            paginated_transactions = paginator.get_page(page)
+
+            # Log successful transaction history fetch
+            logger.info(f"Transaction history fetched for address: {account}")
+            return account_tx_with_pagination_response(paginated_transactions, paginator)
 
         except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
             # Handle error message

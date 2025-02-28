@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, reverse
 
 from .accounts.accounts import Accounts
 from .currency.currency import Currency
-from .escrows.escrows import EscrowAccount, CreateEscrow
+from .escrows.escrows import CreateEscrow, GetEscrowSequenceNumber, CancelEscrow, FinishEscrow, GetEscrowAccountInfo
 from .ledger.ledger import LedgerInteraction
+from .nft.nft import NftProcessing
 from .offers.account_offers.account_offers import GetAccountOffers, CancelAccountOffers
 from .offers.book_offers.book_offers import GetBookOffers, CreateBookOffer
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
@@ -27,6 +28,9 @@ urlpatterns = [
     # Endpoint to fetch wallet information for a given wallet address.
     # Example: http://127.0.0.1:8000/xrpl/account-info/rMgaRbbZUBeoxwZevhv1mezuvA97eR4JHV/
     path('account-info/<str:account>/', Accounts.get_account_info, name='get_account_info'),
+
+    # Example: http://127.0.0.1:8000/xrpl/get-account-info-from-hash/?tx_hash=BED4E1E7CAB56600BA3C9597EAB606D9213B1E87B4FB7CE1F4885A3CC6755656
+    path('get-account-info-from-hash/', Accounts.get_account_info_from_hash, name='get_account_info_from_hash'),
 
     # Endpoint to check the balance of a given wallet address.
     # Example: http://127.0.0.1:8000/xrpl/check-wallet-balance/rQGijrV8XYRseZAfjFvC9cDxxr58h9SvMY/
@@ -55,8 +59,6 @@ urlpatterns = [
     # Endpoint to cancel an offer on an account.
     # Example: http://127.0.0.1:8000/xrpl/create-book-offer/?wallet_address=raGfE6LfRpUXNjmSYRqUyhWkU429XeYgEg&currency=TST&value=25&sendes_seed=sEdS82hNoMmkM7GottuGAFVecYTxRPH
     # path("create-book-offers/", CreateBookOffer.as_view(), name="create_book_offers"),
-
-
     path("create-book-offers-easy/", CreateBookOffer.as_view(), name="create_book_offers_easy"),
 
     # Endpoint to get created offers on an account.
@@ -118,14 +120,37 @@ urlpatterns = [
 
     # Endpoint to escrow a wallet address.
     # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
-    path('get-account-escrow/', EscrowAccount.as_view(), name='get_account_escrow'),
+    path('get-escrow-account-info/', GetEscrowAccountInfo.as_view(), name='get_escrow_account_info'),
 
     # Endpoint to create an escrow a wallet address.
     # Example: http://127.0.0.1:8000/xrpl/get-trust-line/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
     path('create-account-escrow/', CreateEscrow.as_view(), name='create_account_escrow'),
 
+    # Example: http://127.0.0.1:8000/xrpl/get-escrow-sequence-number/?prev_txn_id=C48E7D7734ADDA1530E377627640AD436DBBD49D2D484B68D6EEBB13D933F998
+    path('get-escrow-sequence-number/', GetEscrowSequenceNumber.as_view(), name='get_escrow_sequence_number'),
+
+    # Example: http://127.0.0.1:8000/xrpl/create-account-escrow/?sender_seed=sEdTGT135RyS61mbc18hpcXSxwPDLQa&prev_txn_id=58C9D264585FEC50614D91C996C80831A6693DFA3D49BEE79754FF1E35A9B3EE
+    path('cancel-escrow/', CancelEscrow.as_view(), name='cancel_escrow'),
+
+    # http://127.0.0.1:8000/xrpl/finish-escrow/?escrow_account=rJq8pSDVVcXPEDP7QPMnNzbTWSDkk5MG82&sender_seed=sEd74ZUqk8ZcCCmDJoKriEMWUHGPWUb&prev_txn_id=9DAE3A5510FFFFFCE6A4B0C6DB5F882A1F5B37A9D107CA162F3C427F4A76C31E&tx_hash=9DAE3A5510FFFFFCE6A4B0C6DB5F882A1F5B37A9D107CA162F3C427F4A76C31E&ledger_index=5203679
+    path('finish-escrow/', FinishEscrow.as_view(), name='finish_escrow'),
+
     # Endpoint to send currency payments.
     path('send-cross-currency-payment/', Currency.as_view(), name='send_cross_currency_payment'),
 
+    # Example: http://127.0.0.1:8000/xrpl/mint-nft/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    path('xrpl/mint-nft/', NftProcessing.as_view(), name='mint_nft'),
 
+    # Example: http://127.0.0.1:8000/xrpl/mint-nft/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
+    path('xrpl/get-account-nft/', NftProcessing.as_view(), name='get_account_nft'),
+
+    # Example: http://127.0.0.1:8000/xrpl/burn-account-nft/rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm/
+    path('xrpl/burn-account-nft/', NftProcessing.as_view(), name='burn_account_nft'),
+
+    # Example: http://127.0.0.1:8000/xrpl/sell-account-nft/rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm/
+    path('xrpl/sell-account-nft/', NftProcessing.as_view(), name='sell_account_nft'),
+
+    # Example: http://127.0.0.1:8000/xrpl/buy-account-nft/rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm/
+    path('xrpl/buy-account-nft/', NftProcessing.as_view(), name='buy_account_nft'),
 ]
+

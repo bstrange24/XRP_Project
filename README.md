@@ -41,6 +41,8 @@ Perform the following to setup this project:
    8) node
    9) npm
    10) npm install -g @angular/cli
+   11) pip install pytz
+
 
 
 # Endpoint for creating a new XRPL account.

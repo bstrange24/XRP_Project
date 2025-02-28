@@ -23,7 +23,7 @@ from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new
 from ..trust_lines.trust_line_util import create_trust_set_response
 from ..utilities.utilities import get_request_param, get_xrpl_client, validate_xrpl_response_data, \
-    total_execution_time_in_millis
+    total_execution_time_in_millis, count_xrp_received
 
 logger = logging.getLogger('xrpl_app')
 
@@ -146,6 +146,8 @@ class Currency(View):
                     raise XRPLException("Transaction failed: No path found with sufficient liquidity (tecPATH_DRY). "
                                         "Ensure order books have offers for conversion (e.g., USD/XRP, XRP/EUR).")
                 process_transaction_error(validated_tx_response)
+
+            count_xrp_received(validated_tx_response.result, sender_wallet)
 
             tx_hash = validated_tx_response.result['hash']
             logger.info(f"Transaction validated with hash: {tx_hash}")

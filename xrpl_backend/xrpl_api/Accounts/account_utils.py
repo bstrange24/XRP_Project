@@ -14,7 +14,7 @@ from ..errors.error_handling import handle_engine_result, handle_error_new, proc
 from ..transactions.transactions_util import prepare_tx
 from ..utilities.utilities import get_xrpl_client, parse_boolean_param, validate_xrpl_response_data, \
     total_execution_time_in_millis, map_request_parameters_to_flag_variables, \
-    get_account_set_flags_from_request_parameters
+    get_account_set_flags_from_request_parameters, count_xrp_received
 
 logger = logging.getLogger('xrpl_app')
 
@@ -48,6 +48,8 @@ def process_flag(sender_address, flag, client, sender_wallet, flags_to_enable):
     response = submit_and_wait(account_set_tx, client, sender_wallet)
     if validate_xrpl_response_data(response):
         process_transaction_error(response)
+
+    count_xrp_received(response.result, sender_address)
 
     # Request transaction details using the returned hash
     tx_hash = response.result.get("hash")
@@ -86,7 +88,7 @@ def get_account_set_flags(self):
 
 
 def get_account_objects(account: str):
-    account_objects_request = AccountObjects(account=account)
+    account_objects_request = prepare_account_object_with_filter(account, None)
     account_objects_response = get_xrpl_client().request(account_objects_request)
 
     if "error" in account_objects_response.result:
@@ -202,7 +204,7 @@ def account_tx_with_pagination_response(paginated_transactions, paginator):
         "transactions": list(paginated_transactions),
         "page": paginated_transactions.number,
         "total_pages": paginator.num_pages,
-        "total_offers": paginator.count
+        "total_count": paginator.count
     })
 
 
@@ -355,4 +357,24 @@ def prepare_account_tx(sender_address):
         account=sender_address,
         limit=100
     )
+
+def prepare_account_tx_for_hash_account(address, marker):
+    return AccountTx(
+        account=address,
+        ledger_index_min=-1,  # Start from the earliest ledger
+        ledger_index_max=-1,  # Up to the latest validated ledger
+        limit=100,
+        marker = marker,
+    )
+
+def prepare_account_object_with_filter(account, object_type=None):
+    if object_type is None:
+        return AccountObjects(
+            account=account
+        )
+    else:
+        return AccountObjects(
+            account=account,
+            type=object_type
+        )
 

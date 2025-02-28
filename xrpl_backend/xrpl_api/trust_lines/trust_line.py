@@ -22,8 +22,9 @@ from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_
     INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new
 from ..offers.account_offers.account_offers_util import prepare_account_lines_for_offer, prepare_account_offers
-from ..utilities.utilities import get_request_param, get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, \
-    validate_xrpl_response_data
+from ..utilities.utilities import get_request_param, get_xrpl_client, total_execution_time_in_millis, \
+    validate_xrp_wallet, \
+    validate_xrpl_response_data, count_xrp_received
 
 logger = logging.getLogger('xrpl_app')
 
@@ -66,6 +67,8 @@ class TrustLine(View):
 
                 if validate_xrpl_response_data(account_lines_response):
                     process_transaction_error(account_lines_response)
+
+                count_xrp_received(account_lines_response.result, account)
 
                 # Check if the "lines" field exists in the response. If not, raise an error.
                 if "lines" not in account_lines_response.result:
@@ -138,6 +141,7 @@ class TrustLine(View):
 
             if validate_xrpl_response_data(account_lines_info_response):
                 process_transaction_error(account_lines_info_response)
+
 
             # Check if the "lines" field exists in the response. If not, raise an error.
             if "lines" not in account_lines_info_response.result:
@@ -247,6 +251,8 @@ class TrustLine(View):
             validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
             if validate_xrpl_response_data(validated_tx_response):
                 process_transaction_error(validated_tx_response)
+
+            count_xrp_received(validated_tx_response.result, issuer_address)
 
             tx_hash = validated_tx_response.result['hash']
             logger.info(
@@ -360,6 +366,8 @@ class TrustLine(View):
 
             if validate_xrpl_response_data(validated_tx_response):
                 process_transaction_error(validated_tx_response)
+
+            count_xrp_received(validated_tx_response.result, issuer_address)
 
             tx_hash = validated_tx_response.result['hash']
             logger.info(

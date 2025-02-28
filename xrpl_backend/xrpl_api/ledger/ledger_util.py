@@ -87,5 +87,5 @@ def ledger_info_response(response):
     return JsonResponse({
         'status': 'success',
         'message': 'Server info fetched successfully.',
-        'ledger_info': response.result
+        'result': response.result
     })

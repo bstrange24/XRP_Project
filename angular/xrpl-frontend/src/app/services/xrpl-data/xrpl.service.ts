@@ -19,6 +19,17 @@ export class XrplService {
     return this.http.get(`${this.apiUrl}/transaction-history-with-pag/${wallet_address}/`);
   }
 
+  getAccountAssets(wallet_address: string): Observable<any> {
+    // Create HttpParams with the ledger_index query parameter
+    let params = new HttpParams().set('wallet_address', wallet_address);
+
+    // Make the HTTP GET request with the query parameter
+    return this.http.get(`${this.apiUrl}/get-account-nft/`, { 
+      params,
+      // headers: new HttpHeaders().set('Authorization', 'Bearer your-token'), // Example if API requires auth
+     });
+  }
+
   getAccountTransactionHistoryWithPaginations(wallet_address: string, page: number, pageSize: number = 10): Observable<any> {
     const params = new HttpParams()
       .set('page', page.toString())

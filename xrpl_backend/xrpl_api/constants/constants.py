@@ -71,3 +71,7 @@ ASF_FLAGS = [
     'asf_require_auth',
     'asf_require_dest'
 ]
+
+# Filter for specific types
+ACCOUNT_OBJECTS_TYPE = ["escrow", "offer", "payment_channel", "paychan", "ripple_state", "state", "check",
+                           "ticket", "nftoken_page", "deposit_preauth", "signer_list","amm", "did"]

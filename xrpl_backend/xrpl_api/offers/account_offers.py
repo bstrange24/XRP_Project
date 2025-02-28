@@ -30,7 +30,7 @@ from ..errors.error_handling import handle_error, handle_error_new, error_respon
 from ..offers.account_offers_util import process_offer, create_book_offer, create_offer, \
     prepare_account_lines_for_offer, prepare_account_offers, create_account_offers_response, \
     create_get_account_offers_response, prepare_account_offers_paginated
-from ..utils.utils import get_request_param, total_execution_time_in_millis, get_xrpl_client, \
+from ..utils.utils1 import get_request_param, total_execution_time_in_millis, get_xrpl_client, \
     validate_xrp_wallet, validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')

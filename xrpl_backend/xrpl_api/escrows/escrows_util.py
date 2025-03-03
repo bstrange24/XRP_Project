@@ -36,12 +36,21 @@ def generate_escrow_condition_and_fulfillment():
     # Generate a random preimage with at least 32 bytes of cryptographically-secure randomness.
     secret = urandom(32)
 
-    # Generate cryptic image from secret
-    fulfillment = PreimageSha256(preimage=secret)
+    fulfillment1 = PreimageSha256(preimage=secret)
 
-    # Parse image and return the condition and fulfillment
-    condition = str.upper(fulfillment.condition_binary.hex()) # condition
-    fulfillment = str.upper(fulfillment.serialize_binary().hex()) # fulfillment
+    condition = fulfillment1.condition_binary.hex().upper()
+    print("Condition", condition)
+
+    # Keep secret until you want to finish the escrow
+    fulfillment = fulfillment1.serialize_binary().hex().upper()
+    print("Fulfillment", fulfillment)
+
+    # # Generate cryptic image from secret
+    # fulfillment = PreimageSha256(preimage=secret)
+    #
+    # # Parse image and return the condition and fulfillment
+    # condition = str.upper(fulfillment.condition_binary.hex()) # condition
+    # fulfillment = str.upper(fulfillment.serialize_binary().hex()) # fulfillment
 
     # Print condition and fulfillment
     logger.info(f"condition: {condition}")
@@ -122,28 +131,28 @@ def get_escrow_data_from_db(txn_hash):
         raise Exception(error_response(f"Unexpected error when processing hash {txn_hash}: {str(e)}"))
 
 
-def set_claim_date(time_str, base_time):
-    """Convert a time string (e.g., '3:sec') to Ripple epoch time, added to base_time."""
-    if ":" not in time_str:
-        raise ValueError(f"Invalid time format: {time_str}. Expected 'value:unit'.")
-    value, unit = time_str.split(":")
-    value = int(value)
-    if unit == "sec":
-        return base_time + value
-    elif unit == "min":
-        return base_time + (value * 60)
-    elif unit == "hour":
-        return base_time + (value * 3600)
-    else:
-        raise ValueError(f"Unsupported time unit: {unit}. Use 'sec', 'min', or 'hour'.")
+# def set_claim_date(time_str, base_time):
+#     """Convert a time string (e.g., '3:sec') to Ripple epoch time, added to base_time."""
+#     if ":" not in time_str:
+#         raise ValueError(f"Invalid time format: {time_str}. Expected 'value:unit'.")
+#     value, unit = time_str.split(":")
+#     value = int(value)
+#     if unit == "sec":
+#         return base_time + value
+#     elif unit == "min":
+#         return base_time + (value * 60)
+#     elif unit == "hour":
+#         return base_time + (value * 3600)
+#     else:
+#         raise ValueError(f"Unsupported time unit: {unit}. Use 'sec', 'min', or 'hour'.")
 
-# def set_claim_date(finish_after_time):
-#     # Parse the time delta from the request parameter
-#     time_delta = parse_time_delta(finish_after_time)
-#
-#     # Calculate claim_date using datetime_to_ripple_time
-#     claim_date = datetime_to_ripple_time(datetime.now() + time_delta)
-#     return claim_date
+def set_claim_date(finish_after_time):
+    # Parse the time delta from the request parameter
+    time_delta = parse_time_delta(finish_after_time)
+
+    # Calculate claim_date using datetime_to_ripple_time
+    claim_date = datetime_to_ripple_time(datetime.now() + time_delta)
+    return claim_date
 
 
 def get_escrow_sequence(client, prev_txn_id):
@@ -271,8 +280,8 @@ def create_escrow_transaction_with_finsh_cancel(sender_address, amount_to_escrow
         account=sender_address,
         amount=xrp_to_drops(amount_to_escrow),
         destination=receiving_account,
-        sequence=sequence,
-        fee=fee,
+        # sequence=sequence,
+        # fee=fee,
         last_ledger_sequence=last_ledger + 300,
         finish_after=finish_after,
         cancel_after=cancel_after,

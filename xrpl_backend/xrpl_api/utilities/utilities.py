@@ -14,7 +14,7 @@ from xrpl.clients import JsonRpcClient
 from xrpl.core.addresscodec import is_valid_classic_address, is_valid_xaddress
 from xrpl.core.keypairs import derive_keypair, derive_classic_address
 from xrpl.ledger import get_fee
-from xrpl.models import Response, AccountSetAsfFlag
+from xrpl.models import Response, AccountSetAsfFlag, Ledger
 from xrpl.utils import xrp_to_drops, drops_to_xrp
 
 from ..constants.constants import BASE_RESERVE, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS, ASF_FLAGS
@@ -298,6 +298,7 @@ def validate_request_data(sender_seed: str, receiver_address: str, amount_xrp: i
     if not is_valid_xrpl_seed(sender_seed):
         raise ValueError(error_response("Sender seed is invalid."))
 
+
 def is_valid_txn_id_format(txn_id):
     """
     Validates the format of a transaction ID.
@@ -460,7 +461,6 @@ def get_account_set_flags_for_database_transaction(flags_to_enable):
         'asf_require_dest': 'ASF_REQUIRE_DEST'
     }
 
-
     # Print all elements in flag_mapping on the same line
     log_statement = ', '.join(f"{key}: {value}" for key, value in flag_mapping.items())
     logger.info(f"flag_mapping: {log_statement}")
@@ -471,12 +471,10 @@ def get_account_set_flags_for_database_transaction(flags_to_enable):
     return flag_mapping
 
 
-# Helpers to find accounts in AffectedNodes and see how much the balance changed.
 def find_xrp_difference(tx, address):
     try:
         # Extract transaction metadata
         affected_nodes = [list(node.keys())[0] for node in tx['meta']['AffectedNodes']]
-        print(f"Affected nodes detected: {affected_nodes}")
         logger.info(f"Affected nodes detected: {affected_nodes}")
         tx_type = tx['tx_json']['TransactionType']
 
@@ -489,7 +487,6 @@ def find_xrp_difference(tx, address):
             if tx['tx_json']['Destination'] == address:
                 amount_in_drops = int(tx['meta']['delivered_amount'])
                 xrp_amount = amount_in_drops / 1000000
-                print(f"Received {xrp_amount} XRP via Payment")
                 logger.info(f"Received {xrp_amount} XRP via Payment")
                 transfer_detected = True
                 return
@@ -502,7 +499,7 @@ def find_xrp_difference(tx, address):
             if 'ModifiedNode' in node:
                 ledger_entry = node['ModifiedNode']
                 if (ledger_entry['LedgerEntryType'] == 'AccountRoot' and
-                    ledger_entry['FinalFields']['Account'] == address):
+                        ledger_entry['FinalFields']['Account'] == address):
                     if 'Balance' in ledger_entry.get('PreviousFields', {}):
                         old_balance = int(ledger_entry['PreviousFields']['Balance'])
                         new_balance = int(ledger_entry['FinalFields']['Balance'])
@@ -513,7 +510,7 @@ def find_xrp_difference(tx, address):
             elif 'CreatedNode' in node:
                 ledger_entry = node['CreatedNode']
                 if (ledger_entry['LedgerEntryType'] == 'AccountRoot' and
-                    ledger_entry['NewFields']['Account'] == address):
+                        ledger_entry['NewFields']['Account'] == address):
                     balance_drops = int(ledger_entry['NewFields']['Balance'])
                     xrp_diff += balance_drops / 1000000
                     transfer_detected = True
@@ -521,142 +518,52 @@ def find_xrp_difference(tx, address):
                       ledger_entry['NewFields']['Account'] != address):
                     balance_drops = int(ledger_entry['NewFields']['Balance'])
                     xrp_amount = balance_drops / 1000000
-                    print(f"Funded new account {ledger_entry['NewFields']['Account']} with {xrp_amount} XRP")
+                    logger.info(f"Funded new account {ledger_entry['NewFields']['Account']} with {xrp_amount} XRP")
                     logger.info(f"Funded new account with {xrp_amount} XRP")
                     transfer_detected = True
 
         # Interpret the XRP difference
         if transfer_detected:
             if xrp_diff > 0:
-                print(f"Received {xrp_diff} XRP via {tx_type}")
                 logger.info(f"Received {xrp_diff} XRP via {tx_type}")
             elif xrp_diff < 0:
                 abs_diff = abs(xrp_diff)
                 if abs_diff <= 0.2:  # Adjust threshold as needed
-                    print(f"Paid {abs_diff} XRP in fees for {tx_type}")
                     logger.info(f"Paid {abs_diff} XRP in fees for {tx_type}")
                 else:
-                    print(f"Spent or reserved {abs_diff} XRP via {tx_type}")
                     logger.info(f"Spent or reserved {abs_diff} XRP via {tx_type}")
             else:
-                print("No net XRP change detected")
                 logger.info("No net XRP change detected")
         else:
-            print("No significant XRP transfer detected; likely only fee or reserve changes.")
             logger.info("No significant XRP transfer detected; likely only fee or reserve changes.")
 
     except Exception as e:
         logger.error(f"Error in find_xrp_difference: {str(e)}")
         raise Exception(f"{str(e)}")
-# def find_xrp_difference(tx, address):
-#     try:
-#         affected_nodes = [list(node.keys())[0] for node in tx['meta']['AffectedNodes']]
-#         print(f"Affected nodes detected: {affected_nodes}")
-#         logger.info(f"Affected nodes detected: {affected_nodes}")
-#         tx_type = tx['tx_json']['TransactionType']  # Get the transaction type
-#
-#         # Flag to track if we've processed a meaningful XRP transfer
-#         transfer_detected = False
-#
-#         for i in tx['meta']['AffectedNodes']:
-#             if 'CreatedNode' in affected_nodes and 'ModifiedNode' in affected_nodes:
-#                 ledger_entry = tx['meta']['AffectedNodes'][1].get('CreatedNode')
-#                 if ledger_entry and ledger_entry['LedgerEntryType'] == 'AccountRoot' and ledger_entry['NewFields'][
-#                     'Account'] != address:
-#                     new_address = ledger_entry['NewFields']['Account']
-#                     balance_drops = int(ledger_entry['NewFields']['Balance'])
-#                     xrp_amount = balance_drops / 1000000
-#                     print(f"A new account {new_address} was funded with {xrp_amount} XRP")
-#                     logger.info(f"A new account {new_address} was funded with {xrp_amount} XRP")
-#                     transfer_detected = True
-#                     return
-#             elif all(node == 'ModifiedNode' for node in affected_nodes):
-#                 ledger_entry = i.get('ModifiedNode')
-#                 if ledger_entry and ledger_entry['LedgerEntryType'] == 'AccountRoot' and ledger_entry['FinalFields'][
-#                     'Account'] == address:
-#                     if 'Balance' not in ledger_entry.get('PreviousFields', {}):
-#                         print("Balance didn't change")
-#                         logger.info("Balance didn't change")
-#                         return
-#                     old_balance = int(ledger_entry['PreviousFields']['Balance'])
-#                     new_balance = int(ledger_entry['FinalFields']['Balance'])
-#                     diff_in_drops = new_balance - old_balance
-#                     xrp_amount = diff_in_drops / 1000000
-#
-#                     # Transaction-specific logic to filter out fee-only changes
-#                     if tx_type in ['PaymentChannelClaim', 'PaymentChannelCreate', 'CheckCash', 'EscrowFinish',
-#                                    'EscrowCancel', 'XChainAccountCreateCommit', 'XChainAddAccountCreateAttestation',
-#                                    'XChainAddClaimAttestation', 'XChainClaim', 'XChainCommit', 'XChainCreateBridge',
-#                                    'XChainCreateClaimID', 'XChainModifyBridge', 'AMMClawback', 'AMMCreate', 'AMMDelete', 'AMMDeposit', 'AMMVote',
-#                                    'AMMWithdraw', 'Clawback', 'DIDDelete', 'DIDSet', 'LedgerStateFix', 'OracleDelete',
-#                                    'OracleSet']:
-#                         # These can deliver XRP to the account
-#                         if xrp_amount > 0:
-#                             print(f"Received {xrp_amount} XRP via {tx_type}")
-#                             logger.info(f"Received {xrp_amount} XRP via {tx_type}")
-#                             transfer_detected = True
-#                             return
-#                         elif xrp_amount < 0:
-#                             print(f"Spent {abs(xrp_amount)} XRP via {tx_type}")
-#                             logger.info(f"Spent {abs(xrp_amount)} XRP via {tx_type}")
-#                             transfer_detected = True
-#                             return
-#                     elif tx_type in ['PaymentChannelFund', 'OfferCreate', 'OfferCancel', 'Payment'
-#                                      'AccountSet', 'AccountDelete', 'SetRegularKey', 'TrustSet', 'EscrowCreate',
-#                                      'PaymentChannelCreate', 'TicketCreate', 'DepositPreauth', 'SignerListSet',
-#                                      'MPTokenAuthorize', 'MPTokenIssuanceCreate', 'MPTokenIssuanceDestroy',
-#                                      'MPTokenIssuanceSet', 'NFTokenAcceptOffer', 'NFTokenBurn', 'NFTokenCancelOffer',
-#                                      'NFTokenCreateOffer', 'NFTokenMint', 'CredentialAccept', 'CredentialCreate', 'CredentialDelete', 'CheckCancel', 'CheckCreate' ]:
-#                         # These typically only deduct fees or adjust reserves, not direct transfers
-#                         if xrp_amount < 0:
-#                             fee_or_reserve = abs(xrp_amount)
-#                             if fee_or_reserve <= 0.2:  # Typical fee range in XRP (adjust as needed)
-#                                 print(f"Paid {fee_or_reserve} XRP in fees for {tx_type}")
-#                                 logger.info(f"Paid {fee_or_reserve} XRP in fees for {tx_type}")
-#                             else:
-#                                 print(f"Reserved or spent {fee_or_reserve} XRP for {tx_type} (e.g., reserve)")
-#                                 logger.info(f"Reserved or spent {fee_or_reserve} XRP for {tx_type} (e.g., reserve)")
-#                             return
-#                         elif xrp_amount > 0:
-#                             print(f"Unexpected XRP increase of {xrp_amount} for {tx_type}")
-#                             logger.info(f"Unexpected XRP increase of {xrp_amount} for {tx_type}")
-#                             transfer_detected = True
-#                             return
-#             elif all(node == 'CreatedNode' for node in affected_nodes):
-#                 ledger_entry = i.get('CreatedNode')
-#                 if ledger_entry and ledger_entry['LedgerEntryType'] == 'AccountRoot' and ledger_entry['NewFields'][
-#                     'Account'] == address:
-#                     balance_drops = int(ledger_entry['NewFields']['Balance'])
-#                     xrp_amount = balance_drops / 1000000
-#                     print(f"Received {xrp_amount} XRP (account funded) via {tx_type}")
-#                     logger.info(f"Received {xrp_amount} XRP (account funded) via {tx_type}")
-#                     transfer_detected = True
-#                     return
-#         if not transfer_detected:
-#             print("No significant XRP transfer detected; likely only fee or reserve changes.")
-#             logger.info("No significant XRP transfer detected; likely only fee or reserve changes.")
-#     except Exception as e:
-#         logger.error(f"Error running find_xrp_difference. Ignoring error: {str(e)}")
-#         raise Exception(f"{str(e)}")
 
 
-# Check how much XRP was received, if any
 def count_xrp_received(tx, address):
     try:
         if tx['meta']['TransactionResult'] != 'tesSUCCESS':
-            print("Transaction failed")
-            logger.info("Transaction failed")
+            logger.info(f"Transaction failed")
             return
         if tx['tx_json']['TransactionType'] == 'Payment':
             if tx['tx_json']['Destination'] != address:
-                print("Not the destination of this payment.")
-                logger.info("Not the destination of this payment.")
+                logger.info(f"Not the destination of this payment.")
                 return
 
         logger.info(f"Transaction Type: {tx['tx_json']['TransactionType']}")
-        print(f"Transaction Type: {tx['tx_json']['TransactionType']}")
 
         find_xrp_difference(tx, address)
     except Exception as e:
         logger.error(f"Error running count_xrp_received. Ignoring error: {str(e)}")
         pass
+
+def get_ledger_index(client, ledger_index_status):
+    try:
+        ledger_response = client.request(Ledger(ledger_index=ledger_index_status))
+        return ledger_response.result["ledger_index"]
+    except Exception as e:
+        logger.error(f"Error getting ledger_index. Ignoring error: {str(e)} Returning None")
+        return None
+

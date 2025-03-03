@@ -75,3 +75,6 @@ ASF_FLAGS = [
 # Filter for specific types
 ACCOUNT_OBJECTS_TYPE = ["escrow", "offer", "payment_channel", "paychan", "ripple_state", "state", "check",
                            "ticket", "nftoken_page", "deposit_preauth", "signer_list","amm", "did"]
+
+MINT_NFT_TX_FLAG_OPTIONS = ['TF_TRANSFERABLE','TF_BURNABLE','TF_ONLY_XRP', 'TRANSFER_AND_BURNABLE',
+                            'TRANSFER_AND_XRP', 'BURNABLE_AND_XRP']

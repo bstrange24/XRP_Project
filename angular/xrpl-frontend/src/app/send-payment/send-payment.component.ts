@@ -85,7 +85,7 @@ export class SendPaymentComponent {
         return;
       }
     } catch (error: any) {
-        this.snackBar.open('Please enter a sender wallet seed.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+        this.snackBar.open('Invalid data. Please try again', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
         this.isLoading = false;
         return;
     }

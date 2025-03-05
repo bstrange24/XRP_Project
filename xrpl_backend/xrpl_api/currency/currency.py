@@ -4,7 +4,6 @@ import logging
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
 from tenacity import retry, wait_exponential, stop_after_attempt
 from xrpl import XRPLException
 from xrpl.account import does_account_exist
@@ -23,8 +22,7 @@ from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_
     MISSING_REQUEST_PARAMETERS, ERROR_INITIALIZING_CLIENT, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, LEAVING_FUNCTION_LOG
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new, process_unexpected_error
 from ..trust_lines.trust_line_util import create_trust_set_response
-from ..utilities.utilities import get_request_param, get_xrpl_client, validate_xrpl_response_data, \
-    total_execution_time_in_millis, count_xrp_received
+from ..utilities.utilities import get_xrpl_client, validate_xrpl_response_data, total_execution_time_in_millis, count_xrp_received
 
 logger = logging.getLogger('xrpl_app')
 

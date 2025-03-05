@@ -142,19 +142,19 @@ export class AccountInfoComponent implements OnInit {
                account: account,
           };
 
-          this.xrplService.getAccountInfo(account, bodyData).subscribe(
-               (data) => {
+          this.xrplService.getAccountInfo(account, bodyData).subscribe({
+               next: (data) => {
                     this.accountInfo = data;
                     this.errorMessage = '';
                     console.log('Account Info:', data);
                     this.cdr.detectChanges();
                },
-               (error) => {
+               error: (error) => {
                     this.errorMessage = 'Error fetching account info. Please check the account ID.';
                     console.error('Error fetching account info:', error);
                     this.cdr.detectChanges();
                }
-          );
+          });
      }
 
      loadMoreTransactions(): void {
@@ -176,13 +176,13 @@ export class AccountInfoComponent implements OnInit {
                next: (data) => {
                    console.log('API Response:', data);
                    console.log('Transactions length:', data?.transactions?.length);
-                   if (data && data.transactions) {
+                   if (data?.transactions) { 
                        const newTransactions = data.transactions.map((tx: any) => {
                            let additionalInfo: string;
                            let tx_type: string;
-                           let currency: string = 'N/A';
-                           let issuer: string = 'N/A';
-                           let value: string = 'N/A';
+                           let currency: string;
+                           let issuer: string;
+                           let value: string;
            
                            try {
                                switch (tx.tx_json.TransactionType) {
@@ -253,84 +253,6 @@ export class AccountInfoComponent implements OnInit {
                    console.log('Transaction history fetch completed.');
                }
            });
-
-          // this.xrplService.getAccountTransactionHistoryWithPaginations(this.wallet_address, this.currentPage, this.pageSize, bodyData).subscribe(
-          //      data => {
-          //           console.log('API Response:', data);
-          //           console.log('Transactions length:', data?.transactions?.length);
-          //           if (data && data.transactions) {
-          //                const newTransactions = data.transactions.map((tx: any) => {
-          //                     let additionalInfo: string;
-          //                     let tx_type: string;
-          //                     let currency: string = 'N/A';
-          //                     let issuer: string = 'N/A';
-          //                     let value: string = 'N/A';
-
-          //                     try {
-          //                          switch (tx.tx_json.TransactionType) {
-          //                               case 'TrustSet':
-          //                                    tx_type = 'SET TRUST LIMIT';
-          //                                    currency = tx.tx_json.LimitAmount?.currency || 'N/A';
-          //                                    issuer = tx.tx_json.LimitAmount?.issuer || 'N/A';
-          //                                    value = tx.tx_json.LimitAmount?.value || '0';
-          //                                    additionalInfo = `${tx_type} ${currency}$${value} ${currency}.${issuer}`;
-          //                                    break;
-          //                               case 'Payment':
-          //                                    tx_type = 'SEND';
-          //                                    if (typeof tx.meta.delivered_amount === 'string') {
-          //                                         value = (parseInt(tx.meta.delivered_amount) / 1000000).toFixed(2);
-          //                                         currency = 'XRP';
-          //                                         issuer = tx.tx_json.Destination || 'N/A';
-          //                                    } else {
-          //                                         currency = tx.meta.Amount?.currency || 'N/A';
-          //                                         issuer = tx.tx_json.Destination || 'N/A';
-          //                                         value = (parseInt(tx.meta.delivered_amount) / 1000000).toFixed(2) || '0';
-          //                                    }
-          //                                    additionalInfo = `${tx_type} ${value} ${currency} to ${issuer}`;
-          //                                    break;
-          //                               case 'AccountDelete':
-          //                                    tx_type = 'Account Delete';
-          //                                    currency = tx.tx_json.LimitAmount?.currency || 'N/A';
-          //                                    issuer = tx.tx_json.LimitAmount?.issuer || 'N/A';
-          //                                    value = tx.tx_json.LimitAmount?.value || '0';
-          //                                    additionalInfo = `${tx_type} ${currency}$${value} ${currency}.${issuer}`;
-          //                                    break;
-          //                               default:
-          //                                    additionalInfo = tx.tx_json.TransactionType;
-          //                          }
-          //                     } catch (error) {
-          //                          console.error('Error processing transaction:', tx.tx_json.TransactionType, error);
-          //                          additionalInfo = `${tx.tx_json.TransactionType} (Error processing details)`;
-          //                     }
-
-          //                     return {
-          //                          ...tx.tx_json,
-          //                          date: tx.close_time_iso,
-          //                          delivered_amount: tx.meta.delivered_amount ?? '',
-          //                          transaction_result: tx.meta.TransactionResult.indexOf('SUCCESS') > -1 ? 'Success' : tx.meta.TransactionResult,
-          //                          additional_information: additionalInfo,
-          //                          transaction_hash: tx.hash,
-          //                     };
-          //                });
-          //                this.transactions = [...this.transactions, ...newTransactions];
-          //                this.totalItems = data.total_count || 0; // Fix here
-          //                this.currentPage++;
-          //                this.hasMore = this.transactions.length < this.totalItems;
-          //                console.log('Fetch complete - Total items:', this.totalItems, 'Loaded:', this.transactions.length, 'Has more:', this.hasMore, 'Next page:', this.currentPage);
-          //           } else {
-          //                console.warn('No transactions in API response');
-          //                this.hasMore = false;
-          //           }
-          //           this.isLoading = false;
-          //           this.cdr.detectChanges();
-          //      },
-          //      error => {
-          //           console.error('Error fetching account transactions:', error);
-          //           this.isLoading = false;
-          //           this.hasMore = false;
-          //           this.cdr.detectChanges();
-          //      }
-          // );
      }
 
      onTabChange(event: MatTabChangeEvent): void {
@@ -346,10 +268,15 @@ export class AccountInfoComponent implements OnInit {
      loadAssets(): void {
           if (!this.wallet_address || this.isLoadingAssets) return;
 
+          const bodyData = {
+               account: this.wallet_address
+          };
+          console.log('Request body:', bodyData); 
+
           this.isLoadingAssets = true;
           console.log('Fetching assets for:', this.wallet_address);
-          this.xrplService.getAccountAssets(this.wallet_address).subscribe(
-               (data) => {
+          this.xrplService.getAccountAssets(this.wallet_address, bodyData).subscribe({
+               next: (data) => {
                     console.log('API Response for assets:', data);
 
                     if (data && typeof data === 'object' && data.account_nfts) {
@@ -370,14 +297,14 @@ export class AccountInfoComponent implements OnInit {
                     this.isLoadingAssets = false;
                     this.cdr.detectChanges();
                },
-               (error) => {
+               error: (error) => {
                     console.error('Error fetching account assets:', error);
                     this.errorMessage = 'Error fetching account assets. Please try again.';
                     this.assets = [];
                     this.isLoadingAssets = false;
                     this.cdr.detectChanges();
                }
-          );
+          });
      }
 
      @HostListener('wheel', ['$event'])

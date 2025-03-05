@@ -35,7 +35,6 @@
             <div class="box trust-line-header" *ngIf="trustLineResult && trustLineResult.status === 'success'">
               <div class="section box-header">
                 <div class="title">Trust Line Created</div>
-                <h1 class="classic">Success</h1>
               </div>
               <div class="box-content">
                 <div class="section header-container">
@@ -43,24 +42,16 @@
                     <div class="secondary details">
                       <ul>
                         <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Sender Seed:</span>
-                          <b style="display: inline-block;">{{ trustLineResult.sender_seed }}</b>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Hash:</span>
+                          <b style="display: inline-block;">{{ trustLineResult.result.hash }}</b>
                         </li>
                         <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Issuer Address:</span>
-                          <b style="display: inline-block;">{{ trustLineResult.issuer_address }}</b>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Fee:</span>
+                          <b style="display: inline-block;">{{ trustLineResult.result.tx_json.Fee }}</b>
                         </li>
                         <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Currency Code:</span>
-                          <b style="display: inline-block;">{{ trustLineResult.currency_code }}</b>
-                        </li>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Limit:</span>
-                          <b style="display: inline-block;">{{ trustLineResult.limit }}</b>
-                        </li>
-                        <li *ngIf="trustLineResult.transaction_hash">
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Transaction Hash:</span>
-                          <b style="display: inline-block;">{{ trustLineResult.transaction_hash }}</b>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Recieving Address:</span>
+                          <b style="display: inline-block;">{{ trustLineResult.result.tx_json.Account }}</b>
                         </li>
                       </ul>
                     </div>

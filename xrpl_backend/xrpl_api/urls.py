@@ -9,6 +9,7 @@ from .nft.nft import MintNft, GetAccountNft, BuyNft, CancelNftOffers, BurnNft, S
 from .offers.account_offers.account_offers import GetAccountOffers, CancelAccountOffers
 from .offers.book_offers.book_offers import GetBookOffers, CreateBookOffer
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
+from .test.offers_grok import CreateSellBookOffersGrok, BuyBookOffersGrok
 from .transactions.transactions import GetTransactionHistory, GetTransactionStatus
 from .trust_lines.trust_line import GetAccountTrustLines, SetTrustLines, RemoveTrustLine
 
@@ -56,7 +57,11 @@ urlpatterns = [
 
     # Endpoint to get active offers on an account.
     # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
-    path('get-account-offers/', GetAccountOffers.as_view(), name='get_account_offers'),
+    path('account/offers/', GetAccountOffers.as_view(), name='get_account_offers'),
+
+    path("create-book-offers-easy-grok/", CreateSellBookOffersGrok.as_view(), name="create_offer_view"),
+    path("create-buy-book-offers-easy-grok/", BuyBookOffersGrok.as_view(), name="buy_offer_view"),
+
 
     # Endpoint to cancel an offer on an account.
     # Example: http://127.0.0.1:8000/xrpl/create-book-offer/?wallet_address=raGfE6LfRpUXNjmSYRqUyhWkU429XeYgEg&currency=TST&value=25&sendes_seed=sEdS82hNoMmkM7GottuGAFVecYTxRPH

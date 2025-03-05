@@ -7,8 +7,6 @@ import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 })
 export class XrplService {
      private readonly apiUrl = 'http://localhost:8000/xrpl';
-     // private readonly apiPaginationUrl = 'http://127.0.0.1:8000/xrpl/transaction/history/';
-
      constructor(private readonly http: HttpClient) { }
 
      getAccountInfo(account: string, bodyData: any): Observable<any> {
@@ -20,14 +18,6 @@ export class XrplService {
           return this.http.post(`${this.apiUrl}/account/info/`, bodyData, {
                headers,
           });
-
-          // let params = new HttpParams().set('account', account);
-          // Make the HTTP GET request with the query parameter
-          // return this.http.get(`${this.apiUrl}/account/info/`, { 
-          //   params,
-          //   // headers: new HttpHeaders().set('Authorization', 'Bearer your-token'), // Example if API requires auth
-          //  });
-
      }
 
      getAccountTransactionHistoryWithPagination(account: string, bodyData: any): Observable<any> {
@@ -39,23 +29,17 @@ export class XrplService {
           return this.http.post(`${this.apiUrl}/transaction/history/`, bodyData, {
                headers,
           });
-
-          // let params = new HttpParams().set('account', account);
-          // Make the HTTP GET request with the query parameter
-          // return this.http.get(`${this.apiUrl}/transaction/history/`, { 
-          // params,
-          // headers: new HttpHeaders().set('Authorization', 'Bearer your-token'), // Example if API requires auth
-          //  });
      }
 
-     getAccountAssets(account: string): Observable<any> {
-          // Create HttpParams with the ledger_index query parameter
-          let params = new HttpParams().set('account', account);
+     getAccountAssets(account: string, bodyData: any): Observable<any> {
+          const headers = new HttpHeaders({
+               'Content-Type': 'application/json',
+          });
 
-          // Make the HTTP GET request with the query parameter
-          return this.http.get(`${this.apiUrl}/nfts/account/info/`, {
-               params,
-               // headers: new HttpHeaders().set('Authorization', 'Bearer your-token'), // Example if API requires auth
+          console.log('body:' + bodyData);
+          console.log('body:' + bodyData);
+          return this.http.post(`${this.apiUrl}/nfts/account/info/`, bodyData, {
+               headers,
           });
      }
 

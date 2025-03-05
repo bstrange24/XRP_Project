@@ -6,111 +6,116 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'app-create-trust-line',
-  standalone: true,
-  imports: [CommonModule, FormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule],
-  templateUrl: './create-trust-line.component.html',
-  styleUrls: ['./create-trust-line.component.css']
+     selector: 'app-create-trust-line',
+     standalone: true,
+     imports: [CommonModule, FormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+     templateUrl: './create-trust-line.component.html',
+     styleUrls: ['./create-trust-line.component.css']
 })
 export class CreateTrustLineComponent {
-  senderSeed: string = '';
-  issuerAddress: string = '';
-  currencyCode: string = '';
-  limit: string = '';
-  trustLineResult: any | null = null;
-  isLoading: boolean = false;
-  errorMessage: string = '';
+     senderSeed: string = '';
+     issuerAddress: string = '';
+     currencyCode: string = '';
+     limit: number = 0;
+     trustLineResult: any | null = null;
+     isLoading: boolean = false;
+     errorMessage: string = '';
 
-  constructor(
-    private readonly snackBar: MatSnackBar,
-    private readonly http: HttpClient
-  ) {}
+     constructor(
+          private readonly snackBar: MatSnackBar,
+          private readonly http: HttpClient
+     ) { }
 
-  // Validate XRP wallet address using xrpl
-  private isValidXrpAddress(address: string): boolean {
-    if (!address || typeof address !== 'string') return false;
-    
-    try {
-      return XRPL.isValidAddress(address.trim());
-    } catch (error) {
-      console.error('Error validating XRP address:', error);
-      return false;
-    }
-  }
+     // Validate XRP wallet address using xrpl
+     private isValidXrpAddress(address: string): boolean {
+          if (!address || typeof address !== 'string') return false;
 
-  // Validate 3-character currency code (e.g., USD, CAD, EUR)
-  private isValidCurrencyCode(code: string): boolean {
-    if (!code || typeof code !== 'string') return false;
-    const trimmedCode = code.trim().toUpperCase();
-    return /^[A-Z]{3}$/.test(trimmedCode); // Matches exactly 3 uppercase letters
-  }
+          try {
+               return XRPL.isValidAddress(address.trim());
+          } catch (error) {
+               console.error('Error validating XRP address:', error);
+               return false;
+          }
+     }
 
-  // Validate limit (positive number)
-  private isValidLimit(limit: string): boolean {
-    const num = Number(limit);
-    return !isNaN(num) && num > 0;
-  }
+     // Validate 3-character currency code (e.g., USD, CAD, EUR)
+     private isValidCurrencyCode(code: string): boolean {
+          if (!code || typeof code !== 'string') return false;
+          const trimmedCode = code.trim().toUpperCase();
+          return /^[A-Z]{3}$/.test(trimmedCode); // Matches exactly 3 uppercase letters
+     }
 
-  async createTrustLine(): Promise<void> {
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.trustLineResult = null;
+     // Validate limit (positive number)
+     private isValidLimit(limit: number): boolean {
+          const num = Number(limit);
+          return !isNaN(num) && num > 0;
+     }
 
-    // Validate inputs
-    if (!this.senderSeed.trim()) {
-      this.snackBar.open('Please enter a wallet seed.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-      this.isLoading = false;
-      return;
-    }
-    if (!this.issuerAddress.trim() || !this.isValidXrpAddress(this.issuerAddress)) {
-      this.snackBar.open('Please enter a valid issuer XRP address.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-      this.isLoading = false;
-      return;
-    }
-    if (!this.currencyCode.trim() || !this.isValidCurrencyCode(this.currencyCode)) {
-      this.snackBar.open('Please enter a valid 3-character currency code (e.g., CAD, USD).', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-      this.isLoading = false;
-      return;
-    }
-    if (!this.limit.trim() || !this.isValidLimit(this.limit)) {
-      this.snackBar.open('Please enter a valid positive limit.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-      this.isLoading = false;
-      return;
-    }
+     async createTrustLine(): Promise<void> {
+          this.isLoading = true;
+          this.errorMessage = '';
+          this.trustLineResult = null;
 
-    try {
-      const params = new HttpParams()
-        .set('sender_seed', this.senderSeed.trim())
-        .set('issuer_address', this.issuerAddress.trim())
-        .set('currency_code', this.currencyCode.trim().toUpperCase())
-        .set('limit', this.limit.trim());
+          // Validate inputs
+          if (!this.senderSeed.trim()) {
+               this.snackBar.open('Please enter a wallet seed.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+               this.isLoading = false;
+               return;
+          }
+          if (!this.issuerAddress.trim() || !this.isValidXrpAddress(this.issuerAddress)) {
+               this.snackBar.open('Please enter a valid issuer XRP address.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+               this.isLoading = false;
+               return;
+          }
+          if (!this.currencyCode.trim() || !this.isValidCurrencyCode(this.currencyCode)) {
+               this.snackBar.open('Please enter a valid 3-character currency code (e.g., CAD, USD).', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+               this.isLoading = false;
+               return;
+          }
+          if (!this.limit || !this.isValidLimit(this.limit)) {
+               this.snackBar.open('Please enter a valid positive limit.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
+               this.isLoading = false;
+               return;
+          }
 
-      const response = await firstValueFrom(this.http.get('http://localhost:8000/xrpl/set-trust-line/', { params }));
-      this.trustLineResult = response;
-      this.isLoading = false;
-      console.log('Trust line created:', response);
-    } catch (error: any) {
-      console.error('Error creating trust line:', error);
-      let errorMessage: string;
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'object' && error !== null && 'message' in error) {
-        errorMessage = (error as any).message;
-      } else {
-        errorMessage = 'An unexpected error occurred while creating the trust line.';
-      }
-      this.trustLineResult = { status: 'error', message: errorMessage };
-      this.errorMessage = errorMessage;
-      this.snackBar.open(this.errorMessage, 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      this.isLoading = false;
-    }
-  }
+          try {
+               const bodyData = {
+                    sender_seed: this.senderSeed.trim(),
+                    issuer_address: this.issuerAddress.trim(),
+                    currency_code: this.currencyCode.trim(),
+                    limit: this.limit
+               };
+
+               const headers = new HttpHeaders({
+                    'Content-Type': 'application/json',
+               });
+
+               const response = await firstValueFrom(this.http.post('http://127.0.0.1:8000/xrpl/trustline/set/', bodyData, { headers }));
+               this.trustLineResult = response;
+               this.isLoading = false;
+               console.log('Trust line created:', response);
+          } catch (error: any) {
+               console.error('Error creating trust line:', error);
+               let errorMessage: string;
+               if (error instanceof Error) {
+                    errorMessage = error.message;
+               } else if (typeof error === 'object' && error !== null && 'message' in error) {
+                    errorMessage = (error).message;
+               } else {
+                    errorMessage = 'An unexpected error occurred while creating the trust line.';
+               }
+               this.trustLineResult = { status: 'error', message: errorMessage };
+               this.errorMessage = errorMessage;
+               this.snackBar.open(this.errorMessage, 'Close', {
+                    duration: 3000,
+                    panelClass: ['error-snackbar']
+               });
+               this.isLoading = false;
+          }
+     }
 }

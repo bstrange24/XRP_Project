@@ -67,10 +67,10 @@ class GetAccountOffers(View):
             if not self.client:
                 raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
-            if account is None:
-                account = request.GET['account']
+            # Extract wallet address from request parameters
+            data = json.loads(request.body)
+            account = data.get("account")
 
-            # account = self.request.GET['account']
             if not account or not validate_xrp_wallet(account):
                 raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
 
@@ -106,10 +106,10 @@ class GetAccountOffers(View):
                     break
 
             # Extract pagination parameters from the request
-            page = self.request.GET.get('page', 1)
+            page = data.get("page", 1)
             page = int(page) if page else 1
 
-            page_size = self.request.GET.get('page_size', 10)
+            page_size = data.get("page_size", 1)
             page_size = int(page_size) if page_size else 1
 
             # Paginate the account lines using Django's Paginator

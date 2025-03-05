@@ -15,6 +15,15 @@ def create_trust_set_transaction(currency_code, limit_drops, issuer_address, sen
         last_ledger_sequence=current_ledger + 300  # Valid for ~60-100 seconds
     )
 
+def create_trust_set_sell_transaction(sender_wallet, currency_code, issuer_address, limit_drops):
+    return TrustSet(
+        account=sender_wallet,  # Set the sender wallet as the account for the transaction
+        limit_amount=IssuedCurrencyAmount(
+            currency=currency_code,  # The currency code for the trust line
+            issuer=issuer_address,  # The issuer of the trust line
+            value=str(limit_drops),
+        ),
+    )
 
 def create_trust_set_response(response, issuer, currency, limit):
     if limit == 'EMPTY_LIMIT':

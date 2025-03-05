@@ -1,6 +1,8 @@
+import json
 import logging
 import time
 from decimal import Decimal
+from http.cookiejar import debug
 
 from django.apps import apps
 from django.core.paginator import Paginator
@@ -12,6 +14,7 @@ from xrpl import XRPLException
 from xrpl.asyncio.account import get_balance, does_account_exist
 from xrpl.asyncio.clients import XRPLRequestFailureException, AsyncWebsocketClient
 from xrpl.asyncio.transaction import autofill_and_sign, XRPLReliableSubmissionException, submit_and_wait
+from xrpl.asyncio.wallet import generate_faucet_wallet
 from xrpl.core.addresscodec import XRPLAddressCodecException
 from xrpl.models import XRP, IssuedCurrencyAmount, BookOffers, AccountOffers, AccountInfo, TrustSet, Payment, \
     AccountLines, OfferCreate
@@ -32,6 +35,149 @@ from ...utilities.utilities import total_execution_time_in_millis, get_xrpl_clie
     validate_xrpl_response_data, validate_xrp_wallet
 
 logger = logging.getLogger('xrpl_app')
+
+
+@method_decorator(csrf_exempt, name='dispatch')  # Apply CSRF exemption to the entire class
+class CreateBookOffers(View):
+    """
+    A class-based Django view to create book offers (buy/sell orders) on the XRPL TestNet with a new USD issuer.
+    Manages trustlines and handles POST requests from Postman.
+    Uses USD as the currency.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize the class with a JSON RPC client and create a new issuer wallet.
+        Set up the two predefined accounts and check/create trustlines.
+        """
+        super().__init__(*args, **kwargs)
+        if not self.client:
+            self.client = get_xrpl_client()
+        if not self.client:
+            raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+        # Create a new wallet to act as the USD issuer (funded via TestNet faucet)
+        self.usd_issuer_wallet = generate_faucet_wallet(self.client)
+
+        # Define the two TestNet accounts with their seeds
+        self.account1 = Wallet(seed="sEdVg7gRSeQ7D6jMTwWCENsJK742qxT")
+        self.account2 = Wallet(seed="sEdS5zxsgGbbtMKWkkBt3kdAvEBXdbY")
+
+        # Check and create trustlines if they don't exist
+        self._ensure_trustlines()
+
+    def _ensure_trustlines(self):
+        """
+        Check for trustlines between the issuer and the two accounts.
+        Create trustlines if they don't exist.
+        """
+        usd_currency = {"currency": "USD", "issuer": self.usd_issuer_wallet.classic_address}
+
+        # Check trustlines for account1
+        account1_lines = self.client.request(AccountLines(account=self.account1.classic_address)).result.get("lines",
+                                                                                                             [])
+        has_trustline1 = any(line["currency"] == "USD" and line["account"] == self.usd_issuer_wallet.classic_address
+                             for line in account1_lines)
+
+        if not has_trustline1:
+            trust_tx1 = TrustSet(
+                account=self.account1.classic_address,
+                limit_amount={"currency": "USD", "issuer": self.usd_issuer_wallet.classic_address, "value": "1000000"}
+            )
+            submit_and_wait(trust_tx1, self.client, self.account1)
+
+        # Check trustlines for account2
+        account2_lines = self.client.request(AccountLines(account=self.account2.classic_address)).result.get("lines",
+                                                                                                             [])
+        has_trustline2 = any(line["currency"] == "USD" and line["account"] == self.usd_issuer_wallet.classic_address
+                             for line in account2_lines)
+
+        if not has_trustline2:
+            trust_tx2 = TrustSet(
+                account=self.account2.classic_address,
+                limit_amount={"currency": "USD", "issuer": self.usd_issuer_wallet.classic_address, "value": "1000000"}
+            )
+            submit_and_wait(trust_tx2, self.client, self.account2)
+
+    def create_offer(self, account_seed, taker_gets_amount, taker_pays_amount, is_buy=True):
+        """
+        Create a book offer (buy or sell) on the XRPL TestNet.
+
+        Args:
+            account_seed (str): Seed of the account creating the offer.
+            taker_gets_amount (float): Amount the taker gets (USD for buy, XRP for sell).
+            taker_pays_amount (float): Amount the taker pays (XRP for buy, USD for sell).
+            is_buy (bool): True for buy offer (USD for XRP), False for sell (XRP for USD).
+
+        Returns:
+            dict: Response containing the transaction result.
+        """
+        if account_seed == self.account1.seed:
+            wallet = self.account1
+        elif account_seed == self.account2.seed:
+            wallet = self.account2
+        else:
+            return {"error": "Invalid account seed provided"}
+
+        usd_currency = {
+            "currency": "USD",
+            "issuer": self.usd_issuer_wallet.classic_address,
+            "value": str(taker_gets_amount if is_buy else taker_pays_amount)
+        }
+        xrp_amount = str(int(float(taker_pays_amount if is_buy else taker_gets_amount) * 1000000))
+
+        offer_tx = BookOffers(
+            account=wallet.classic_address,
+            taker_gets=usd_currency if is_buy else xrp_amount,
+            taker_pays=xrp_amount if is_buy else usd_currency,
+            flags=0
+        )
+
+        try:
+            response = submit_and_wait(offer_tx, self.client, wallet)
+            tx_hash = response.result["hash"]
+            tx_response = self.client.request(Tx(transaction=tx_hash))
+            tx_details = tx_response.result
+
+            return {
+                "status": "success",
+                "tx_hash": tx_hash,
+                "details": tx_details
+            }
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests for creating book offers on XRPL TestNet.
+        Expects JSON body with account_seed, taker_gets_amount, taker_pays_amount, and is_buy.
+        """
+        try:
+            data = json.loads(request.body)
+            required_fields = ["account_seed", "taker_gets_amount", "taker_pays_amount", "is_buy"]
+            if not all(field in data for field in required_fields):
+                return JsonResponse({"error": "Missing required fields"}, status=400)
+
+            account_seed = data["account_seed"]
+            taker_gets_amount = float(data["taker_gets_amount"])
+            taker_pays_amount = float(data["taker_pays_amount"])
+            is_buy = data["is_buy"]
+
+            result = self.create_offer(account_seed, taker_gets_amount, taker_pays_amount, is_buy)
+            return JsonResponse(result)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+        except ValueError as e:
+            return JsonResponse({"error": f"Invalid data: {str(e)}"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests (optional, returns a simple message or error).
+        """
+        return JsonResponse({"error": "Method not allowed, use POST"}, status=405)
 
 
 @method_decorator(csrf_exempt, name="dispatch")

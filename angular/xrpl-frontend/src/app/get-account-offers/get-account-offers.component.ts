@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator'; // For pagination
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
 import { WalletService } from '../services/wallet-services/wallet.service';
@@ -55,6 +55,7 @@ export class GetAccountOffersComponent implements OnInit {
   errorMessage: string = '';
   displayedColumns: string[] = ['flags', 'quality', 'seq', 'taker_gets', 'taker_pays_currency', 'taker_pays_issuer', 'taker_pays_value'];
   connectedWallet: XamanWalletData | null = null;
+  hasFetched: boolean = false;
 
   constructor(
     private readonly snackBar: MatSnackBar,
@@ -96,6 +97,18 @@ export class GetAccountOffersComponent implements OnInit {
     }
 
     try {
+      const bodyData = {
+        account: this.account.trim(), 
+        page: this.currentPage.toString(),
+        page_size: this.pageSize.toString()
+  
+      };
+
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+      });
+
+
       const params = new HttpParams()
         .set('account', this.account.trim())
         .set('page', this.currentPage.toString())
@@ -105,6 +118,7 @@ export class GetAccountOffersComponent implements OnInit {
       this.offers = response.offers || [];
       this.totalOffers = response.total_offers || 0;
       this.isLoading = false;
+      this.hasFetched = true;
       console.log('Account offers retrieved:', response);
     } catch (error: any) {
       console.error('Error retrieving account offers:', error);
@@ -122,11 +136,12 @@ export class GetAccountOffersComponent implements OnInit {
         panelClass: ['error-snackbar']
       });
       this.isLoading = false;
+      this.hasFetched = true;
     }
   }
 
   onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex + 1; // Material Paginator is 0-based, API expects 1-based
+    this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
     this.getAccountOffers();
   }

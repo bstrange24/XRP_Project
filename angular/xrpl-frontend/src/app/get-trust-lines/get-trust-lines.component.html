@@ -80,14 +80,25 @@
               <!-- Paginator -->
               <mat-paginator [length]="totalAccountLines" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25]" (page)="onPageChange($event)"></mat-paginator>
             </div>
+
+            <!-- Display "No Trustlines" Message -->
+          <div class="no-trustlines-message" *ngIf="trustLines.length === 0 && !isLoading && !errorMessage && hasFetched">
+            <p>There are no trust lines for this account.</p>
+          </div>
   
             <!-- Display Error Message if there’s an error -->
             <div class="error-message" *ngIf="errorMessage">
               <p>{{ errorMessage }}</p>
             </div>
+
+             <!-- Loading State -->
+          <div class="loading" *ngIf="isLoading">
+            <p>Loading offers...</p>
+          </div>
   
             <!-- Loading State -->
-            <div *ngIf="!trustLines.length && !errorMessage && !isLoading" class="loading">
+            <div class="loading" *ngIf="!hasFetched && !isLoading && !errorMessage">
+            <!-- <div class="loading" *ngIf="!trustLines.length && !errorMessage && !isLoading"> -->
               Enter an account address and click "Get Trust Lines" to retrieve trust lines.
             </div>
           </div>

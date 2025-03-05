@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
 
@@ -97,13 +97,24 @@ export class SendPaymentComponent {
     console.log('amountXrp before after conversion:', this.amountXrp, typeof this.amountXrp)
 
     try {
-      // Ensure amountXrp is a string and trimmed before setting in params
-      const params = new HttpParams()
-        .set('sender_seed', this.senderSeed.trim())
-        .set('receiver_account', this.receiverAccount.trim())
-        .set('amount_xrp', this.amountXrp.trim()); // Trim the string value
+      const bodyData = {
+        sender_seed: this.senderSeed.trim(), 
+        receiver_account: this.receiverAccount.trim(),
+        amount_xrp: this.amountXrp.trim()
+      };
+      
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+      });
+      
+      const response = await firstValueFrom(
+        this.http.post(
+          'http://127.0.0.1:8000/xrpl/payment/send-xrp/',
+          bodyData,
+          { headers }
+        )
+      );
 
-      const response = await firstValueFrom(this.http.get('http://127.0.0.1:8000/xrpl/send-xrp-payment/', { params }));
       this.paymentResult = response;
       this.isLoading = false;
       console.log('Payment sent:', response);

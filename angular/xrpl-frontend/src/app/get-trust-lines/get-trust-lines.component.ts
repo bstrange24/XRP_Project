@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
 import { WalletService } from '../services/wallet-services/wallet.service';
@@ -55,6 +55,7 @@ export class GetTrustLinesComponent implements OnInit {
   errorMessage: string = '';
   displayedColumns: string[] = ['account', 'balance', 'currency', 'limit', 'limit_peer', 'no_ripple', 'no_ripple_peer', 'quality_in', 'quality_out'];
   connectedWallet: XamanWalletData | null = null;
+  hasFetched: boolean = false;
 
   constructor(
     private readonly snackBar: MatSnackBar,
@@ -96,15 +97,29 @@ export class GetTrustLinesComponent implements OnInit {
     }
 
     try {
-      const params = new HttpParams()
-        .set('account', this.account.trim())
-        .set('page', this.currentPage.toString())
-        .set('page_size', this.pageSize.toString());
+      const bodyData = {
+        account: this.account.trim(), 
+        page: this.currentPage.toString(),
+        page_size: this.pageSize.toString()
+  
+      };
 
-      const response = await firstValueFrom(this.http.get<TrustLinesResponse>('http://127.0.0.1:8000/xrpl/get-account-trust-lines/', { params }));
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+      });
+
+      const response = await firstValueFrom(
+        this.http.post<TrustLinesResponse>(
+          'http://127.0.0.1:8000/xrpl/trustline/account/info/',
+          bodyData,
+          { headers }
+        )
+      );
+
       this.trustLines = response.trust_lines || [];
       this.totalAccountLines = response.total_account_lines || 0;
       this.isLoading = false;
+      this.hasFetched = true;
       console.log('Trust lines retrieved:', response);
     } catch (error: any) {
       console.error('Error retrieving trust lines:', error);
@@ -121,12 +136,13 @@ export class GetTrustLinesComponent implements OnInit {
         duration: 3000,
         panelClass: ['error-snackbar']
       });
+      this.hasFetched = true;
       this.isLoading = false;
     }
   }
 
   onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex + 1; // Material Paginator is 0-based, API expects 1-based
+    this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
     this.getTrustLines();
   }

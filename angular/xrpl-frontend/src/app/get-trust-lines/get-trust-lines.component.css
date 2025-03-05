@@ -52,6 +52,12 @@
     border-radius: 4px;
   }
   
+  .no-trustlines-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+
   .loading {
     text-align: center;
     padding: 20px;

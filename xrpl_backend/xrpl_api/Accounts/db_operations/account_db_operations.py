@@ -4,9 +4,12 @@ import logging
 import django
 from django.db import IntegrityError
 
+# from ..account_utils import get_account_set_flags_for_database_transaction
 from ..models.account_models import XrplAccountData, AccountConfigurationTransaction, AffectedNode, \
     TxJson, AccountConfigurationTransactionMeta
 from ...utilities.utilities import get_account_set_flags_for_database_transaction
+
+# from ...utilities.utilities import get_account_set_flags_for_database_transaction
 
 logger = logging.getLogger('xrpl_app')
 

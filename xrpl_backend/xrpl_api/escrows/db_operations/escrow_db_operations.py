@@ -1,13 +1,22 @@
 import logging
+import time
+
 import django
 from ..models.escrow_models import EscrowTransaction, EscrowTransactionAffectedNode
 import pytz
+
+from ...constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG
+from ...utilities.utilities import total_execution_time_in_millis
 
 logger = logging.getLogger('xrpl_app')
 
 from datetime import datetime
 
 def save_create_escrow_response(response, fulfillment):
+    start_time = time.time()
+    function_name = 'save_create_escrow_response'
+    logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+
     try:
         # Parse top-level fields
         tx_hash = response["hash"]
@@ -89,3 +98,5 @@ def save_create_escrow_response(response, fulfillment):
         logger.error(f"DataError caught saving transaction history data: {e}")
     except Exception as e:
         logger.error(f"Unexpected exception caught saving transaction history data: {e}")
+    finally:
+        logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))

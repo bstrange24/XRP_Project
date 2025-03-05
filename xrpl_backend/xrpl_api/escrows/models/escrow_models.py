@@ -16,8 +16,8 @@ class EscrowTransaction(models.Model):
     account = models.CharField(max_length=35)  # XRPL address
     amount = models.CharField(max_length=20)  # XRP in drops
     cancel_after = models.PositiveIntegerField(null=True, blank=True)
-    condition = models.CharField(max_length=72, null=True, blank=True)
-    fulfillment = models.CharField(max_length=72, null=True, blank=True)
+    condition = models.CharField(max_length=80, null=True, blank=True)  # 74 + buffer
+    fulfillment = models.CharField(max_length=80, null=True, blank=True)  # 68 + buffer
     destination = models.CharField(max_length=35)
     fee = models.CharField(max_length=10)
     finish_after = models.PositiveIntegerField(null=True, blank=True)
@@ -64,7 +64,7 @@ class EscrowTransactionAffectedNode(models.Model):
     owner_count = models.PositiveIntegerField(null=True, blank=True)
     sequence = models.PositiveIntegerField(null=True, blank=True)
     root_index = models.CharField(max_length=64, null=True, blank=True)
-    condition = models.CharField(max_length=72, null=True, blank=True)  # For Escrow
+    condition = models.CharField(max_length=80, null=True, blank=True)  # 74 + buffer
     destination = models.CharField(max_length=35, null=True, blank=True)  # For Escrow
     cancel_after = models.PositiveIntegerField(null=True, blank=True)
     finish_after = models.PositiveIntegerField(null=True, blank=True)

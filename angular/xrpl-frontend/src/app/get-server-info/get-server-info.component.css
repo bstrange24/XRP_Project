@@ -1,49 +1,63 @@
 /* get-server-info.component.css */
 .app {
-    background-color: white;
-    color: black;
-  }
-  
-  .centered-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: calc(100vh - 0px - 0px);
-    padding: 0 15px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    background-color: white;
-  }
-  
-  .server-info-box {
-    background-color: white;
-    padding: 20px;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 1200px;
-  }
-  
-  .info-container {
-    margin-top: 20px;
-  }
-  
-  .details-box {
-    background-color: #f5f5f5;
-    padding: 15px;
-    border-radius: 4px;
-  }
-  
-  .error-message {
-    color: red;
-    text-align: center;
-    padding: 20px;
-    background-color: #ffebee;
-    border-radius: 4px;
-  }
-  
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: #666;
-  }
+  background-color: white;
+  color: black;
+}
+
+.centered-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: calc(100vh - 0px - 0px); /* Changed to min-height to allow growth if needed */
+  padding: 0 15px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  background-color: white;
+}
+
+.server-info-box {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box; /* Ensures padding doesn’t increase width beyond max-width */
+}
+
+.info-container {
+  margin-top: 20px;
+}
+
+.details-box {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  max-height: 60vh; /* Limits the height to 60% of the viewport height */
+  overflow-y: auto; /* Enables vertical scrolling when content overflows */
+  line-height: 1.5; /* Improves readability */
+}
+
+.details-box h4,
+.details-box h5 {
+  margin: 10px 0 5px; /* Adds spacing around headings */
+}
+
+.details-box p,
+.details-box li {
+  margin: 5px 0; /* Adds spacing between items */
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  padding: 20px;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}

@@ -16,12 +16,25 @@ from xrpl.core.keypairs import derive_keypair, derive_classic_address
 from xrpl.ledger import get_fee
 from xrpl.models import Response, AccountSetAsfFlag, Ledger
 from xrpl.utils import xrp_to_drops, drops_to_xrp
+from cryptography.fernet import Fernet
+from django.conf import settings
 
 from ..constants.constants import BASE_RESERVE, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS, ASF_FLAGS
 from ..errors.error_handling import handle_error, error_response
 from ..transactions.transactions_util import prepare_tx
 
 logger = logging.getLogger('xrpl_app')
+
+
+# Encryption key from settings
+# xrpl_config = apps.get_app_config('xrpl_api')
+# cipher = Fernet(xrpl_config.SEED_ENCRYPTION_KEY)
+
+# def encrypt_seed(seed: str) -> str:
+#     return cipher.encrypt(seed.encode()).decode('utf-8')
+
+# def decrypt_seed(encrypted_seed: str) -> str:
+#     return cipher.decrypt(encrypted_seed.encode()).decode('utf-8')
 
 
 def total_execution_time_in_millis(start_time):
@@ -131,7 +144,7 @@ def calculate_max_transferable(balance: float) -> int:
     return int(xrp_to_drops(max_transferable_xrp)) if max_transferable_xrp > 0 else 0
 
 
-def get_request_param(request, key, default=None, convert_func=None):
+def get_request_param(request, data, key, default=None, convert_func=None):
     """
     Retrieves a parameter from an HTTP request.
 
@@ -154,7 +167,9 @@ def get_request_param(request, key, default=None, convert_func=None):
         # Retrieve a string parameter 'username' with a default value 'guest'
         username = get_request_param(request, 'username', default='guest')
     """
-    value = request.GET.get(key) or request.data.get(key, default)
+    value = data.get(key, default)
+    # value = request.get(key, default)
+    # value = request.GET.get(key) or request.data.get(key, default)
     if convert_func and value is not None:
         return convert_func(value)  # Apply conversion function if provided
     return value
@@ -401,25 +416,8 @@ def get_cached_data(cache_key, wallet_address, function_name):
     return None
 
 
-def parse_boolean_param(request, param_name, default="false"):
-    """
-    Parses a boolean parameter from an HTTP request.
-
-    Args:
-        request: The HTTP request object containing the parameters.
-        param_name (str): The name of the parameter to be parsed as a boolean.
-        default (str): The default value to use if the parameter is not present. Defaults to "false".
-
-    Returns:
-        bool: True if the parameter value indicates a true state, False otherwise.
-
-    This function retrieves the specified parameter from an HTTP request and attempts to parse it as a boolean.
-    It uses the `get_request_param` function to fetch the parameter value, converting it to lowercase for case-insensitive comparison.
-    The function returns True if the parameter's value is in the set ["true", "1", "yes"], otherwise it returns False.
-    If the parameter is not present, it uses the provided default value and proceeds with the parsing.
-    """
-    # Retrieve the parameter value from the request, using the specified default if not present
-    value = get_request_param(request, param_name, default=default).lower()
+def parse_boolean_param(request, param_name, data, default="false"):
+    value = get_request_param(request, data, param_name, default=default).lower()
 
     # Check if the parsed value indicates a true state
     return value in ["true", "1", "yes"]
@@ -431,8 +429,9 @@ def map_request_parameters_to_flag_variables():
     }
 
 
-def get_account_set_flags_from_request_parameters(self):
-    params = {flag: get_query_param(self.query_params, flag) for flag in ASF_FLAGS}
+def get_account_set_flags_from_request_parameters(self, request_data):
+    # params = {flag: get_query_param(self.query_params, flag) for flag in ASF_FLAGS}
+    params = {flag: get_query_param(request_data, flag) for flag in ASF_FLAGS}
 
     # Return only those keys and values where value is not None.
     non_none_request_parameters = {key: value for key, value in params.items() if value is not None}
@@ -559,10 +558,20 @@ def count_xrp_received(tx, address):
         logger.error(f"Error running count_xrp_received. Ignoring error: {str(e)}")
         pass
 
+
 def get_ledger_index(client, ledger_index_status):
     try:
         ledger_response = client.request(Ledger(ledger_index=ledger_index_status))
         return ledger_response.result["ledger_index"]
+    except Exception as e:
+        logger.error(f"Error getting ledger_index. Ignoring error: {str(e)} Returning None")
+        return None
+
+
+def get_ledger_current_index(client, ledger_index_status):
+    try:
+        ledger_response = client.request(Ledger(ledger_index=ledger_index_status))
+        return ledger_response.result["ledger_current_index"]
     except Exception as e:
         logger.error(f"Error getting ledger_index. Ignoring error: {str(e)} Returning None")
         return None

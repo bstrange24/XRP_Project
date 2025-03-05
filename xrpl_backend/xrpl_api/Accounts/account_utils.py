@@ -65,19 +65,19 @@ def process_flag(sender_address, flag, client, sender_wallet, flags_to_enable):
     return tx_response.result
 
 
-def get_account_set_flags(self):
+def get_account_set_flags(self, data):
     flags_to_enable = []
     flags_to_disable = []
 
     flag_params = map_request_parameters_to_flag_variables()
     logger.info(f"Mapping of request parameters to flags: {flag_params}")
 
-    non_none_request_parameters = get_account_set_flags_from_request_parameters(self)
+    non_none_request_parameters = get_account_set_flags_from_request_parameters(self, data)
     logger.info(f"Non-None request parameters: {non_none_request_parameters}")
 
     for param_name, flag_value in flag_params.items():
         if param_name in non_none_request_parameters:
-            flag_state = parse_boolean_param(self, param_name)
+            flag_state = parse_boolean_param(self, param_name, data)
             logger.info(f"param_name: {param_name}, flag_value: {flag_value}, flag_state: {flag_state}")
             if flag_state:
                 flags_to_enable.append(flag_value)

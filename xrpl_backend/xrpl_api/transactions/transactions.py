@@ -3,7 +3,9 @@ import logging
 import time
 
 from django.core.paginator import Paginator
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from tenacity import wait_exponential, stop_after_attempt, retry
 from xrpl import XRPLException
@@ -12,10 +14,10 @@ from xrpl.asyncio.clients import XRPLRequestFailureException
 from xrpl.utils import XRPRangeException
 
 from .db_operations.transaction_db_operations import save_transaction_history
-from .transactions_util import transaction_history_response, prepare_tx, transaction_status_response
-from ..accounts.account_utils import prepare_account_tx, prepare_account_tx_with_pagination, \
+from .transactions_util import prepare_tx, transaction_status_response
+from ..accounts.account_utils import prepare_account_tx_with_pagination, \
     account_tx_with_pagination_response
-from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
+from ..constants.constants import ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, ERROR_FETCHING_TRANSACTION_HISTORY, \
     INVALID_TRANSACTION_HASH, \
     ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER
@@ -25,82 +27,33 @@ from ..utilities.utilities import get_xrpl_client, total_execution_time_in_milli
 
 logger = logging.getLogger('xrpl_app')
 
+@method_decorator(csrf_exempt, name="dispatch")
+class GetTransactionHistory(View):
+    def __init__(self):
+        super().__init__()
+        self.client = None  # Lazy-loaded client
 
-class Transactions(View):
+    def post(self, request, *args, **kwargs):
+        return self.get_transaction_history_with_pagination(request)
 
-    @api_view(['GET'])
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_transaction_history(self, account, previous_transaction_id):
-        start_time = time.time()  # Capture the start time
-        function_name = 'get_transaction_history'
-        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+    def get(self, request, *args, **kwargs):
+        return self.get_transaction_history_with_pagination(request)
 
-        try:
-            # Validate the provided wallet address
-            if not account or not validate_xrp_wallet(account):
-                raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
-
-            # Validate the format of the transaction hash
-            if not is_valid_transaction_hash(previous_transaction_id):
-                raise XRPLException(error_response(INVALID_TRANSACTION_HASH))
-
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            client = get_xrpl_client()
-            if not client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
-            if not does_account_exist(account, client):
-                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(account)))
-
-            # Prepare an AccountTx request to fetch transactions for the given account
-            account_tx_request = prepare_account_tx(account)
-
-            # Send the request to XRPL to get transaction history
-            account_tx_response = client.request(account_tx_request)
-
-            # Validate client response. Raise exception on error
-            if validate_xrpl_response_data(account_tx_response):
-                process_transaction_error(account_tx_response)
-
-            # Check if the response contains any transactions
-            if 'transactions' in account_tx_response.result:
-                for transaction_tx in account_tx_response.result['transactions']:
-                    # Look for the specific transaction by comparing hash
-                    # Match the actual transaction hash
-                    if str(transaction_tx['hash']) == previous_transaction_id:
-                        logger.debug("Transaction found:")
-                        logger.debug(json.dumps(transaction_tx, indent=4, sort_keys=True))
-
-                        # Insert transaction in database, Skip it the record already exists.
-                        if transaction_tx:
-                            save_transaction_history(transaction_tx)
-
-                        # Prepare and return the found transaction
-                        return transaction_history_response(transaction_tx)
-
-                # If no match is found after checking all transactions
-                raise XRPLException(error_response(ERROR_FETCHING_TRANSACTION_HISTORY))
-            else:
-                raise XRPLException(error_response(ERROR_FETCHING_TRANSACTION_HISTORY))
-
-        except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
-            # Handle error message
-            return handle_error_new(e, status_code=500, function_name=function_name)
-        except Exception as e:
-            # Handle error message
-            return handle_error_new(e, status_code=500, function_name=function_name)
-        finally:
-            logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
-
-
-    @api_view(['GET'])
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_transaction_history_with_pagination(self, account):
+    def get_transaction_history_with_pagination(self, request):
         start_time = time.time()  # Capture the start time
         function_name = 'get_transaction_history_with_pagination'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
+            if not self.client:
+                self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+            # Extract wallet address from request parameters
+            data = json.loads(request.body)
+            account = data.get("account")
+
             # Validate the provided wallet address
             if not account or not validate_xrp_wallet(account):
                 raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
@@ -141,10 +94,10 @@ class Transactions(View):
                     break
 
             # Extract pagination parameters from the request
-            page = self.GET.get('page', 1)
+            page = data.get("page", 1)
             page = int(page) if page else 1
 
-            page_size = self.GET.get('page_size', 10)
+            page_size = data.get("page_size", 1)
             page_size = int(page_size) if page_size else 1
 
             # Paginate the transactions
@@ -169,15 +122,36 @@ class Transactions(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+@method_decorator(csrf_exempt, name="dispatch")
+class GetTransactionStatus(View):
+    def __init__(self):
+        super().__init__()
+        self.client = None  # Lazy-loaded client
 
-    @api_view(['GET'])
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def check_transaction_status(self, tx_hash):
-        start_time = time.time()  # Capture the start time
+    def post(self, request, *args, **kwargs):
+        return self.check_transaction_status(request)
+
+    def get(self, request, *args, **kwargs):
+        return self.check_transaction_status(request)
+
+    def check_transaction_status(self, request):
+        # Capture the start time
+        start_time = time.time()
         function_name = 'check_transaction_status'
+        # Log entering the function
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
+            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
+            if not self.client:
+                self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+            # Extract wallet address from request parameters
+            data = json.loads(request.body)
+            tx_hash = data.get("tx_hash")
+
             # Validate the format of the transaction hash
             if not is_valid_transaction_hash(tx_hash):
                 raise XRPLException(INVALID_TRANSACTION_HASH)

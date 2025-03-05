@@ -1,11 +1,17 @@
 from django.http import JsonResponse
+from xrpl import XRPLException
 from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.models import BookOffers, OfferCreate, AccountLines, AccountOffers, OfferCancel
+
+from ...errors.error_handling import process_unexpected_error
 
 
 # Ensure this function runs properly in Django's event loop
 async def process_offer(signed_tx, client):
-    result = await submit_and_wait(signed_tx, client)
+    try:
+        result = await submit_and_wait(signed_tx, client)
+    except XRPLException as e:
+        process_unexpected_error(e)
     return result
 
 

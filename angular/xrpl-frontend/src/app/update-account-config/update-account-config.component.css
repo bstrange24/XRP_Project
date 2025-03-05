@@ -119,17 +119,34 @@ mat-select, button {
     max-width: 100%; /* Full width on smaller screens */
   }
 
-  .fields-grid {
-    grid-template-columns: repeat(2, 1fr); /* Two columns on tablets */
-  }
+  /* .fields-grid {
+    grid-template-columns: repeat(2, 1fr);
+  } */
 }
 
 @media (max-width: 768px) {
+
   .fields-grid {
-    grid-template-columns: 1fr; /* Single column on mobile */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    gap: 16px; /* Space between items */
   }
 
   .address-field, .wide-form-field, mat-select, button {
     max-width: 100%; /* Full width on mobile */
   }
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+}
+
+.wide-form-field.address-field {
+  width: 100%;
+}
+
+.result-container, .error-message, .loading {
+  text-align: center;
+  margin-top: 16px;
 }

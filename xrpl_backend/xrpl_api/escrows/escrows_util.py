@@ -1,9 +1,11 @@
 # Function to check for Escrow entries
+import hashlib
 import json
 import logging
 
 from os import urandom
 
+from cryptoconditions import PreimageSha256
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import JsonResponse
 from xrpl import XRPLException
@@ -29,33 +31,35 @@ def check_escrow_entries(account_objects):
     logger.info("No Escrow entries found.")
     return True
 
-
-from cryptoconditions import PreimageSha256
-
 def generate_escrow_condition_and_fulfillment():
+    # """Generate a condition and fulfillment for escrows"""
+
     # Generate a random preimage with at least 32 bytes of cryptographically-secure randomness.
     secret = urandom(32)
 
-    fulfillment1 = PreimageSha256(preimage=secret)
+    # Generate cryptic image from secret
+    fufill = PreimageSha256(preimage=secret)
 
-    condition = fulfillment1.condition_binary.hex().upper()
-    print("Condition", condition)
-
-    # Keep secret until you want to finish the escrow
-    fulfillment = fulfillment1.serialize_binary().hex().upper()
-    print("Fulfillment", fulfillment)
-
-    # # Generate cryptic image from secret
-    # fulfillment = PreimageSha256(preimage=secret)
-    #
-    # # Parse image and return the condition and fulfillment
-    # condition = str.upper(fulfillment.condition_binary.hex()) # condition
-    # fulfillment = str.upper(fulfillment.serialize_binary().hex()) # fulfillment
+    # Parse image and return the condition and fulfillment
+    condition = str.upper(fufill.condition_binary.hex())  # conditon
+    fulfillment = str.upper(fufill.serialize_binary().hex())  # fulfillment
 
     # Print condition and fulfillment
-    logger.info(f"condition: {condition}")
-    logger.debug(f"fulfillment {fulfillment}")
+    print(f"condition: {condition}\nfulfillment {fulfillment}")
     return condition, fulfillment
+
+
+def validate_fulfillment(condition, fulfillment):
+    fulfillment_preimage = bytes.fromhex(fulfillment[8:])  # Raw preimage without 'A0228020'
+    computed_hash = hashlib.sha256(fulfillment_preimage).hexdigest().upper()
+    condition_hash = condition[8:-6]  # Hash without 'A0258020' and '810120'
+    if computed_hash != condition_hash:
+        logger.error(f"Computed: {computed_hash}, Expected: {condition_hash}")
+        return False
+    else:
+        logger.info(f"Valid condition and fulfillment")
+        return True
+
 
 def parse_time_delta(finish_after_time):
     """
@@ -130,22 +134,6 @@ def get_escrow_data_from_db(txn_hash):
         logger.error(f"Unexpected error querying fulfillment for hash {txn_hash}: {str(e)}")
         raise Exception(error_response(f"Unexpected error when processing hash {txn_hash}: {str(e)}"))
 
-
-# def set_claim_date(time_str, base_time):
-#     """Convert a time string (e.g., '3:sec') to Ripple epoch time, added to base_time."""
-#     if ":" not in time_str:
-#         raise ValueError(f"Invalid time format: {time_str}. Expected 'value:unit'.")
-#     value, unit = time_str.split(":")
-#     value = int(value)
-#     if unit == "sec":
-#         return base_time + value
-#     elif unit == "min":
-#         return base_time + (value * 60)
-#     elif unit == "hour":
-#         return base_time + (value * 3600)
-#     else:
-#         raise ValueError(f"Unsupported time unit: {unit}. Use 'sec', 'min', or 'hour'.")
-
 def set_claim_date(finish_after_time):
     # Parse the time delta from the request parameter
     time_delta = parse_time_delta(finish_after_time)
@@ -153,7 +141,6 @@ def set_claim_date(finish_after_time):
     # Calculate claim_date using datetime_to_ripple_time
     claim_date = datetime_to_ripple_time(datetime.now() + time_delta)
     return claim_date
-
 
 def get_escrow_sequence(client, prev_txn_id):
     """
@@ -240,8 +227,10 @@ def create_escrow_cancel_response(result):
 def create_finish_escrow_response(result):
     return JsonResponse({
         'status': 'success',
-        'message': f'Successfully finished escrow.',
-        'result': result,
+        "transaction_hash": result["hash"],
+        "result": result["meta"]["TransactionResult"],
+        "sequence": result["tx_json"]["Sequence"],
+        "last_ledger_sequence": result["tx_json"]["LastLedgerSequence"]
     })
 
 # def get_escrow_account_response_pagination(paginated_transactions, paginator):
@@ -260,7 +249,6 @@ def create_escrow_account_transaction(account):
         ledger_index="validated",
         type=AccountObjectType.ESCROW
     )
-
 
 def create_escrow_transaction(sender_address, amount_to_escrow, receiving_account, condition, sequence, fee, last_ledger):
     return EscrowCreate(
@@ -297,11 +285,14 @@ def create_cancel_escrow_transaction(sender_wallet_address, escrow_sequence):
     )
 
 
-def create_finish_escrow_transaction(sender_wallet_address, escrow_creator, escrow_sequence, condition, fulfillment):
+def create_finish_escrow_transaction(creator_wallet, escrow_creator_account, offer_sequence, condition, fulfillment, sequence, fee, last_ledger_sequence):
     return EscrowFinish(
-        account=sender_wallet_address, # The account finishing the escrow (typically the Destination or an authorized account).
-        owner=escrow_creator, # Owner: The account that created the escrow (from the EscrowCreate transaction).
-        offer_sequence=escrow_sequence, # The sequence number of the EscrowCreate transaction.
+        account=creator_wallet, # The account finishing the escrow (typically the Destination or an authorized account).
+        owner=escrow_creator_account, # Owner: The account that created the escrow (from the EscrowCreate transaction).
+        offer_sequence=offer_sequence, # The sequence number of the EscrowCreate transaction.
         condition=condition,
         fulfillment=fulfillment,
+        sequence=sequence,
+        fee=fee,
+        last_ledger_sequence=last_ledger_sequence
     )

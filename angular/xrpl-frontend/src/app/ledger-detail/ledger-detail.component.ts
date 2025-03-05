@@ -40,7 +40,7 @@ export class LedgerDetailComponent implements OnInit {
       }
     });
   }
-
+ 
   fetchLedgerData(ledger_index: string) {
     this.isLoading = true;
     this.errorMessage = '';

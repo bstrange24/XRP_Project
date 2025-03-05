@@ -24,7 +24,8 @@ from ...constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, 
     ERROR_INITIALIZING_CLIENT, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, INVALID_WALLET_IN_REQUEST, \
     MISSING_REQUEST_PARAMETERS
 from ...currency.currency_util import buyer_create_issued_currency, create_amount_the_buyer_wants_to_spend
-from ...errors.error_handling import handle_error_new, error_response, process_transaction_error
+from ...errors.error_handling import handle_error_new, error_response, process_transaction_error, \
+    process_unexpected_error
 from ...offers.book_offers.book_offers_util import prepare_book_offers, \
     prepare_book_offers_paginated, create_book_offers_response
 from ...utilities.utilities import total_execution_time_in_millis, get_xrpl_client, \
@@ -325,7 +326,11 @@ class CreateBookOffer(View):
                         issuer=issuer_wallet.classic_address,
                         value="1000"),
                 )
-                await submit_and_wait(trust_tx, client, buyer_wallet)
+
+                try:
+                    await submit_and_wait(trust_tx, client, buyer_wallet)
+                except XRPLException as e:
+                    process_unexpected_error(e)
 
                 # Create trust line from seller to issuer
                 response = await client.request(AccountInfo(account=seller_wallet.classic_address))
@@ -338,7 +343,11 @@ class CreateBookOffer(View):
                         issuer=issuer_wallet.classic_address,
                         value="1000"),
                 )
-                await submit_and_wait(trust_tx, client, seller_wallet)
+
+                try:
+                    await submit_and_wait(trust_tx, client, seller_wallet)
+                except XRPLException as e:
+                    process_unexpected_error(e)
 
                 # Issuer sends 100 USD to buyer (to fund the offer)
                 response = await client.request(AccountInfo(account=buyer_wallet.classic_address))
@@ -352,7 +361,11 @@ class CreateBookOffer(View):
                         issuer=issuer_wallet.classic_address,
                         value="100"
                     ))
-                await submit_and_wait(usd_payment_tx, client, issuer_wallet)
+
+                try:
+                    await submit_and_wait(usd_payment_tx, client, issuer_wallet)
+                except XRPLException as e:
+                    process_unexpected_error(e)
 
                 # Issuer sends 100 USD to seller (optional, for testing reverse trades)
                 response = await client.request(AccountInfo(account=seller_wallet.classic_address))
@@ -366,7 +379,11 @@ class CreateBookOffer(View):
                         issuer=issuer_wallet.classic_address,
                         value="100"
                     ))
-                await submit_and_wait(usd_payment_tx, client, issuer_wallet)
+
+                try:
+                    await submit_and_wait(usd_payment_tx, client, issuer_wallet)
+                except XRPLException as e:
+                    process_unexpected_error(e)
 
                 # Check trust lines and balances for buyer
                 account_lines_info = AccountLines(account=buyer_wallet.classic_address, ledger_index="validated")
@@ -392,7 +409,12 @@ class CreateBookOffer(View):
                     taker_gets="10000000",  # 10 XRP in drops
                     taker_pays=IssuedCurrencyAmount(currency="USD", issuer=issuer_wallet.classic_address, value="5")
                 )
-                response = submit_and_wait(offer_tx, client, seller_wallet.classic_address)
+
+                try:
+                    response = submit_and_wait(offer_tx, client, seller_wallet.classic_address)
+                except XRPLException as e:
+                    process_unexpected_error(e)
+
                 sequence = response.result['tx_json']['Sequence']
                 print(f"\nSeller offer created: {response.result['tx_json']}")
 
@@ -407,7 +429,12 @@ class CreateBookOffer(View):
                     taker_gets="10000000",  # 10 XRP in drops
                     taker_pays=IssuedCurrencyAmount(currency="USD", issuer=issuer_wallet.classic_address, value="5")
                 )
-                response = submit_and_wait(matching_offer_tx, client, buyer_wallet.classic_address)
+
+                try:
+                    response = submit_and_wait(matching_offer_tx, client, buyer_wallet.classic_address)
+                except XRPLException as e:
+                    process_unexpected_error(e)
+
                 print(f"\nBuyer matching offer created: {response.result['tx_json']}")
 
                 # Check buyer's active offers
@@ -467,12 +494,12 @@ class GetBookOffers(View):
         function_name = 'get_book_offers'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
-        if not self.client:
-            self.client = get_xrpl_client()
-        if not self.client:
-            raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
         try:
+            if not self.client:
+                self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
             # Extract parameters from GET or POST
             taker_gets_currency = request.GET.get('taker_gets_currency', 'XRP')  # Default to XRP
             taker_gets_issuer = request.GET.get('taker_gets_issuer')  # Optional issuer for non-XRP

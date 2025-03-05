@@ -28,7 +28,8 @@ from ...constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, 
     MISSING_REQUEST_PARAMETERS, UNABLE_TO_FETCH_ACCOUNT_OFFERS, NO_OFFER_TO_CANCEL_FOR_THIS_ACCOUNT
 from ...currency.currency_util import buyer_create_issued_currency, \
     create_amount_the_buyer_wants_to_spend
-from ...errors.error_handling import handle_error_new, error_response, process_transaction_error
+from ...errors.error_handling import handle_error_new, error_response, process_transaction_error, \
+    process_unexpected_error
 from ...offers.account_offers.account_offers_util import process_offer, create_book_offer, create_offer, \
     prepare_account_lines_for_offer, prepare_account_offers, create_account_offers_response, \
     create_get_account_offers_response, prepare_account_offers_paginated, prepare_cancel_offer
@@ -60,12 +61,12 @@ class GetAccountOffers(View):
         function_name = 'get_account_offers'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
-        if not self.client:
-            self.client = get_xrpl_client()
-        if not self.client:
-            raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
         try:
+            if not self.client:
+                self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
             if account is None:
                 account = request.GET['account']
 
@@ -243,7 +244,11 @@ class CancelAccountOffers(View):
                                                        last_ledger_sequence, fee)
 
                 # Sign and submit the transaction
-                cancel_offer_response = submit_and_wait(cancel_offer_tx, self.client, sender_wallet)
+                try:
+                    cancel_offer_response = submit_and_wait(cancel_offer_tx, self.client, sender_wallet)
+                except XRPLException as e:
+                    process_unexpected_error(e)
+
                 if validate_xrpl_response_data(cancel_offer_response):
                     process_transaction_error(cancel_offer_response)
 

@@ -1,6 +1,7 @@
 from pathlib import Path
 import environ
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,6 +62,8 @@ ESCROW_TEST_DEFAULT_FINISH_AFTER_DATE = env("ESCROW_TEST_DEFAULT_FINISH_AFTER_DA
 ESCROW_PROD_DEFAULT_CLAIM_AFTER_DATE = env("ESCROW_PROD_DEFAULT_CLAIM_AFTER_DATE", default="")
 ESCROW_PROD_DEFAULT_FINISH_AFTER_DATE = env("ESCROW_PROD_DEFAULT_FINISH_AFTER_DATE", default="")
 
+# SEED_ENCRYPTION_KEY = env("SEED_ENCRYPTION_KEY", default="")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -77,7 +80,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'xrpl_api',
     'corsheaders',
+    'rest_framework.authtoken'
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -173,7 +183,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',  # Log all messages (DEBUG and higher)
+            'level': 'INFO',  # Log all messages (DEBUG and higher)
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'debug.log'),  # Path to the log file
             'formatter': 'verbose',  # Use the verbose formatter
@@ -187,7 +197,7 @@ LOGGING = {
         },
         'xrpl_app': {  # Replace with your app name
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
     },
 }

@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.utils.decorators import method_decorator
@@ -20,7 +21,7 @@ import time
 from ..accounts.account_utils import prepare_account_data
 from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
     MISSING_REQUEST_PARAMETERS, ERROR_INITIALIZING_CLIENT, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, LEAVING_FUNCTION_LOG
-from ..errors.error_handling import error_response, process_transaction_error, handle_error_new
+from ..errors.error_handling import error_response, process_transaction_error, handle_error_new, process_unexpected_error
 from ..trust_lines.trust_line_util import create_trust_set_response
 from ..utilities.utilities import get_request_param, get_xrpl_client, validate_xrpl_response_data, \
     total_execution_time_in_millis, count_xrp_received
@@ -28,7 +29,7 @@ from ..utilities.utilities import get_request_param, get_xrpl_client, validate_x
 logger = logging.getLogger('xrpl_app')
 
 @method_decorator(csrf_exempt, name="dispatch")
-class Currency(View):
+class SendCrossCurrency(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
@@ -52,25 +53,26 @@ class Currency(View):
         #
         # Step 2: Create Liquidity with Offer
         # Step 3: Retry the Payment
-        if not self.client:
-            self.client = get_xrpl_client()
-        if not self.client:
-            raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
         start_time = time.time()
         function_name = 'send_cross_currency_payment'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
+            if not self.client:
+                self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
             # Extract parameters from the request
-            sender_seed = self.request.GET.get('sender_seed')  # Sender’s wallet seed
-            destination_address = self.request.GET.get('destination_address')  # Receiver’s address
-            source_currency = self.request.GET.get('source_currency') # e.g., "USD"
-            source_issuer = self.request.GET.get('source_issuer')  # e.g., rUSDissuer
-            destination_currency = self.request.GET.get('destination_currency')  # e.g., "EUR"
-            destination_issuer = self.request.GET.get('destination_issuer')  # e.g., rEURissuer
-            amount_to_deliver = self.request.GET.get('amount_to_deliver')  # Amount to deliver (e.g., "10" EUR)
-            max_to_spend = self.request.GET.get('max_to_spend')  # Max to spend (e.g., "12" USD)
+            data = json.loads(request.body)
+            sender_seed = data.get("sender_seed") # Sender’s wallet seed
+            destination_address = data.get("destination_address") # Receiver’s address
+            source_currency = data.get("source_currency") # e.g., "USD"
+            source_issuer = data.get("source_issuer") # e.g., rUSDissuer
+            destination_currency = data.get("destination_currency") # e.g., "EUR"
+            destination_issuer = data.get("destination_issuer") # e.g., rEURissuer
+            amount_to_deliver = data.get("amount_to_deliver") # Amount to deliver (e.g., "10" EUR)
+            max_to_spend = data.get("max_to_spend") # Max to spend (e.g., "12" USD)
 
             if not all([sender_seed, destination_address, source_currency, source_issuer,
                         destination_currency, destination_issuer, amount_to_deliver, max_to_spend]):
@@ -138,13 +140,13 @@ class Currency(View):
 
             print(f"LastLedgerSequence: {payment_tx.last_ledger_sequence}")
             print(f"Time before submission: {time.time()}")
-            validated_tx_response = submit_and_wait(payment_tx, self.client, sender_wallet)
-            print(f"Time after submission: {time.time()}")
+            try:
+                validated_tx_response = submit_and_wait(payment_tx, self.client, sender_wallet)
+                print(f"Time after submission: {time.time()}")
+            except XRPLException as e:
+                process_unexpected_error(e)
 
             if validate_xrpl_response_data(validated_tx_response):
-                if validated_tx_response.result.get('engine_result') == 'tecPATH_DRY':
-                    raise XRPLException("Transaction failed: No path found with sufficient liquidity (tecPATH_DRY). "
-                                        "Ensure order books have offers for conversion (e.g., USD/XRP, XRP/EUR).")
                 process_transaction_error(validated_tx_response)
 
             count_xrp_received(validated_tx_response.result, sender_wallet)

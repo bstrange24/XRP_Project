@@ -1,8 +1,12 @@
+import json
+
 from django.core.paginator import Paginator
 import logging
 import time
 
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from tenacity import wait_exponential, stop_after_attempt, retry
 from xrpl import XRPLException
@@ -14,13 +18,15 @@ from xrpl.utils import XRPRangeException, xrp_to_drops
 from xrpl.wallet import Wallet
 from xrpl.account import does_account_exist, get_balance
 
-from .trust_line_util import trust_line_response, create_trust_set_transaction, create_trust_set_response
+from .trust_line_util import create_trust_set_transaction, create_trust_set_response
 from ..accounts.account_utils import create_account_lines_response, prepare_account_lines, prepare_account_data, \
     get_account_reserves
-from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
+from ..constants.constants import ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, MISSING_REQUEST_PARAMETERS, \
-    INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA
-from ..errors.error_handling import error_response, process_transaction_error, handle_error_new
+    INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA, RETRY_BACKOFF, \
+    MAX_RETRIES
+from ..errors.error_handling import error_response, process_transaction_error, handle_error_new, \
+    process_unexpected_error
 from ..offers.account_offers.account_offers_util import prepare_account_lines_for_offer, prepare_account_offers
 from ..utilities.utilities import get_request_param, get_xrpl_client, total_execution_time_in_millis, \
     validate_xrp_wallet, \
@@ -28,20 +34,35 @@ from ..utilities.utilities import get_request_param, get_xrpl_client, total_exec
 
 logger = logging.getLogger('xrpl_app')
 
+@method_decorator(csrf_exempt, name="dispatch")
+class GetAccountTrustLines(View):
+    def __init__(self):
+        super().__init__()
+        self.client = None  # Lazy-loaded client
 
-class TrustLine(View):
+    def post(self, request, *args, **kwargs):
+        return self.get_account_trust_lines(request)
 
-    @api_view(['GET'])
+    def get(self, request, *args, **kwargs):
+        return self.get_account_trust_lines(request)
+
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_account_trust_lines(self):
+    def get_account_trust_lines(self, request):
         # Capture the start time to calculate the total execution time
         start_time = time.time()
         function_name = 'get_account_trust_lines'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
+            if not self.client:
+                self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
             # Extract wallet address from request parameters
-            account = get_request_param(self, 'account')
+            data = json.loads(request.body)
+            account = data.get("account")
+
             # Validate the provided wallet address
             if not account or not validate_xrp_wallet(account):
                 raise XRPLRequestFailureException(error_response(INVALID_WALLET_IN_REQUEST))
@@ -84,10 +105,10 @@ class TrustLine(View):
                     break
 
             # Extract pagination parameters from the request
-            page = self.GET.get('page', 1)
+            page = data.get("page", 1)
             page = int(page) if page else 1
 
-            page_size = self.GET.get('page_size', 10)
+            page_size = data.get("page_size", 1)
             page_size = int(page_size) if page_size else 1
 
             # Paginate the account lines using Django's Paginator
@@ -109,74 +130,36 @@ class TrustLine(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-    @api_view(['GET'])
+@method_decorator(csrf_exempt, name="dispatch")
+class SetTrustLines(View):
+    def __init__(self):
+        super().__init__()
+        self.client = None  # Lazy-loaded client
+
+    def post(self, request, *args, **kwargs):
+        return self.set_trust_line(request)
+
+    def get(self, request, *args, **kwargs):
+        return self.set_trust_line(request)
+
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_trust_line(self):
-        # Capture the start time to calculate the total execution time
-        start_time = time.time()
-        function_name = 'get_trust_line'
-        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
-
-        try:
-            # Extract wallet address from request parameters
-            account = get_request_param(self, 'account')
-            # Validate the provided wallet address
-            if not account or not validate_xrp_wallet(account):
-                raise XRPLRequestFailureException(error_response(INVALID_WALLET_IN_REQUEST))
-
-            # Get an instance of the XRPL client
-            client = get_xrpl_client()
-            if not client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
-            if not does_account_exist(account, client):
-                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(account)))
-
-            # Prepare an AccountLines request to retrieve trust lines for the account.
-            account_lines_info = prepare_account_lines_for_offer(account)
-
-            # Send the AccountLines request to the XRPL network.
-            # The response contains the trust lines for the wallet address.
-            account_lines_info_response = client.request(account_lines_info)
-
-            if validate_xrpl_response_data(account_lines_info_response):
-                process_transaction_error(account_lines_info_response)
-
-
-            # Check if the "lines" field exists in the response. If not, raise an error.
-            if "lines" not in account_lines_info_response.result:
-                raise XRPLException('Account lines not found')
-
-            # Extract trust lines from the response.
-            # If no trust lines are found, an empty list is returned.
-            trust_lines = account_lines_info_response.result.get('lines', [])
-            logger.info(f"Successfully fetched trust lines for account {account}. Trust lines: {trust_lines}")
-
-            # Return the trust lines in a structured response.
-            return trust_line_response(account_lines_info_response)
-
-        except (XRPLRequestFailureException, XRPLException, XRPRangeException) as e:
-            # Handle error message
-            return handle_error_new(e, status_code=500, function_name=function_name)
-        except Exception as e:
-            # Handle error message
-            return handle_error_new(e, status_code=500, function_name=function_name)
-        finally:
-            logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
-
-    @api_view(['GET', 'POST'])
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def set_trust_line(self):
+    def set_trust_line(self, request):
         start_time = time.time()
         function_name = 'set_trust_line'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
+            if not self.client:
+                self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
             # Extract the parameters from the request data.
-            sender_seed = get_request_param(self, 'sender_seed')
-            issuer_address = get_request_param(self, 'issuer_address')
-            currency_code = get_request_param(self, 'currency_code')
-            limit = get_request_param(self, 'limit')
+            data = json.loads(request.body)
+            sender_seed = data.get("sender_seed")
+            issuer_address = data.get("issuer_address")
+            currency_code = data.get("currency_code")
+            limit = data.get("limit")
 
             # If any of the required parameters are missing, raise an error.
             if not all([sender_seed, issuer_address, currency_code, limit]):
@@ -248,7 +231,11 @@ class TrustLine(View):
                                                         sender_wallet.classic_address, sequence_number, fee,
                                                         current_ledger)
 
-            validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
+            try:
+                validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
+            except XRPLException as e:
+                process_unexpected_error(e)
+
             if validate_xrpl_response_data(validated_tx_response):
                 process_transaction_error(validated_tx_response)
 
@@ -274,19 +261,36 @@ class TrustLine(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-    @api_view(['GET', 'POST'])
+@method_decorator(csrf_exempt, name="dispatch")
+class RemoveTrustLine(View):
+    def __init__(self):
+        super().__init__()
+        self.client = None  # Lazy-loaded client
+
+    def post(self, request, *args, **kwargs):
+        return self.remove_trust_line(request)
+
+    def get(self, request, *args, **kwargs):
+        return self.remove_trust_line(request)
+
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def remove_trust_line(self):
+    def remove_trust_line(self, request):
         # Capture the start time to calculate the total execution time of the function
         start_time = time.time()
         function_name = 'remove_trust_line'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
+            if not self.client:
+                self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
             # Extract the parameters from the request data.
-            sender_seed = get_request_param(self, 'sender_seed')
-            currency_code = get_request_param(self, 'currency_code')
-            issuer_address = get_request_param(self, 'issuer_address')
+            data = json.loads(request.body)
+            sender_seed = data.get("sender_seed")
+            currency_code = data.get("currency_code")
+            issuer_address = data.get("issuer_address")
 
             # If any of the required parameters are missing, raise an error.
             if not all([sender_seed, currency_code, issuer_address]):
@@ -360,8 +364,17 @@ class TrustLine(View):
 
             submit_and_wait_start_time = int((time.time()) * 1000)
             logger.info(f"Time before submission: {submit_and_wait_start_time}")
-            validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
-            submit_and_wait_end_time = int((time.time()) * 1000)
+
+            try:
+                validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
+            except XRPLException as e:
+                process_unexpected_error(e)
+
+            try:
+                submit_and_wait_end_time = int((time.time()) * 1000)
+            except XRPLException as e:
+                process_unexpected_error(e)
+
             logger.info(f"Time after submission: {submit_and_wait_end_time - submit_and_wait_start_time}")
 
             if validate_xrpl_response_data(validated_tx_response):

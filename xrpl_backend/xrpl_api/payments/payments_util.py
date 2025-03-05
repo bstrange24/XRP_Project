@@ -12,13 +12,16 @@ from xrpl.models import Payment, Ledger, ServerInfo, AccountObjects
 
 from .db_operations.payments_db_operations import save_payment_data
 from ..accounts.account_utils import account_delete_tx_response
-from ..errors.error_handling import error_response, handle_error_new
+from ..errors.error_handling import error_response, handle_error_new, process_unexpected_error
 
 logger = logging.getLogger('xrpl_app')
 
 
 async def process_payment(payment_tx, client, sender_wallet):
-    result = await submit_and_wait(payment_tx, client, sender_wallet)
+    try:
+        result = await submit_and_wait(payment_tx, client, sender_wallet)
+    except XRPLException as e:
+        process_unexpected_error(e)
     return result
 
 

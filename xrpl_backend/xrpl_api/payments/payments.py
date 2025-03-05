@@ -1,6 +1,6 @@
+import json
 import logging
 import time
-from decimal import Decimal
 
 from asgiref.sync import sync_to_async
 from django.utils.decorators import method_decorator
@@ -25,13 +25,14 @@ from ..accounts.account_utils import prepare_account_data, check_check_entries, 
 from ..constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
     SENDER_SEED_IS_INVALID, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, FAILED_TO_FETCH_RESERVE_DATA, \
     INSUFFICIENT_BALANCE_TO_COVER_RESERVER_FEES, asfDisableMaster
-from ..errors.error_handling import handle_error_new, error_response, process_transaction_error
+from ..errors.error_handling import handle_error_new, error_response, process_transaction_error, \
+    process_unexpected_error
 from ..escrows.escrows_util import check_escrow_entries
 from ..ledger.ledger_util import check_ripple_state_entries
 from ..transactions.transactions_util import prepare_tx
 from ..utilities.utilities import is_valid_xrpl_seed, \
     total_execution_time_in_millis, validate_request_data, fetch_network_fee, \
-    validate_xrp_wallet, validate_xrpl_response_data, count_xrp_received
+    validate_xrp_wallet, validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
 
@@ -51,12 +52,13 @@ class SendXrpPaymentsAndDeleteAccount(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            account = self.request.GET['account']
+            data = json.loads(request.body)
+            account = data.get("account")
             # Validate the provided wallet address
             if not account or not validate_xrp_wallet(account):
                 raise XRPLRequestFailureException(error_response(INVALID_WALLET_IN_REQUEST))
 
-            sender_seed = self.request.GET['sender_seed']
+            sender_seed = data.get("sender_seed")
             if not is_valid_xrpl_seed(sender_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
@@ -92,8 +94,6 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 if validate_xrpl_response_data(account_info_response):
                     process_transaction_error(account_info_response)
 
-                count_xrp_received(account_info_response.result, account)
-
                 logger.info(f"await account_info_response total time: {total_execution_time_in_millis(account_info_response_start_time)}")
 
                 balance = int(account_info_response.result['account_data']['Balance'])
@@ -118,8 +118,6 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 if validate_xrpl_response_data(payment_response):
                     process_transaction_error(payment_response)
 
-                await count_xrp_received(payment_response.result, account)
-
                 logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_start_time)}")
 
                 calculate_last_ledger_sequence_start_time = time.time()
@@ -135,8 +133,6 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 account_delete_response = await process_payment(account_delete_tx, client, sender_wallet)
                 if validate_xrpl_response_data(account_delete_response):
                     process_transaction_error(account_delete_response)
-
-                await count_xrp_received(account_info_response.result, account)
 
                 logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_sequence_start_time)}")
 
@@ -174,9 +170,11 @@ class SendXrpPayments(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            sender_seed = self.request.GET['sender_seed']
-            receiver_account = self.request.GET['receiver_account']
-            amount_xrp = self.request.GET['amount_xrp']
+            # Parse request body
+            data = json.loads(request.body)
+            sender_seed = data.get("sender_seed")  # Creator of the escrow
+            receiver_account = data.get("receiver_account")  # Seed of the escrow creator
+            amount_xrp = data.get("amount_xrp")  # Sequence number of the escrow create tx
 
             validate_request_data(sender_seed, receiver_account, amount_xrp)
 
@@ -210,8 +208,6 @@ class SendXrpPayments(View):
 
                 # Create a Transaction request to see transaction
                 tx_response = await client.request(prepare_tx(payment_response.result["hash"]))
-
-                count_xrp_received(payment_response.result, receiver_account)
 
                 # Check balances after 1000 was sent from wallet1 to wallet2
                 logger.info("Balances of wallets after Payment tx:")
@@ -283,8 +279,6 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 if validate_xrpl_response_data(account_info_response):
                     process_transaction_error(account_info_response)
 
-                count_xrp_received(account_info_response.result, receiving_account)
-
                 balance = int(account_info_response.result['account_data']['Balance'])
                 base_reserve, reserve_increment = await get_account_reserves(client)
                 if base_reserve is None or reserve_increment is None:
@@ -299,12 +293,14 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 fee_drops = await get_fee(client)
 
                 payment_tx = create_payment_transaction(wallet.classic_address, receiving_account, str(transferable_amount), fee_drops, False)
-                payment_tx_response = await submit_and_wait(payment_tx, client, wallet)
+
+                try:
+                    payment_tx_response = await submit_and_wait(payment_tx, client, wallet)
+                except XRPLException as e:
+                    process_unexpected_error(e)
 
                 if validate_xrpl_response_data(payment_tx_response):
                     process_transaction_error(payment_tx_response)
-
-                await count_xrp_received(payment_tx_response.result, receiving_account)
 
                 # Prepare and send request to get the account info from the ledger.
                 account_info = prepare_account_data(receiving_account, True)
@@ -316,11 +312,13 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 # Prepare a transaction to set the account's regular key to the black hole address.
                 tx_regular_key = prepare_regular_key(wallet.classic_address, xrpl_config.BLACK_HOLE_ADDRESS)
 
-                submit_tx_regular = await submit_and_wait(transaction=tx_regular_key, client=client, wallet=wallet)
+                try:
+                    submit_tx_regular = await submit_and_wait(transaction=tx_regular_key, client=client, wallet=wallet)
+                except XRPLException as e:
+                    process_unexpected_error(e)
+
                 if validate_xrpl_response_data(submit_tx_regular):
                     process_transaction_error(submit_tx_regular)
-
-                await count_xrp_received(submit_tx_regular.result, receiving_account)
 
                 tx_response = await client.request(prepare_tx(submit_tx_regular.result["hash"]))
                 if validate_xrpl_response_data(tx_response):
@@ -329,7 +327,11 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 # Prepare a transaction to disable the master key on the account.
                 tx_disable_master_key = prepare_account_set_enabled_tx(wallet.classic_address, AccountSetAsfFlag.ASF_DISABLE_MASTER)
 
-                submit_tx_disable = await submit_and_wait(transaction=tx_disable_master_key, client=client, wallet=wallet)
+                try:
+                    submit_tx_disable = await submit_and_wait(transaction=tx_disable_master_key, client=client, wallet=wallet)
+                except XRPLException as e:
+                    process_unexpected_error(e)
+
                 if validate_xrpl_response_data(submit_tx_disable):
                     process_transaction_error(submit_tx_disable)
 
@@ -343,8 +345,6 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 get_acc_flag_response = await client.request(get_acc_flag)
                 if validate_xrpl_response_data(get_acc_flag_response):
                     process_transaction_error(get_acc_flag_response)
-
-                await count_xrp_received(get_acc_flag_response.result, receiving_account)
 
                 logger.info(f"Get balance changes: {get_balance_changes(get_acc_flag_response.result['meta'])}")
                 logger.info(f"Get final balances: {get_final_balances(get_acc_flag_response.result['meta'])}")

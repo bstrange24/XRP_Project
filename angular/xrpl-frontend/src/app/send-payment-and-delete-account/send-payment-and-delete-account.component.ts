@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
 
@@ -64,12 +64,23 @@ export class SendPaymentAndDeleteAccountComponent {
     }
 
     try {
-      const params = new HttpParams()
-      .set('account', this.receivingAccount.trim())  
-      .set('sender_seed', this.senderSeed.trim());
-        
+      const bodyData = {
+        sender_seed: this.senderSeed.trim(), 
+        account: this.receivingAccount.trim()
+      };
+      
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+      });
+      
+      const response = await firstValueFrom(
+        this.http.post(
+          'http://127.0.0.1:8000/xrpl/payment/send-xrp/delete-account/',
+          bodyData,
+          { headers }
+        )
+      );
 
-      const response = await firstValueFrom(this.http.get('http://127.0.0.1:8000/xrpl/send-xrp-payment-and-delete-account/', { params }));
       this.actionResult = response;
       this.isLoading = false;
       console.log('Payment sent and account deleted:', response);

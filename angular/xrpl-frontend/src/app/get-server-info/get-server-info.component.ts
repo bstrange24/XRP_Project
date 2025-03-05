@@ -10,10 +10,10 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
 // Define the interface for the API response
-interface ServerInfoResponse {
+export interface ServerInfoResponse {
   status: string;
   message: string;
-  ledger_info: {
+  result: {
     info: {
       build_version: string;
       complete_ledgers: string;
@@ -30,34 +30,16 @@ interface ServerInfoResponse {
       peer_disconnects: string;
       peer_disconnects_resources: string;
       peers: number;
-      ports: {
-        port: string;
-        protocol: string[];
-      }[];
+      ports: { port: string; protocol: string[] }[];
       pubkey_node: string;
       server_state: string;
       server_state_duration_us: string;
       state_accounting: {
-        connected: {
-          duration_us: string;
-          transitions: string;
-        };
-        disconnected: {
-          duration_us: string;
-          transitions: string;
-        };
-        full: {
-          duration_us: string;
-          transitions: string;
-        };
-        syncing: {
-          duration_us: string;
-          transitions: string;
-        };
-        tracking: {
-          duration_us: string;
-          transitions: string;
-        };
+        connected: { duration_us: string; transitions: string };
+        disconnected: { duration_us: string; transitions: string };
+        full: { duration_us: string; transitions: string };
+        syncing: { duration_us: string; transitions: string };
+        tracking: { duration_us: string; transitions: string };
       };
       time: string;
       uptime: number;
@@ -101,7 +83,7 @@ export class GetServerInfoComponent implements OnInit {
     this.serverInfo = null;
 
     try {
-      const response = await firstValueFrom(this.http.get<ServerInfoResponse>('http://127.0.0.1:8000/xrpl/get-server-info/'));
+      const response = await firstValueFrom(this.http.get<ServerInfoResponse>('http://127.0.0.1:8000/xrpl/ledger/server-info/'));
       this.serverInfo = response;
       this.isLoading = false;
       console.log('Server info retrieved:', response);

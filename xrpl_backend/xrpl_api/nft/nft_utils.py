@@ -11,7 +11,7 @@ from xrpl.wallet import Wallet
 
 from .db_operations.nft_db_operations import save_nft_sell_transactions
 from ..constants.constants import MISSING_REQUEST_PARAMETERS, SENDER_SEED_IS_INVALID
-from ..errors.error_handling import error_response, process_transaction_error
+from ..errors.error_handling import error_response, process_transaction_error, process_unexpected_error
 from ..utilities.utilities import validate_xrpl_response_data, total_execution_time_in_millis, is_valid_xrpl_seed
 
 logger = logging.getLogger('xrpl_app')
@@ -68,8 +68,12 @@ def process_sell_account_nft(client, request_data, minted):
 
             sell_transaction_request = prepare_nftoken_create_offer(issuer_wallet.classic_address, nft_token_id,
                                                                     nftoken_sell_amount)
-            sell_transaction_response = submit_and_wait(transaction=sell_transaction_request, client=client,
+            try:
+                sell_transaction_response = submit_and_wait(transaction=sell_transaction_request, client=client,
                                                         wallet=issuer_wallet)
+            except XRPLException as e:
+                process_unexpected_error(e)
+
             if validate_xrpl_response_data(sell_transaction_response):
                 process_transaction_error(sell_transaction_response)
 
@@ -187,7 +191,10 @@ def cancel_nft_sell_offers(client, wallet, offer_ids):
             return
 
         cancel_tx_request = prepare_nftoken_cancel_offer(wallet.classic_address, offer_ids)
-        cancel_tx_response = submit_and_wait(transaction=cancel_tx_request, client=client, wallet=wallet)
+        try:
+            cancel_tx_response = submit_and_wait(transaction=cancel_tx_request, client=client, wallet=wallet)
+        except XRPLException as e:
+            process_unexpected_error(e)
 
         if validate_xrpl_response_data(cancel_tx_response):
             process_transaction_error(cancel_tx_response)

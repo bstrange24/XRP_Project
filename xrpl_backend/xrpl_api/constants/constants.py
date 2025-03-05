@@ -1,5 +1,7 @@
 import logging
 
+from xrpl.models.transactions import AccountSet
+
 logger = logging.getLogger('xrpl_app')
 
 MAX_RETRIES = 3  # Maximum retry attempts
@@ -71,6 +73,43 @@ ASF_FLAGS = [
     'asf_require_auth',
     'asf_require_dest'
 ]
+
+# Mapping of flag names to database column names
+ASF_FLAG_MAPPING = {
+    'asf_account_txn_id': 'ASF_ACCOUNT_TXN_ID',
+    'asf_allow_trustline_clawback': 'ASF_ALLOW_TRUSTLINE_CLAWBACK',
+    'asf_authorized_nftoken_minter': 'ASF_AUTHORIZED_NFTOKEN_MINTER',
+    'asf_default_ripple': 'ASF_DEFAULT_RIPPLE',
+    'asf_deposit_auth': 'ASF_DEPOSIT_AUTH',
+    'asf_disable_master': 'ASF_DISABLE_MASTER',
+    'asf_disable_incoming_check': 'ASF_DISABLE_INCOMING_CHECK',
+    'asf_disable_incoming_nftoken_offer': 'ASF_DISABLE_INCOMING_NFTOKEN_OFFER',
+    'asf_disable_incoming_paychan': 'ASF_DISABLE_INCOMING_PAYCHAN',
+    'asf_disable_incoming_trustline': 'ASF_DISABLE_INCOMING_TRUSTLINE',
+    'asf_disallow_xrp': 'ASF_DISALLOW_XRP',
+    'asf_global_freeze': 'ASF_GLOBAL_FREEZE',
+    'asf_no_freeze': 'ASF_NO_FREEZE',
+    'asf_require_auth': 'ASF_REQUIRE_AUTH',
+    'asf_require_dest': 'ASF_REQUIRE_DEST'
+}
+
+ASF_FLAG_MAPPINGS = {
+    'asf_account_txn_id': 'ASF_ACCOUNT_TXN_ID',
+    'allowTrustLineClawback': 'ASF_ALLOW_TRUSTLINE_CLAWBACK',
+    'asf_authorized_nftoken_minter': 'ASF_AUTHORIZED_NFTOKEN_MINTER',
+    'defaultRipple': 'ASF_DEFAULT_RIPPLE',
+    'depositAuth': 'ASF_DEPOSIT_AUTH',
+    'disableMasterKey': 'ASF_DISABLE_MASTER',
+    'disallowIncomingCheck': 'ASF_DISABLE_INCOMING_CHECK',
+    'disallowIncomingNFTokenOffer': 'ASF_DISABLE_INCOMING_NFTOKEN_OFFER',
+    'disallowIncomingPayChan': 'ASF_DISABLE_INCOMING_PAYCHAN',
+    'disallowIncomingTrustline': 'ASF_DISABLE_INCOMING_TRUSTLINE',
+    'disallowIncomingXRP': 'ASF_DISALLOW_XRP',
+    'globalFreeze': 'ASF_GLOBAL_FREEZE',
+    'noFreeze': 'ASF_NO_FREEZE',
+    'requireAuthorization': 'ASF_REQUIRE_AUTH',
+    'requireDestinationTag': 'ASF_REQUIRE_DEST'
+}
 
 # Filter for specific types
 ACCOUNT_OBJECTS_TYPE = ["escrow", "offer", "payment_channel", "paychan", "ripple_state", "state", "check",

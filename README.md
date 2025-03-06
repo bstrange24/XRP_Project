@@ -42,6 +42,8 @@ Perform the following to setup this project:
    9) npm
    10) npm install -g @angular/cli
    11) pip install pytz
+   12) pip install jsonschema
+   13) pip install qrcode pillow requests
 
 
 

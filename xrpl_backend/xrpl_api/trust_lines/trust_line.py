@@ -232,6 +232,7 @@ class SetTrustLines(View):
                                                         current_ledger)
 
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)
@@ -362,15 +363,18 @@ class RemoveTrustLine(View):
 
             logger.info(f"LastLedgerSequence: {trust_set_tx.last_ledger_sequence}")
 
+            logger.info("signing and submitting the transaction, awaiting a response")
             submit_and_wait_start_time = int((time.time()) * 1000)
             logger.info(f"Time before submission: {submit_and_wait_start_time}")
 
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 validated_tx_response = submit_and_wait(trust_set_tx, client, sender_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)
 
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 submit_and_wait_end_time = int((time.time()) * 1000)
             except XRPLException as e:
                 process_unexpected_error(e)

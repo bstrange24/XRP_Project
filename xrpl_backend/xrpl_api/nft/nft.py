@@ -97,6 +97,7 @@ class MintNft(View):
                     mint_nft_transaction_request = prepare_nftoken_mint_request(minter_wallet_address, tx_flag, taxon,
                                                                                 transfer_fee)
                     try:
+                        logger.info("signing and submitting the transaction, awaiting a response")
                         mint_transaction_response = submit_and_wait(transaction=mint_nft_transaction_request,
                                                                 client=self.client, wallet=minter_wallet)
                     except XRPLException as e:
@@ -291,6 +292,7 @@ class BurnNft(View):
             burn_tx = prepare_nftoken_burn_request(issuer_wallet.classic_address, nft_token_id)
 
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 burn_tx_response = submit_and_wait(transaction=burn_tx, client=self.client, wallet=issuer_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)
@@ -440,6 +442,7 @@ class BuyNft(View):
 
             # Step 4: Sign and submit the transaction with the buyer’s wallet
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 accept_tx_signed = submit_and_wait(transaction=accept_tx, client=self.client, wallet=buyer_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)

@@ -295,6 +295,7 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 payment_tx = create_payment_transaction(wallet.classic_address, receiving_account, str(transferable_amount), fee_drops, False)
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     payment_tx_response = await submit_and_wait(payment_tx, client, wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)
@@ -313,6 +314,7 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 tx_regular_key = prepare_regular_key(wallet.classic_address, xrpl_config.BLACK_HOLE_ADDRESS)
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     submit_tx_regular = await submit_and_wait(transaction=tx_regular_key, client=client, wallet=wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)
@@ -328,6 +330,7 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                 tx_disable_master_key = prepare_account_set_enabled_tx(wallet.classic_address, AccountSetAsfFlag.ASF_DISABLE_MASTER)
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     submit_tx_disable = await submit_and_wait(transaction=tx_disable_master_key, client=client, wallet=wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)

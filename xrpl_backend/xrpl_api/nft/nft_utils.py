@@ -69,6 +69,7 @@ def process_sell_account_nft(client, request_data, minted):
             sell_transaction_request = prepare_nftoken_create_offer(issuer_wallet.classic_address, nft_token_id,
                                                                     nftoken_sell_amount)
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 sell_transaction_response = submit_and_wait(transaction=sell_transaction_request, client=client,
                                                         wallet=issuer_wallet)
             except XRPLException as e:
@@ -192,6 +193,7 @@ def cancel_nft_sell_offers(client, wallet, offer_ids):
 
         cancel_tx_request = prepare_nftoken_cancel_offer(wallet.classic_address, offer_ids)
         try:
+            logger.info("signing and submitting the transaction, awaiting a response")
             cancel_tx_response = submit_and_wait(transaction=cancel_tx_request, client=client, wallet=wallet)
         except XRPLException as e:
             process_unexpected_error(e)

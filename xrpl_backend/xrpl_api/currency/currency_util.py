@@ -1,4 +1,4 @@
-from xrpl.models import IssuedCurrency, XRP, BookOffers
+from xrpl.models import IssuedCurrency, XRP, BookOffers, IssuedCurrencyAmount
 from xrpl.utils import xrp_to_drops
 
 
@@ -10,6 +10,14 @@ def buyer_create_issued_currency(wallet_address, currency, amount):
         ),
         "value": amount,
     }
+
+def create_issued_currency_amount(issuer_address, currency, amount):
+    return IssuedCurrencyAmount(
+        currency=currency,
+        issuer=issuer_address,
+        value=str(amount)
+    )
+
 
 def create_amount_the_buyer_wants_to_spend():
     return {

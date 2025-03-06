@@ -2,14 +2,17 @@ from django.urls import path, reverse
 
 from .accounts.accounts import CreateTestAccounts, CreateTestAccount, GetAccountInfo, GetAccountInfoFromHash, \
     GetAccountBalance, GetAccountConfiguration, UpdateAccountConfiguration
+from .checks.checks import GetChecks, CreateTokenCheck, CreateXrpCheck, CashTokenCheck, CashXrpCheck, CancelCheck, \
+    GetChecksPage
 from .currency.currency import SendCrossCurrency
+from .did.did import GetDid, SetDid, DeleteDid
 from .escrows.escrows import CreateEscrow, GetEscrowSequenceNumber, CancelEscrow, FinishEscrow, GetEscrowAccountInfo
 from .ledger.ledger import GetLedgerInfo, GetServerInfo, GetXrpReserves
 from .nft.nft import MintNft, GetAccountNft, BuyNft, CancelNftOffers, BurnNft, SellNft
 from .offers.account_offers.account_offers import GetAccountOffers, CancelAccountOffers
 from .offers.book_offers.book_offers import GetBookOffers, CreateBookOffer
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
-from .test.offers_grok import CreateSellBookOffersGrok, BuyBookOffersGrok
+from .test.offers_grok import CreateSellBookOffersGrok, BuyBookOffersGrok, CancelBookOffersGrok
 from .transactions.transactions import GetTransactionHistory, GetTransactionStatus
 from .trust_lines.trust_line import GetAccountTrustLines, SetTrustLines, RemoveTrustLine
 
@@ -61,7 +64,7 @@ urlpatterns = [
 
     path("create-book-offers-easy-grok/", CreateSellBookOffersGrok.as_view(), name="create_offer_view"),
     path("create-buy-book-offers-easy-grok/", BuyBookOffersGrok.as_view(), name="buy_offer_view"),
-
+    path("cancel-book-offers-easy/", CancelBookOffersGrok.as_view(), name="cancel_book_offers_easy"),
 
     # Endpoint to cancel an offer on an account.
     # Example: http://127.0.0.1:8000/xrpl/create-book-offer/?wallet_address=raGfE6LfRpUXNjmSYRqUyhWkU429XeYgEg&currency=TST&value=25&sendes_seed=sEdS82hNoMmkM7GottuGAFVecYTxRPH
@@ -71,6 +74,22 @@ urlpatterns = [
     # Endpoint to get created offers on an account.
     # Example: http://127.0.0.1:8000/xrpl/cancel-account-offers/?sender_seed=sEdVWMNWboHkJmE5sWC69Y4KghW1KXC
     path("cancel-account-offers/", CancelAccountOffers.as_view(), name="cancel_account_offers"),
+
+
+    ################################# DID #################################
+    path("did/get", GetDid.as_view(), name="get_did"),
+    path("did/set", SetDid.as_view(), name="set_did"),
+    path("did/delete", DeleteDid.as_view(), name="delete_did"),
+
+    ################################# Checks #################################
+    # Endpoint to fetch check details history with pagination.
+    path("checks/get", GetChecks.as_view(), name="get_checks"),
+    path("checks/get/page", GetChecksPage.as_view(), name="get_checks_with_pagination"),
+    path("checks/create/token", CreateTokenCheck.as_view(), name="create_token_check"),
+    path("checks/create/xrp", CreateXrpCheck.as_view(), name="create_xrp_check"),
+    path("checks/cash/token", CashTokenCheck.as_view(), name="cash_token_check"),
+    path("checks/cash/xrp", CashXrpCheck.as_view(), name="cash_xrp_check"),
+    path("checks/cancel", CancelCheck.as_view(), name="cancel_check"),
 
 
 
@@ -151,7 +170,6 @@ urlpatterns = [
 
     # http://127.0.0.1:8000/xrpl/finish-escrow/?escrow_account=rJq8pSDVVcXPEDP7QPMnNzbTWSDkk5MG82&sender_seed=sEd74ZUqk8ZcCCmDJoKriEMWUHGPWUb&prev_txn_id=9DAE3A5510FFFFFCE6A4B0C6DB5F882A1F5B37A9D107CA162F3C427F4A76C31E&tx_hash=9DAE3A5510FFFFFCE6A4B0C6DB5F882A1F5B37A9D107CA162F3C427F4A76C31E&ledger_index=5203679
     path('escrow/finish/', FinishEscrow.as_view(), name='finish_escrow'),
-
 
 
 

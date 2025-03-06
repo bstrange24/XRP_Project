@@ -75,6 +75,7 @@ class GetTransactionHistory(View):
 
                 # Send the request to XRPL to get transaction history
                 account_tx_response = client.request(account_tx_request)
+
                 # Validate client response. Raise exception on error
                 if validate_xrpl_response_data(account_tx_response):
                     process_transaction_error(account_tx_response)

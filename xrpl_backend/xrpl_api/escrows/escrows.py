@@ -301,6 +301,7 @@ class CreateEscrow(View):
             # Autofill, sign, then submit transaction and wait for result
             logger.debug(f"Raw transaction before submission: {create_escrow_txn.to_dict()}")
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 create_escrow_transaction_response = submit_and_wait(create_escrow_txn, self.client, escrow_creator_seed_wallet)
                 logger.debug(f"Response after submission: {create_escrow_transaction_response.to_dict()}")
             except XRPLException as e:
@@ -395,6 +396,7 @@ class CancelEscrow(View):
             cancel_escrow_transaction_request = create_cancel_escrow_transaction(sender_wallet.address, escrow_sequence)
 
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 cancel_escrow_transaction_response = submit_and_wait(cancel_escrow_transaction_request, self.client, sender_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)
@@ -507,6 +509,7 @@ class FinishEscrow(View):
 
             # Submit and wait for result
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 finish_escrow_response = submit_and_wait(signed_tx, self.client, creator_wallet)
                 logger.debug(f"Response after submission: {finish_escrow_response.to_dict()}")
             except XRPLException as e:

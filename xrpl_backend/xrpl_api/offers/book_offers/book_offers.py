@@ -84,6 +84,7 @@ class CreateBookOffers(View):
                 account=self.account1.classic_address,
                 limit_amount={"currency": "USD", "issuer": self.usd_issuer_wallet.classic_address, "value": "1000000"}
             )
+            logger.info("signing and submitting the transaction, awaiting a response")
             submit_and_wait(trust_tx1, self.client, self.account1)
 
         # Check trustlines for account2
@@ -97,6 +98,7 @@ class CreateBookOffers(View):
                 account=self.account2.classic_address,
                 limit_amount={"currency": "USD", "issuer": self.usd_issuer_wallet.classic_address, "value": "1000000"}
             )
+            logger.info("signing and submitting the transaction, awaiting a response")
             submit_and_wait(trust_tx2, self.client, self.account2)
 
     def create_offer(self, account_seed, taker_gets_amount, taker_pays_amount, is_buy=True):
@@ -134,6 +136,7 @@ class CreateBookOffers(View):
         )
 
         try:
+            logger.info("signing and submitting the transaction, awaiting a response")
             response = submit_and_wait(offer_tx, self.client, wallet)
             tx_hash = response.result["hash"]
             tx_response = self.client.request(Tx(transaction=tx_hash))
@@ -474,6 +477,7 @@ class CreateBookOffer(View):
                 )
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     await submit_and_wait(trust_tx, client, buyer_wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)
@@ -491,6 +495,7 @@ class CreateBookOffer(View):
                 )
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     await submit_and_wait(trust_tx, client, seller_wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)
@@ -509,6 +514,7 @@ class CreateBookOffer(View):
                     ))
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     await submit_and_wait(usd_payment_tx, client, issuer_wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)
@@ -527,6 +533,7 @@ class CreateBookOffer(View):
                     ))
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     await submit_and_wait(usd_payment_tx, client, issuer_wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)
@@ -557,6 +564,7 @@ class CreateBookOffer(View):
                 )
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     response = submit_and_wait(offer_tx, client, seller_wallet.classic_address)
                 except XRPLException as e:
                     process_unexpected_error(e)
@@ -577,6 +585,7 @@ class CreateBookOffer(View):
                 )
 
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     response = submit_and_wait(matching_offer_tx, client, buyer_wallet.classic_address)
                 except XRPLException as e:
                     process_unexpected_error(e)

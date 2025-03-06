@@ -139,6 +139,7 @@ class SendCrossCurrency(View):
             print(f"LastLedgerSequence: {payment_tx.last_ledger_sequence}")
             print(f"Time before submission: {time.time()}")
             try:
+                logger.info("signing and submitting the transaction, awaiting a response")
                 validated_tx_response = submit_and_wait(payment_tx, self.client, sender_wallet)
                 print(f"Time after submission: {time.time()}")
             except XRPLException as e:

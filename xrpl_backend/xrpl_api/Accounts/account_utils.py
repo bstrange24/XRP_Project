@@ -45,6 +45,7 @@ def process_flag(sender_address, flag, client, sender_wallet, flags_to_enable):
         account_set_tx = prepare_account_set_disabled_tx(sender_address, flag)
 
     # Submit the transaction and wait for ledger inclusion
+    logger.info("signing and submitting the transaction, awaiting a response")
     response = submit_and_wait(account_set_tx, client, sender_wallet)
     if validate_xrpl_response_data(response):
         process_transaction_error(response)
@@ -377,4 +378,20 @@ def prepare_account_object_with_filter(account, object_type=None):
             account=account,
             type=object_type
         )
+
+def prepare_account_object(account, ledger_index_status, object_type=None):
+    return AccountObjects(
+        account=account,
+        type=object_type,
+        ledger_index=ledger_index_status
+    )
+
+def prepare_account_object_with_pagination(account, ledger_index_status, marker, object_type=None):
+    return AccountObjects(
+        account=account,
+        type=object_type,
+        ledger_index=ledger_index_status,
+        limit=100,
+        marker=marker,
+    )
 

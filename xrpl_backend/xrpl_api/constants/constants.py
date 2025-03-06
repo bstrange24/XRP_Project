@@ -17,6 +17,10 @@ CACHE_TIMEOUT_FOR_TRUST_LINE = 300  # 5 minutes
 CACHE_TIMEOUT_FOR_WALLET = 300  # Cache timeout in seconds (e.g., 5 minutes)
 CACHE_TIMEOUT_FOR_TRANSACTION_HISTORY = 300  # Cache timeout in seconds (e.g., 5 minutes)
 
+# XRPL-specific constraints
+MAX_DID_DOCUMENT_SIZE = 1024  # Approximate practical limit in bytes for DIDDocument field
+MAX_URI_SIZE = 256  # Max bytes for URI field
+
 asfDisableMaster = 1114112
 
 BASE_RESERVE = 2  # Base reserve in XRP; update if it changes
@@ -117,3 +121,45 @@ ACCOUNT_OBJECTS_TYPE = ["escrow", "offer", "payment_channel", "paychan", "ripple
 
 MINT_NFT_TX_FLAG_OPTIONS = ['TF_TRANSFERABLE','TF_BURNABLE','TF_ONLY_XRP', 'TRANSFER_AND_BURNABLE',
                             'TRANSFER_AND_XRP', 'BURNABLE_AND_XRP']
+
+DID_SCHEMA = {
+    "type": "object",
+    "required": ["@context", "id"],
+    "properties": {
+        "@context": {
+            "type": ["string", "array"],
+            "items": {"type": "string"},
+            "contains": {"const": "https://www.w3.org/ns/did/v1"}
+        },
+        "id": {
+            "type": "string",
+            "pattern": "^did:xrpl:1:[a-fA-F0-9]{66}$"  # XRPL DID format: 33-byte pubkey (66 hex chars)
+        },
+        "verificationMethod": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["id", "type", "controller", "publicKeyMultibase"],
+                "properties": {
+                    "id": {"type": "string"},
+                    "type": {"type": "string"},
+                    "controller": {"type": "string", "pattern": "^did:xrpl:1:[a-fA-F0-9]{66}$"},
+                    "publicKeyMultibase": {"type": "string"}
+                }
+            }
+        },
+        "service": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["id", "type", "serviceEndpoint"],
+                "properties": {
+                    "id": {"type": "string"},
+                    "type": {"type": "string"},
+                    "serviceEndpoint": {"type": ["string", "object"]}
+                }
+            }
+        }
+    },
+    "additionalProperties": True
+}

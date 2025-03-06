@@ -19,6 +19,7 @@ logger = logging.getLogger('xrpl_app')
 
 async def process_payment(payment_tx, client, sender_wallet):
     try:
+        logger.info("signing and submitting the transaction, awaiting a response")
         result = await submit_and_wait(payment_tx, client, sender_wallet)
     except XRPLException as e:
         process_unexpected_error(e)
@@ -217,3 +218,10 @@ def create_payment_transaction(sender_address: str, receiver_address: str, amoun
             amount=str(amount_drops),
             fee=str(fee_drops),  # Fee must be passed as a string
         )
+
+def create_offer_sell_payment_transaction(sender_address, receiver_address, currency_amount):
+    return Payment(
+        account=sender_address,
+        destination=receiver_address,
+        amount=currency_amount
+    )

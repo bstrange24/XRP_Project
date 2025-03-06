@@ -164,11 +164,6 @@ class CancelAccountOffers(View):
         Raises:
             XRPLException: If any step fails, such as missing parameters, invalid wallet, or transaction errors.
         """
-        if not self.client:
-            self.client = get_xrpl_client()
-        if not self.client:
-            raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
         # Capture the start time to track the execution duration.
         start_time = time.time()
         function_name = 'cancel_account_offers'
@@ -245,6 +240,7 @@ class CancelAccountOffers(View):
 
                 # Sign and submit the transaction
                 try:
+                    logger.info("signing and submitting the transaction, awaiting a response")
                     cancel_offer_response = submit_and_wait(cancel_offer_tx, self.client, sender_wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)

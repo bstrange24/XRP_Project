@@ -11,6 +11,7 @@ from .ledger.ledger import GetLedgerInfo, GetServerInfo, GetXrpReserves
 from .nft.nft import MintNft, GetAccountNft, BuyNft, CancelNftOffers, BurnNft, SellNft
 from .offers.account_offers.account_offers import GetAccountOffers, CancelAccountOffers
 from .offers.book_offers.book_offers import GetBookOffers, CreateBookOffer
+from .oracles.oracle import GetPriceOracle, CreatePriceOracle, DeletePriceOracles
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
 from .test.offers_grok import CreateSellBookOffersGrok, BuyBookOffersGrok, CancelBookOffersGrok
 from .transactions.transactions import GetTransactionHistory, GetTransactionStatus
@@ -77,6 +78,7 @@ urlpatterns = [
 
 
     ################################# DID #################################
+    # Endpoint to get created offers on an account.
     path("did/get", GetDid.as_view(), name="get_did"),
     path("did/set", SetDid.as_view(), name="set_did"),
     path("did/delete", DeleteDid.as_view(), name="delete_did"),
@@ -90,6 +92,13 @@ urlpatterns = [
     path("checks/cash/token", CashTokenCheck.as_view(), name="cash_token_check"),
     path("checks/cash/xrp", CashXrpCheck.as_view(), name="cash_xrp_check"),
     path("checks/cancel", CancelCheck.as_view(), name="cancel_check"),
+
+
+
+    ################################# Oracles #################################
+    path("oracle/price/get", GetPriceOracle.as_view(), name="get_price_oracle"),
+    path("oracle/price/create", CreatePriceOracle.as_view(), name="create_price_get_oracle"),
+    path("oracle/price/delete", DeletePriceOracles.as_view(), name="delete_price_oracle"),
 
 
 

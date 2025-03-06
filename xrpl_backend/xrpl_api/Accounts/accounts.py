@@ -33,11 +33,19 @@ from ..utilities.utilities import get_xrpl_client, convert_drops_to_xrp, \
 
 logger = logging.getLogger('xrpl_app')
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class CreateTestAccount(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.create_test_account(request)
@@ -53,11 +61,8 @@ class CreateTestAccount(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Generate a new wallet using the faucet. Check if new wallet is successfully created. Raise exception if wallet creation fails
             new_wallet = generate_faucet_wallet(self.client, debug=True)
@@ -76,7 +81,8 @@ class CreateTestAccount(View):
 
             # Log the classic address and X-address
             logger.debug(f"{CLASSIC_XRP_ADDRESS} {new_wallet.address}")
-            logger.debug(f"{X_XRP_ADDRESS} {addresscodec.classic_address_to_xaddress(new_wallet.address, tag=12345, is_test_network=True)}")
+            logger.debug(
+                f"{X_XRP_ADDRESS} {addresscodec.classic_address_to_xaddress(new_wallet.address, tag=12345, is_test_network=True)}")
 
             # Convert balance from drops to XRP
             xrp_balance = convert_drops_to_xrp(account_info_response.result['account_data']['Balance'])
@@ -105,11 +111,19 @@ class CreateTestAccount(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class CreateTestAccounts(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.create_multiple_test_accounts(request)
@@ -125,11 +139,8 @@ class CreateTestAccounts(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
@@ -193,11 +204,19 @@ class CreateTestAccounts(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAccountInfo(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.get_account_info(request)
@@ -211,11 +230,8 @@ class GetAccountInfo(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
@@ -245,7 +261,8 @@ class GetAccountInfo(View):
             if base_reserve is None or reserve_increment is None:
                 raise XRPLException(error_response(FAILED_TO_FETCH_RESERVE_DATA.format(account)))
 
-            logger.info(f"Account found: {account}, Balance: {xrp_balance}, Base Reserve: {base_reserve}, Reserve Increment: {reserve_increment}")
+            logger.info(
+                f"Account found: {account}, Balance: {xrp_balance}, Base Reserve: {base_reserve}, Reserve Increment: {reserve_increment}")
 
             return create_wallet_info_response(base_reserve, reserve_increment, account_info_response.result)
 
@@ -258,11 +275,19 @@ class GetAccountInfo(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAccountInfoFromHash(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.get_account_info_from_hash(request)
@@ -276,11 +301,8 @@ class GetAccountInfoFromHash(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
@@ -293,7 +315,8 @@ class GetAccountInfoFromHash(View):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
             if get_account_objects == 'True' and get_all_tx_for_account == 'True':
-                raise ValueError(error_response('Getting all transactions and account object at the same time is not supported.'))
+                raise ValueError(
+                    error_response('Getting all transactions and account object at the same time is not supported.'))
 
             # Check if value is in the list using 'in'
             if filter_account_object in ACCOUNT_OBJECTS_TYPE:
@@ -322,7 +345,8 @@ class GetAccountInfoFromHash(View):
                         logger.info("No account objects found.")
 
                     transactions.extend(account_objects_response.result["account_objects"])
-                    logger.debug(json.dumps(account_objects_response.result["account_objects"], indent=4, sort_keys=True))
+                    logger.debug(
+                        json.dumps(account_objects_response.result["account_objects"], indent=4, sort_keys=True))
 
                     # Check if there are more pages of transactions to fetch
                     marker = account_objects_response.result.get("marker")
@@ -339,7 +363,8 @@ class GetAccountInfoFromHash(View):
 
                     if account_tx_response.result["transactions"]:
                         for tx in account_tx_response.result["transactions"]:
-                            logger.debug(f"Tx Hash: {tx['hash']}, Type: {tx['tx_json']['TransactionType']}, Result: {tx['meta']['TransactionResult']}")
+                            logger.debug(
+                                f"Tx Hash: {tx['hash']}, Type: {tx['tx_json']['TransactionType']}, Result: {tx['meta']['TransactionResult']}")
                     else:
                         logger.info("No transactions found.")
 
@@ -372,11 +397,19 @@ class GetAccountInfoFromHash(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAccountBalance(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.check_account_balance(request)
@@ -390,11 +423,8 @@ class GetAccountBalance(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
@@ -432,11 +462,19 @@ class GetAccountBalance(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAccountConfiguration(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.get_account_config(request)
@@ -450,11 +488,8 @@ class GetAccountConfiguration(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
@@ -491,11 +526,19 @@ class GetAccountConfiguration(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class UpdateAccountConfiguration(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def put(self, request, *args, **kwargs):
         return self.update_account_config(request)
@@ -506,11 +549,8 @@ class UpdateAccountConfiguration(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)

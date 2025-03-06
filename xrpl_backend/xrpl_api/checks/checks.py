@@ -135,7 +135,7 @@ class GetChecksPage(View):
                 if validate_xrpl_response_data(prepare_account_object_response):
                     process_transaction_error(prepare_account_object_response)
 
-                if "account_objects" not in prepare_account_object_response.result:
+                if "account_objects" not in prepare_account_object_response.result or len(prepare_account_object_response.result['account_objects']) <= 0:
                     return get_checks_pagination_response(None, None, False)
 
                 account_check.extend(prepare_account_object_response.result["account_objects"])

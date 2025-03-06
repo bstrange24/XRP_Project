@@ -14,13 +14,12 @@ from xrpl.models import ServerInfo, Ledger
 from .db_operations.ledger_db_operations import save_ledger_info, save_server_info
 from ..accounts.account_utils import account_reserves_response
 from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
-    ERROR_INITIALIZING_SERVER_INFO, ERROR_INITIALIZING_CLIENT, \
-    CACHE_TIMEOUT_FOR_SERVER_INFO, LEAVING_FUNCTION_LOG, \
+    ERROR_INITIALIZING_SERVER_INFO, ERROR_INITIALIZING_CLIENT, CACHE_TIMEOUT_FOR_SERVER_INFO, LEAVING_FUNCTION_LOG, \
     INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER
 from ..errors.error_handling import process_transaction_error, error_response, handle_error_new
 from ..ledger.ledger_util import ledger_info_response
-from ..utilities.utilities import get_cached_data, get_xrpl_client, \
-    total_execution_time_in_millis, validate_xrpl_response_data, validate_xrp_wallet
+from ..utilities.utilities import get_cached_data, get_xrpl_client, total_execution_time_in_millis, \
+    validate_xrpl_response_data, validate_xrp_wallet
 
 logger = logging.getLogger('xrpl_app')
 
@@ -29,6 +28,13 @@ class GetLedgerInfo(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.get_ledger_info(request)
@@ -42,10 +48,8 @@ class GetLedgerInfo(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function.
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
@@ -88,6 +92,13 @@ class GetServerInfo(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.get_server_info(request)
 
@@ -100,10 +111,8 @@ class GetServerInfo(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log function entry.
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             cache_key = "server_info"
             cached_data = get_cached_data(cache_key, 'get_server_info', function_name)
@@ -147,6 +156,13 @@ class GetXrpReserves(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.get_xrp_reserves(request)
 
@@ -160,10 +176,8 @@ class GetXrpReserves(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function.
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             account = data.get("account")

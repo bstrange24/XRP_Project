@@ -7,7 +7,6 @@ import time
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
 from tenacity import wait_exponential, stop_after_attempt, retry
 from xrpl import XRPLException
 from xrpl.ledger import get_latest_validated_ledger_sequence
@@ -28,8 +27,7 @@ from ..constants.constants import ENTERING_FUNCTION_LOG, \
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new, \
     process_unexpected_error
 from ..offers.account_offers.account_offers_util import prepare_account_lines_for_offer, prepare_account_offers
-from ..utilities.utilities import get_request_param, get_xrpl_client, total_execution_time_in_millis, \
-    validate_xrp_wallet, \
+from ..utilities.utilities import get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, \
     validate_xrpl_response_data, count_xrp_received
 
 logger = logging.getLogger('xrpl_app')
@@ -40,10 +38,17 @@ class GetAccountTrustLines(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
-    def post(self, request, *args, **kwargs):
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+    def post(self, request):
         return self.get_account_trust_lines(request)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         return self.get_account_trust_lines(request)
 
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
@@ -54,10 +59,8 @@ class GetAccountTrustLines(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
@@ -136,10 +139,17 @@ class SetTrustLines(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
-    def post(self, request, *args, **kwargs):
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+    def post(self, request):
         return self.set_trust_line(request)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         return self.set_trust_line(request)
 
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
@@ -149,10 +159,8 @@ class SetTrustLines(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract the parameters from the request data.
             data = json.loads(request.body)
@@ -268,10 +276,17 @@ class RemoveTrustLine(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
-    def post(self, request, *args, **kwargs):
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
+    def post(self, request):
         return self.remove_trust_line(request)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         return self.remove_trust_line(request)
 
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
@@ -282,10 +297,8 @@ class RemoveTrustLine(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract the parameters from the request data.
             data = json.loads(request.body)

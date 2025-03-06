@@ -25,6 +25,13 @@ class GetDid(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request):
         return self.get_did(request)
 
@@ -37,10 +44,8 @@ class GetDid(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log function entry.
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             account = data.get("account")
@@ -85,6 +90,13 @@ class SetDid(View):
         super().__init__()
         self.client = None
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request):
         return self.set_did(request)
 
@@ -97,10 +109,8 @@ class SetDid(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             account_seed = data.get("account_seed")
@@ -158,6 +168,13 @@ class DeleteDid(View):
         super().__init__()
         self.client = None
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request):
         return self.delete_did(request)
 
@@ -170,10 +187,8 @@ class DeleteDid(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))  # Log entering the function.
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)

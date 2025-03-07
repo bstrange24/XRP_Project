@@ -16,8 +16,7 @@ from xrpl.transaction import submit_and_wait
 from xrpl.utils import XRPRangeException
 from xrpl.wallet import Wallet
 
-from .db_operations.nft_db_operations import save_nft_mint_transaction, save_nft_sell_transactions, \
-    save_nft_buy_transactions, save_nft_burn_transactions
+from .db_operations.nft_db_operations import save_nft_mint_transaction, save_nft_buy_transactions, save_nft_burn_transactions
 from .nft_utils import prepare_nftoken_mint_request, prepare_account_nft_request, create_nftoken_response, \
     prepare_nftoken_burn_request, create_nftoken_with_pagination_response, process_sell_account_nft, \
     create_nftoken_mint_response, verify_nft_ownership, check_existing_nft_sell_offers, cancel_nft_sell_offers, \
@@ -40,6 +39,13 @@ class MintNft(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.mint_nft(request)
 
@@ -53,10 +59,8 @@ class MintNft(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             minter_seed = data.get("minter_seed")
@@ -176,23 +180,31 @@ class GetAccountNft(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
-    def post(self, request, account, *args, **kwargs):
-        return self.get_account_nft(request, account)
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
-    def get(self, request, account, *args, **kwargs):
-        return self.get_account_nft(request, account)
+    def post(self, request, *args, **kwargs):
+        return self.get_account_nft(request)
+
+    def get(self, request, *args, **kwargs):
+        return self.get_account_nft(request)
 
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
-    def get_account_nft(self, request, account):
+    def get_account_nft(self, request):
         start_time = time.time()
         function_name = 'get_account_nft'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
+
+            data = json.loads(request.body)
+            account = data.get("account")
 
             logger.info(f"Parameters: wallet: {account}")
 
@@ -257,6 +269,13 @@ class BurnNft(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.burn_nft(request)
 
@@ -270,10 +289,8 @@ class BurnNft(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract parameters from the request
             data = json.loads(request.body)
@@ -328,6 +345,13 @@ class SellNft(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.sell_nft(request)
 
@@ -341,10 +365,8 @@ class SellNft(View):
         logger.info(f"Entering {function_name}")
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             return process_sell_account_nft(self.client, data, True)
@@ -362,6 +384,13 @@ class BuyNft(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.buy_nft(request)
 
@@ -375,10 +404,8 @@ class BuyNft(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract parameters from the request
             data = json.loads(request.body)
@@ -477,6 +504,13 @@ class CancelNftOffers(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.cancel_nft_offers(request)
 
@@ -490,10 +524,8 @@ class CancelNftOffers(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract parameters from the request
             data = json.loads(request.body)

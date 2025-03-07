@@ -184,10 +184,10 @@ export class LayoutComponent implements OnInit {
                     this.sharedDataService.setWalletAddress(this.wallet_address);
                     this.isVisible = true;
                     this.cdr.detectChanges();
-                    console.log('Navigating to account-info with wallet:', this.wallet_address);
-                    this.router.navigate(['/account-info', this.wallet_address]).then(() => {
-                         console.log('Navigation completed to /account-info/', this.wallet_address);
-                    });
+                    // console.log('Navigating to account-info with wallet:', this.wallet_address);
+                    // this.router.navigate(['/account-info', this.wallet_address]).then(() => {
+                         // console.log('Navigation completed to /account-info/', this.wallet_address);
+                    // });
                } else if (this.isSyntacticallyValidLedgerIndex(userInput)) {
                     const ledgerIndexNum = Number(userInput);
                     console.log('Validating ledger index:', ledgerIndexNum);
@@ -288,5 +288,10 @@ export class LayoutComponent implements OnInit {
      navigateToGetAccountConfig() { this.router.navigate(['/get-account-config']); }
      navigateToUpdateAccountConfig() { this.router.navigate(['/update-account-config']); }
      navigateToConnectWallet() { this.router.navigate(['/connect-wallet']); }
+
+     navigateToGetAccountNfts(){ this.router.navigate(['/get-nfts']); }
+
+     navigateToGetPriceOracle(){ this.router.navigate(['/get-price-oracle']); }
+
      navigateToHome() { this.router.navigate(['']); }
 }

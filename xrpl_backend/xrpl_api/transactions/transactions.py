@@ -33,6 +33,13 @@ class GetTransactionHistory(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.get_transaction_history_with_pagination(request)
 
@@ -45,10 +52,8 @@ class GetTransactionHistory(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
@@ -129,6 +134,13 @@ class GetTransactionStatus(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.check_transaction_status(request)
 
@@ -143,11 +155,8 @@ class GetTransactionStatus(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize XRPL client. Check if client is successfully initialized. Raise exception if client initialization fails
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)

@@ -187,7 +187,7 @@ urlpatterns = [
     path('nfts/mint/', MintNft.as_view(), name='mint_nft'),
 
     # Example: http://127.0.0.1:8000/xrpl/nfts/account-info/r93BywwD6bg7TUNmq5nDjTvmEYuyLqGbyU
-    path('nfts/account/info/<str:account>/', GetAccountNft.as_view(), name='get_account_nft'),
+    path('nfts/account/info/', GetAccountNft.as_view(), name='get_account_nft'),
 
     # Example: http://127.0.0.1:8000/xrpl/nfts/burn
     path('nfts/burn/', BurnNft.as_view(), name='burn_nft'),

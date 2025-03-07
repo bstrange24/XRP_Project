@@ -27,6 +27,11 @@
                 <button mat-button [matMenuTriggerFor]="trustLinesMenu" class="create-button">Trust Lines</button>
                 <button mat-button [matMenuTriggerFor]="tpaymentsMenu" class="create-button">Payments</button>
                 <button mat-button [matMenuTriggerFor]="toffersMenu" class="create-button">Offers</button>
+                <button mat-button [matMenuTriggerFor]="tNftsMenu" class="create-button">NFT</button>
+                <button mat-button [matMenuTriggerFor]="tOraclesMenu" class="create-button">Oracles</button>
+                <button mat-button [matMenuTriggerFor]="tChecksMenu" class="create-button">Checks</button>
+                <button mat-button [matMenuTriggerFor]="tDidMenu" class="create-button">DID</button>
+                <button mat-button [matMenuTriggerFor]="tEscrowMenu" class="create-button">Escrow</button>
                 <button mat-button color="primary" (click)="navigateToGetServerInfo()" class="create-button">XRPL Server Info</button>
                 <!-- <button mat-button color="primary" (click)="navigateToGetLedgerInfo()" class="create-button">XRPL Ledger Info</button>s -->
             </div>
@@ -93,3 +98,47 @@
     <button mat-menu-item (click)="navigateToGetAccountConfig()">Get Account Config</button>
     <button mat-menu-item (click)="navigateToUpdateAccountConfig()">Update Account Config</button>
 </mat-menu>
+
+<!-- Account Nft's Menu -->
+<mat-menu #tNftsMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountNfts()">Get NFT for Account</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Mint NFT</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Buy NFT</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Sell NFT</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Burn NFT</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cancel NFT Offer</button>
+</mat-menu>
+
+<!-- Account Escrow Menu -->
+<mat-menu #tEscrowMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Get Escrows for Account</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Create Escrow</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cancel Escrow</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Finish Escrow</button>
+
+</mat-menu>
+
+<!-- Account Checks Menu -->
+<mat-menu #tChecksMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Get Checks for Account</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Create Token Check</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Create XRP Check</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cash Token Check</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cash XRP Check</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cancel Check</button>
+</mat-menu>
+
+<!-- Account Oracles Menu -->
+<mat-menu #tOraclesMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetPriceOracle()">Get Price Oracle for Account</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Create Price Oracle</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Delete Price Oracle</button>
+</mat-menu>
+
+<!-- Account DID Menu -->
+<mat-menu #tDidMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Get DID for Account</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Set DID</button>
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Delete DID</button>
+</mat-menu>
+

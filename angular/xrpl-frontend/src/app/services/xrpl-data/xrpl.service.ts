@@ -53,6 +53,16 @@ export class XrplService {
           });
      }
 
+     getAccountNftsWithPaginations(wallet_address: string, page: number, pageSize: number = 10, bodyData: any): Observable<any> {
+          const headers = new HttpHeaders({
+               'Content-Type': 'application/json',
+          });
+          console.log('body:' + bodyData);
+          return this.http.post(`${this.apiUrl}/nfts/account/info/`, bodyData, {
+               headers,
+          });
+     }
+
      createAccount(): Observable<any> {
           // Create HttpParams with the ledger_index query parameter
           return this.http.get(`${this.apiUrl}/account/create/test-account/`, {});

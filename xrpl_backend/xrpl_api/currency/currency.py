@@ -32,6 +32,13 @@ class SendCrossCurrency(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.send_cross_currency_payment(request)
 
@@ -56,10 +63,8 @@ class SendCrossCurrency(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Extract parameters from the request
             data = json.loads(request.body)

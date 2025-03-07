@@ -33,6 +33,13 @@ class CreateSellBookOffersGrok(View):
         self.account2 = Wallet.from_seed("sEdS5zxsgGbbtMKWkkBt3kdAvEBXdbY")
         self.usd_issuer_wallet = None  # Lazy-loaded issuer wallet
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.create_offer_view(request)
 
@@ -47,12 +54,8 @@ class CreateSellBookOffersGrok(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-            if not self.usd_issuer_wallet:
-                self.usd_issuer_wallet = generate_faucet_wallet(self.client)
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             required_fields = ["account_seed", "taker_gets_amount", "taker_pays_amount", "is_buy"]
@@ -138,6 +141,13 @@ class BuyBookOffersGrok(View):
         self.account2 = Wallet.from_seed("sEdS5zxsgGbbtMKWkkBt3kdAvEBXdbY")
         self.usd_issuer_wallet = None  # Lazy-loaded issuer wallet
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.buy_offer_view(request)
 
@@ -152,10 +162,9 @@ class BuyBookOffersGrok(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
+
             if not self.usd_issuer_wallet:
                 self.usd_issuer_wallet = generate_faucet_wallet(self.client)
 
@@ -267,6 +276,13 @@ class CancelBookOffersGrok(View):
         self.account2 = Wallet.from_seed("sEdS5zxsgGbbtMKWkkBt3kdAvEBXdbY")
         self.usd_issuer_wallet = None  # Lazy-loaded issuer wallet
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.cancel_offer_view(request)
 
@@ -281,10 +297,9 @@ class CancelBookOffersGrok(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
+
             if not self.usd_issuer_wallet:
                 self.usd_issuer_wallet = generate_faucet_wallet(self.client)
 

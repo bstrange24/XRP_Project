@@ -4,7 +4,9 @@ import logging
 import time
 
 from django.core.paginator import Paginator
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from xrpl import XRPLException
 from xrpl.account import does_account_exist
 from xrpl.asyncio.clients import XRPLRequestFailureException
@@ -22,7 +24,7 @@ from ..utilities.utilities import get_xrpl_client, total_execution_time_in_milli
 
 logger = logging.getLogger('xrpl_app')
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class GetPriceOracle(View):
     def __init__(self):
         super().__init__()
@@ -121,7 +123,7 @@ class GetPriceOracle(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class CreatePriceOracle(View):
     def __init__(self):
         super().__init__()
@@ -218,7 +220,7 @@ class CreatePriceOracle(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class DeletePriceOracles(View):
     def __init__(self):
         super().__init__()

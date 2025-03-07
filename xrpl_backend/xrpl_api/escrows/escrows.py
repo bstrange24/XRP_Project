@@ -47,6 +47,13 @@ class GetEscrowAccountInfo(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.get_account_escrow_info(request)
 
@@ -62,10 +69,8 @@ class GetEscrowAccountInfo(View):
         get_escrow_from_txn_id = False
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             escrow_account = data.get("escrow_account")
@@ -179,6 +184,13 @@ class GetEscrowSequenceNumber(View):
         super().__init__()
         self.client = None
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.get_escrow_sequence_number(request)
 
@@ -186,16 +198,14 @@ class GetEscrowSequenceNumber(View):
         return self.get_escrow_sequence_number(request)
 
     def get_escrow_sequence_number(self, request):
-        if not self.client:
-            self.client = get_xrpl_client()
-        if not self.client:
-            raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
         start_time = time.time()
         function_name = 'get_escrow_sequence_number'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
+            # Initialize the client if not already initialized
+            self._initialize_client()
+
             data = json.loads(request.body)
             prev_txn_id = data.get("prev_txn_id")
 
@@ -220,6 +230,13 @@ class CreateEscrow(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.create_escrow(request)
 
@@ -232,10 +249,8 @@ class CreateEscrow(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             escrow_receiver_account = data.get("escrow_receiver_account")
@@ -334,6 +349,13 @@ class CancelEscrow(View):
         super().__init__()
         self.client = None  # Lazy-loaded client
 
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+
     def post(self, request, *args, **kwargs):
         return self.cancel_escrow(request)
 
@@ -346,10 +368,8 @@ class CancelEscrow(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             data = json.loads(request.body)
             escrow_creator_seed = data.get("escrow_creator_seed")
@@ -417,12 +437,18 @@ class CancelEscrow(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
 @method_decorator(csrf_exempt, name="dispatch")
 class FinishEscrow(View):
     def __init__(self):
         super().__init__()
         self.client = None  # Lazy-loaded client
+
+    def _initialize_client(self):
+        """Lazy initialization of the XRPL client."""
+        if not self.client:
+            self.client = get_xrpl_client()
+            if not self.client:
+                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.finish_escrow(request)
@@ -436,10 +462,8 @@ class FinishEscrow(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            if not self.client:
-                self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
+            # Initialize the client if not already initialized
+            self._initialize_client()
 
             # Parse request body
             data = json.loads(request.body)

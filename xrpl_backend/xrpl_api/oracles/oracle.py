@@ -110,7 +110,7 @@ class GetPriceOracle(View):
             paginated_transactions = paginator.get_page(page)
 
             # Log successful transaction history fetch
-            logger.info(f"Transaction history fetched for address: {oracle_creator_account}")
+            logger.info(f"Price Oracle data fetched for address: {oracle_creator_account}")
 
             return oracles_with_pagination_response(paginated_transactions, paginator)
 

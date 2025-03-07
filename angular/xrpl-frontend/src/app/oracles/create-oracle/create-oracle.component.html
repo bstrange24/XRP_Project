@@ -1,1 +1,109 @@
-<p>create-oracle works!</p>
+<div class="app">
+     <mat-card class="oracle-card">
+          <div class="centered-container">
+               <mat-card-content>
+                    <div class="trust-lines-box">
+                         <!-- Scrollable Form Container -->
+                         <div class="form-container scrollable">
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Sender Wallet Seed</mat-label>
+                                   <input matInput [(ngModel)]="senderSeed"
+                                        placeholder="Enter sender wallet seed (e.g., sEdTiSkyP4m336cqk3sH3ZdPbyLRag5)"
+                                        required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Document ID</mat-label>
+                                   <input matInput [(ngModel)]="documentId" placeholder="Enter Document Id" required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Provider</mat-label>
+                                   <input matInput [(ngModel)]="provider" placeholder="Enter Provider" required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>URI</mat-label>
+                                   <input matInput [(ngModel)]="uri" placeholder="Enter URI" required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Asset Class Type</mat-label>
+                                   <input matInput [(ngModel)]="assetClassType"
+                                        placeholder="Enter Asset Class Type (e.g., currency, commodity)" required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Base Asset</mat-label>
+                                   <input matInput [(ngModel)]="baseAsset"
+                                        placeholder="Enter Base Asset (e.g., BTC, XRP, XLM)" required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Quote Asset</mat-label>
+                                   <input matInput [(ngModel)]="quoteAsset"
+                                        placeholder="Enter Quote Asset (e.g., USD, CAD)" type="text" required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Price</mat-label>
+                                   <input matInput [(ngModel)]="price" placeholder="Enter Price (e.g., 2)" type="text"
+                                        required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Scale</mat-label>
+                                   <input matInput [(ngModel)]="scale" placeholder="Enter Scale" type="text" required>
+                              </mat-form-field>
+                              <button mat-button color="primary" (click)="createPriceOracles()" [disabled]="isLoading">
+                                   {{ isLoading ? 'Loading...' : 'Create Price Oracles' }}
+                              </button>
+                         </div>
+
+                         <!-- Scrollable Results Container -->
+                         <div class="result-container scrollable" *ngIf="hash && txJson && !isLoading && !errorMessage">
+                              <h3>Oracle Creation Result</h3>
+                              <div class="hash-display">
+                                   <p><strong>Transaction Hash:</strong> {{ hash }}</p>
+                              </div>
+                         </div>
+
+                         <!-- Scrollable Table Container -->
+                         <div class="table-container scrollable" *ngIf="trustLines.length > 0 && !errorMessage">
+                              <table mat-table [dataSource]="trustLines" class="mat-elevation-z8">
+                                   <ng-container matColumnDef="AssetPrice">
+                                        <th mat-header-cell *matHeaderCellDef>Price</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.calculatedPrice | number:
+                                             '1.2-2' }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="BaseAsset">
+                                        <th mat-header-cell *matHeaderCellDef>Base Asset</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.BaseAsset }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="QuoteAsset">
+                                        <th mat-header-cell *matHeaderCellDef>Quote Asset</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.QuoteAsset }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="Scale">
+                                        <th mat-header-cell *matHeaderCellDef>Scale</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.Scale }}</td>
+                                   </ng-container>
+                                   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                   <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                              </table>
+                         </div>
+
+                         <!-- Conditional Messages -->
+                         <div class="no-trustlines-message"
+                              *ngIf="trustLines.length === 0 && !isLoading && !errorMessage && hasFetched">
+                              <p>There are no price data entries for this account.</p>
+                         </div>
+                         <div class="error-message" *ngIf="errorMessage">
+                              <p>{{ errorMessage }}</p>
+                         </div>
+                         <div class="loading" *ngIf="isLoading">
+                              <p>Loading price data...</p>
+                         </div>
+                         <div class="loading" *ngIf="!hasFetched && !isLoading && !errorMessage">
+                              Enter information "Create Price Oracles" to create a price oracle.
+                         </div>
+                    </div>
+               </mat-card-content>
+          </div>
+     </mat-card>
+</div>

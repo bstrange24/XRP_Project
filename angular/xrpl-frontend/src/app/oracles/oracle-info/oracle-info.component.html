@@ -1,86 +1,75 @@
 <div class="app">
-  <mat-card>
-    <div class="centered-container">
-      <mat-card-content>
-        <div class="trust-lines-box">
-          <!-- Trust Lines Form -->
-          <div class="form-container">
-            <mat-form-field class="wide-form-field" appearance="fill">
-              <mat-label>Account Address</mat-label>
-              <input
-                matInput
-                [(ngModel)]="account"
-                placeholder="Enter XRP account address (e.g., rENh1oGGTxs6Kgn5SGFmbjY8nUBCRnUpnk)"
-                required
-              >
-            </mat-form-field>
+     <mat-card>
+          <div class="centered-container">
+               <mat-card-content>
+                    <div class="trust-lines-box">
+                         <!-- Trust Lines Form -->
+                         <div class="form-container">
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Account Address</mat-label>
+                                   <input matInput [(ngModel)]="account"
+                                        placeholder="Enter XRP account address (e.g., rENh1oGGTxs6Kgn5SGFmbjY8nUBCRnUpnk)"
+                                        required>
+                              </mat-form-field>
 
-            <button
-              mat-button
-              color="primary"
-              (click)="getPriceOracles()"
-              [disabled]="isLoading"
-            >
-              {{ isLoading ? 'Loading...' : 'Get Price Oracles' }}
-            </button>
+                              <button mat-button color="primary" (click)="getPriceOracles()" [disabled]="isLoading">
+                                   {{ isLoading ? 'Loading...' : 'Get Price Oracles' }}
+                              </button>
+                         </div>
+
+                         <!-- Display PriceDataSeries Table if data exists -->
+                         <div class="table-container" *ngIf="trustLines.length > 0 && !errorMessage">
+                              <table mat-table [dataSource]="trustLines" class="mat-elevation-z8">
+                                   <ng-container matColumnDef="AssetPrice">
+                                        <th mat-header-cell *matHeaderCellDef>Asset Price</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.calculatedPrice | number: '1.2-2' }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="BaseAsset">
+                                        <th mat-header-cell *matHeaderCellDef>Base Asset</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.BaseAsset }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="QuoteAsset">
+                                        <th mat-header-cell *matHeaderCellDef>Quote Asset</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.QuoteAsset }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="Scale">
+                                        <th mat-header-cell *matHeaderCellDef>Scale</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.Scale }}</td>
+                                   </ng-container>
+                                   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                   <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                              </table>
+
+                              <!-- Paginator -->
+                              <mat-paginator [length]="totalAccountLines" [pageSize]="pageSize"
+                                   [pageSizeOptions]="[5, 10, 25]" (page)="onPageChange($event)"></mat-paginator>
+                         </div>
+
+                         <!-- Display "No Price Data" Message -->
+                         <div class="no-trustlines-message"
+                              *ngIf="trustLines.length === 0 && !isLoading && !errorMessage && hasFetched">
+                              <p>There are no price data entries for this account.</p>
+                         </div>
+
+                         <!-- Display Error Message if there’s an error -->
+                         <div class="error-message" *ngIf="errorMessage">
+                              <p>{{ errorMessage }}</p>
+                         </div>
+
+                         <!-- Loading State -->
+                         <div class="loading" *ngIf="isLoading">
+                              <p>Loading price data...</p>
+                         </div>
+
+                         <!-- Initial State -->
+                         <div class="loading" *ngIf="!hasFetched && !isLoading && !errorMessage">
+                              Enter an account address and click "Get Price Oracles" to retrieve price data.
+                         </div>
+                    </div>
+               </mat-card-content>
           </div>
-
-          <!-- Display PriceDataSeries Table if data exists -->
-          <div class="table-container" *ngIf="trustLines.length > 0 && !errorMessage">
-            <table mat-table [dataSource]="trustLines" class="mat-elevation-z8">
-              <ng-container matColumnDef="AssetPrice">
-                <th mat-header-cell *matHeaderCellDef>Asset Price</th>
-                <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.AssetPrice }}</td>
-              </ng-container>
-              <ng-container matColumnDef="BaseAsset">
-                <th mat-header-cell *matHeaderCellDef>Base Asset</th>
-                <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.BaseAsset }}</td>
-              </ng-container>
-              <ng-container matColumnDef="QuoteAsset">
-                <th mat-header-cell *matHeaderCellDef>Quote Asset</th>
-                <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.QuoteAsset }}</td>
-              </ng-container>
-              <ng-container matColumnDef="Scale">
-                <th mat-header-cell *matHeaderCellDef>Scale</th>
-                <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.Scale }}</td>
-              </ng-container>
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-            </table>
-
-            <!-- Paginator -->
-            <mat-paginator
-              [length]="totalAccountLines"
-              [pageSize]="pageSize"
-              [pageSizeOptions]="[5, 10, 25]"
-              (page)="onPageChange($event)"
-            ></mat-paginator>
-          </div>
-
-          <!-- Display "No Price Data" Message -->
-          <div
-            class="no-trustlines-message"
-            *ngIf="trustLines.length === 0 && !isLoading && !errorMessage && hasFetched"
-          >
-            <p>There are no price data entries for this account.</p>
-          </div>
-
-          <!-- Display Error Message if there’s an error -->
-          <div class="error-message" *ngIf="errorMessage">
-            <p>{{ errorMessage }}</p>
-          </div>
-
-          <!-- Loading State -->
-          <div class="loading" *ngIf="isLoading">
-            <p>Loading price data...</p>
-          </div>
-
-          <!-- Initial State -->
-          <div class="loading" *ngIf="!hasFetched && !isLoading && !errorMessage">
-            Enter an account address and click "Get Price Oracles" to retrieve price data.
-          </div>
-        </div>
-      </mat-card-content>
-    </div>
-  </mat-card>
+     </mat-card>
 </div>

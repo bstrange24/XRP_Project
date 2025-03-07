@@ -111,10 +111,10 @@
 
 <!-- Account Escrow Menu -->
 <mat-menu #tEscrowMenu="matMenu">
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Get Escrows for Account</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Create Escrow</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cancel Escrow</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Finish Escrow</button>
+    <button mat-menu-item (click)="navigateToGetAccountEscrow()">Get Escrows for Account</button>
+    <button mat-menu-item (click)="navigateToCreateEscrow()">Create Escrow</button>
+    <button mat-menu-item (click)="navigateToCancelEscrow()">Cancel Escrow</button>
+    <button mat-menu-item (click)="navigateToFinish()">Finish Escrow</button>
 
 </mat-menu>
 
@@ -131,14 +131,14 @@
 <!-- Account Oracles Menu -->
 <mat-menu #tOraclesMenu="matMenu">
     <button mat-menu-item (click)="navigateToGetPriceOracle()">Get Price Oracle for Account</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Create Price Oracle</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Delete Price Oracle</button>
+    <button mat-menu-item (click)="navigateToCreatePriceOracle()">Create Price Oracle</button>
+    <button mat-menu-item (click)="navigateToDeletePriceOracle()">Delete Price Oracle</button>
 </mat-menu>
 
 <!-- Account DID Menu -->
 <mat-menu #tDidMenu="matMenu">
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Get DID for Account</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Set DID</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Delete DID</button>
+    <button mat-menu-item (click)="navigateToGetAccountDid()">Get DID for Account</button>
+    <button mat-menu-item (click)="navigateToSetDid()">Set DID</button>
+    <button mat-menu-item (click)="navigateToDeleteDid()">Delete DID</button>
 </mat-menu>
 

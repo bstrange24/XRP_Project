@@ -1,1 +1,77 @@
-<p>delete-oracle works!</p>
+<div class="app">
+     <mat-card class="oracle-card">
+          <div class="centered-container">
+               <mat-card-content>
+                    <div class="trust-lines-box">
+                         <!-- Form Container -->
+                         <div class="form-container">
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Sender Wallet Seed</mat-label>
+                                   <input matInput [(ngModel)]="senderSeed"
+                                        placeholder="Enter sender wallet seed (e.g., sEdTiSkyP4m336cqk3sH3ZdPbyLRag5)"
+                                        required>
+                              </mat-form-field>
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Document ID</mat-label>
+                                   <input matInput [(ngModel)]="documentId" placeholder="Enter Document Id" required>
+                              </mat-form-field>
+                              <button mat-button color="primary" (click)="deletePriceOracles()" [disabled]="isLoading">
+                                   {{ isLoading ? 'Loading...' : 'Delete Price Oracles' }}
+                              </button>
+                         </div>
+
+                         <!-- Results Container (Hash Only) -->
+                         <div class="result-container" *ngIf="hash && !isLoading && !errorMessage">
+                              <h3>Oracle Delete Result</h3>
+                              <div class="hash-display">
+                                   <p><strong>Transaction Hash:</strong> {{ hash }}</p>
+                              </div>
+                         </div>
+
+                         <!-- Table Container for Deleted PriceDataSeries -->
+                         <div class="table-container" *ngIf="trustLines.length > 0 && !errorMessage">
+                              <h4>Deleted Price Data</h4>
+                              <table mat-table [dataSource]="trustLines" class="mat-elevation-z8">
+                                   <ng-container matColumnDef="AssetPrice">
+                                        <th mat-header-cell *matHeaderCellDef>Price</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.calculatedPrice | number: '1.2-2' }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="BaseAsset">
+                                        <th mat-header-cell *matHeaderCellDef>Base Asset</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.BaseAsset }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="QuoteAsset">
+                                        <th mat-header-cell *matHeaderCellDef>Quote Asset</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.QuoteAsset }}
+                                        </td>
+                                   </ng-container>
+                                   <ng-container matColumnDef="Scale">
+                                        <th mat-header-cell *matHeaderCellDef>Scale</th>
+                                        <td mat-cell *matCellDef="let priceData">{{ priceData.PriceData.Scale }}</td>
+                                   </ng-container>
+                                   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                                   <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                              </table>
+                         </div>
+
+                         <!-- Conditional Messages -->
+                         <div class="no-trustlines-message"
+                              *ngIf="trustLines.length === 0 && !isLoading && !errorMessage && hasFetched">
+                              <p>No price data was deleted or no data available.</p>
+                         </div>
+                         <div class="error-message" *ngIf="errorMessage">
+                              <p>{{ errorMessage }}</p>
+                         </div>
+                         <div class="loading" *ngIf="isLoading">
+                              <p>Deleting price oracle...</p>
+                         </div>
+                         <div class="loading" *ngIf="!hasFetched && !isLoading && !errorMessage">
+                              <p>Enter sender seed and document ID, then click "Delete Price Oracles" to proceed.</p>
+                         </div>
+                    </div>
+               </mat-card-content>
+          </div>
+     </mat-card>
+</div>

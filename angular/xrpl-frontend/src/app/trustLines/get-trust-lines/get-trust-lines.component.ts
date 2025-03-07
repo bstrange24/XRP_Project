@@ -136,7 +136,7 @@ export class GetTrustLinesComponent implements OnInit {
                if (error instanceof Error) {
                     errorMessage = error.message;
                } else if (typeof error === 'object' && error !== null && 'message' in error) {
-                    errorMessage = (error).message;
+                    errorMessage = error.error.message
                } else {
                     errorMessage = 'An unexpected error occurred while retrieving trust lines.';
                }

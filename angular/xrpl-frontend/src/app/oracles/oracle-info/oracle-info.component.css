@@ -35,10 +35,6 @@
     width: 100%;
   }
   
-  .table-container {
-    margin-top: 20px;
-  }
-  
   .mat-elevation-z8 {
     width: 100%;
     border-collapse: collapse;
@@ -63,3 +59,10 @@
     padding: 20px;
     color: #666;
   }
+
+  .table-container {
+    margin-top: 20px;
+    max-height: 400px; /* Adjust as needed */
+    overflow-y: auto;
+  }
+  

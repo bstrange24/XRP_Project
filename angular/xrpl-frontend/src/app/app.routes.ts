@@ -20,6 +20,15 @@ import { CancelAccountOffersComponent } from './accounts/cancel-account-offers/c
 import { GetServerInfoComponent } from './ledger/get-server-info/get-server-info.component';
 import { LedgerDetailComponent } from './ledger/ledger-detail/ledger-detail.component';
 import { OracleInfoComponent } from './oracles/oracle-info/oracle-info.component';
+import { CreateOracleComponent } from './oracles/create-oracle/create-oracle.component';
+import { DeleteOracleComponent } from './oracles/delete-oracle/delete-oracle.component';
+import { DidInfoComponent } from './did/did-info/did-info.component';
+import { SetDidComponent } from './did/set-did/set-did.component';
+import { DeleteDidComponent } from './did/delete-did/delete-did.component';
+import { EscrowInfoComponent } from './escrow/escrow-info/escrow-info.component';
+import { CreateEscrowComponent } from './escrow/create-escrow/create-escrow.component';
+import { CancelEscrowComponent } from './escrow/cancel-escrow/cancel-escrow.component';
+import { FinishEscrowComponent } from './escrow/finish-escrow/finish-escrow.component';
 
 export const routes: Routes = [
   {
@@ -28,33 +37,50 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent, pathMatch: 'full' },
 
-      { path: 'connect-wallet', component: ConnectWalletComponent }, // Add this route
+      ////////////////////////// Accounts //////////////////////////
+      { path: 'connect-wallet', component: ConnectWalletComponent }, 
       { path: 'account-info/:walletAddress', component: AccountInfoComponent },
       { path: 'create-account', component: CreateAccountComponent },
-      { path: 'get-account-config', component: GetAccountConfigComponent }, // Add this route
-      { path: 'update-account-config', component: UpdateAccountConfigComponent }, // Add this route
+      { path: 'get-account-config', component: GetAccountConfigComponent },
+      { path: 'update-account-config', component: UpdateAccountConfigComponent },
+      { path: 'get-account-offers', component: GetAccountOffersComponent },
+      { path: 'cancel-account-offers', component: CancelAccountOffersComponent },
 
+      ////////////////////////// Transactions //////////////////////////
       { path: 'transaction', component: TransactionDetailComponent },
 
+      ////////////////////////// Trust Lines //////////////////////////
       { path: 'create-trust-line', component: CreateTrustLineComponent },
       { path: 'remove-trust-line', component: RemoveTrustLineComponent },
-      { path: 'get-trust-lines', component: GetTrustLinesComponent }, // Add this route
+      { path: 'get-trust-lines', component: GetTrustLinesComponent },
 
-      { path: 'send-payment', component: SendPaymentComponent }, // Add this rout
-      { path: 'send-payment-and-delete-account', component: SendPaymentAndDeleteAccountComponent }, // Add this route
-      { path: 'send-payment-and-black-hole-account', component: SendPaymentAndBlackHoleAccountComponent }, // Add this route
-      { path: 'send-currency-payment', component: SendCurrencyPaymentComponent }, // Add this route
-      
-      { path: 'get-account-offers', component: GetAccountOffersComponent }, // Add this route
-      { path: 'cancel-account-offers', component: CancelAccountOffersComponent }, // Add this route
+      ////////////////////////// Payments //////////////////////////
+      { path: 'send-payment', component: SendPaymentComponent },
+      { path: 'send-payment-and-delete-account', component: SendPaymentAndDeleteAccountComponent },
+      { path: 'send-payment-and-black-hole-account', component: SendPaymentAndBlackHoleAccountComponent },
+      { path: 'send-currency-payment', component: SendCurrencyPaymentComponent },
 
-      
-      { path: 'get-nfts', component: GetNftsComponent }, // Add this route
+      ////////////////////////// NFTS //////////////////////////
+      { path: 'get-nfts', component: GetNftsComponent },
 
+      ////////////////////////// Oracles //////////////////////////
       { path: 'get-price-oracle', component: OracleInfoComponent },
+      { path: 'create-price-oracle', component: CreateOracleComponent },
+      { path: 'delete-price-oracle', component: DeleteOracleComponent },
 
+      ////////////////////////// DID //////////////////////////
+      { path: 'get-account-did', component: DidInfoComponent },
+      { path: 'set-did', component: SetDidComponent },
+      { path: 'delete-did', component: DeleteDidComponent },
 
-      { path: 'get-server-info', component: GetServerInfoComponent }, // Add this route
+      ////////////////////////// Escrow //////////////////////////
+      { path: 'get-account-escrow', component: EscrowInfoComponent },
+      { path: 'create-escrow', component: CreateEscrowComponent },
+      { path: 'cancel-escrow', component: CancelEscrowComponent },
+      { path: 'finish-escrow', component: FinishEscrowComponent },
+      
+      ////////////////////////// Ledger //////////////////////////
+      { path: 'get-server-info', component: GetServerInfoComponent },
       { path: 'get-ledger-info/:ledgerIndex', component: LedgerDetailComponent },
       { path: '**', redirectTo: '', pathMatch: 'full' }
 

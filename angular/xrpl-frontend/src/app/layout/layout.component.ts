@@ -288,10 +288,16 @@ export class LayoutComponent implements OnInit {
      navigateToGetAccountConfig() { this.router.navigate(['/get-account-config']); }
      navigateToUpdateAccountConfig() { this.router.navigate(['/update-account-config']); }
      navigateToConnectWallet() { this.router.navigate(['/connect-wallet']); }
-
      navigateToGetAccountNfts(){ this.router.navigate(['/get-nfts']); }
-
      navigateToGetPriceOracle(){ this.router.navigate(['/get-price-oracle']); }
-
+     navigateToCreatePriceOracle(){ this.router.navigate(['/create-price-oracle']); }
+     navigateToDeletePriceOracle(){ this.router.navigate(['/delete-price-oracle']); }
+     navigateToGetAccountDid(){ this.router.navigate(['/get-account-did']); }
+     navigateToSetDid(){ this.router.navigate(['/set-did']); }
+     navigateToDeleteDid(){ this.router.navigate(['/delete-did']); }
+     navigateToGetAccountEscrow(){ this.router.navigate(['/get-account-escrow']); }
+     navigateToCreateEscrow(){ this.router.navigate(['/create-escrow']); }
+     navigateToCancelEscrow(){ this.router.navigate(['/cancel-escrow']); }
+     navigateToFinish(){ this.router.navigate(['/finish-escrow']); }
      navigateToHome() { this.router.navigate(['']); }
 }

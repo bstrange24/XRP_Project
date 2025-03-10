@@ -1,0 +1,49 @@
+.did-set-box {
+    padding: 20px;
+  }
+  
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .wide-form-field {
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .did-result {
+    margin-top: 20px;
+  }
+  
+  .result-field {
+    margin-bottom: 15px;
+  }
+  
+  .tx-json {
+    margin-top: 10px;
+  }
+  
+  .tx-field {
+    margin-bottom: 10px;
+  }
+  
+  .tx-field strong,
+  .result-field strong {
+    display: inline-block;
+    width: 250px; /* Adjust width as needed */
+    font-weight: bold;
+  }
+  
+  .no-result-message,
+  .error-message,
+  .loading {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .error-message {
+    color: red;
+  }

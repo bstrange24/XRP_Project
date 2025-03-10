@@ -1,0 +1,59 @@
+<div class="app">
+  <mat-card>
+    <div class="centered-container">
+      <!-- Card Content -->
+      <mat-card-content>
+        <div class="account-box">
+          <!-- Display New Account Info if status is "success" -->
+          <div class="box account-header" *ngIf="newAccount && newAccount.status === 'success'">
+            <div class="section box-header">
+              <div class="title">New Wallet Created</div>
+              <h1 class="classic">{{ newAccount.account_id }}</h1>
+            </div>
+            <div class="box-content">
+              <div class="section header-container">
+                <div class="column third">
+                  <div class="secondary balance">
+                    <ul>
+                      <li>
+                        <span class="label" style="display: inline-block; margin-right: 10px;">Account ID:</span>
+                        <b style="display: inline-block;">{{ newAccount.account_id }}</b>
+                      </li>
+                      <li>
+                        <span class="label" style="display: inline-block; margin-right: 10px;">Secret:</span>
+                        <b style="display: inline-block;">{{ newAccount.secret }}</b>
+                      </li>
+                      <li>
+                        <span class="label" style="display: inline-block; margin-right: 10px;">Balance:</span>
+                        <b style="display: inline-block;">{{ newAccount.balance }}</b>
+                      </li>
+                      <li>
+                        <span class="label" style="display: inline-block; margin-right: 10px;">Transaction Hash:</span>
+                        <b style="display: inline-block;">{{ newAccount.transaction_hash }}</b>
+                      </li>
+                      <li>
+                        <span class="label" style="display: inline-block; margin-right: 10px;">Previous Transaction ID:</span>
+                        <b style="display: inline-block;">{{ newAccount.previous_transaction_id }}</b>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Display Error Message if status is not "success" -->
+          <div class="error-message" *ngIf="newAccount && newAccount.status !== 'success'">
+            <p>Error: {{ newAccount.message || 'Failed to create wallet. Please try again.' }}</p>
+          </div>
+
+          <!-- Loading or No Data State (if navigation fails or no data) -->
+          <div *ngIf="!newAccount" class="loading">
+            Loading wallet creation result...
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+    <!-- Card Content -->
+  </mat-card>
+</div>

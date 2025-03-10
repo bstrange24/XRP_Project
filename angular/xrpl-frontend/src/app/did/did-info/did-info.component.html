@@ -1,0 +1,97 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="did-info-box">
+            <!-- DID Info Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Account Address</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="account"
+                  placeholder="Enter XRP account address (e.g., rENh1oGGTxs6Kgn5SGFmbjY8nUBCRnUpnk)"
+                  required
+                />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="getDidInfo()" [disabled]="isLoading">
+                {{ isLoading ? 'Loading...' : 'Get DID Information' }}
+              </button>
+            </div>
+  
+            <!-- Display DID Information if data exists -->
+            <div class="did-container" *ngIf="didNode && ledgerHash && !errorMessage">
+              <h3>DID Information</h3>
+  
+              <!-- Ledger Hash -->
+              <div class="node-field">
+                <strong>Ledger Index:</strong> {{ ledgerIndex }}
+              </div>
+  
+              <!-- DID Node Details -->
+              <div class="did-node">
+                <h4>Node Details</h4>
+                <div class="node-field">
+                  <strong>Account:</strong> {{ didNode.Account }}
+                </div>
+                <div class="node-field">
+                  <strong>DID Document:</strong> {{ didNode.DIDDocument }}
+                </div>
+                <div class="node-field">
+                  <strong>Data:</strong> {{ didNode.Data }}
+                </div>
+                <div class="node-field">
+                  <strong>Flags:</strong> {{ didNode.Flags }}
+                </div>
+                <div class="node-field">
+                  <strong>Ledger Entry Type:</strong> {{ didNode.LedgerEntryType }}
+                </div>
+                <div class="node-field">
+                  <strong>Owner Node:</strong> {{ didNode.OwnerNode }}
+                </div>
+                <div class="node-field">
+                  <strong>Previous Transaction ID:</strong> {{ didNode.PreviousTxnID }}
+                </div>
+                <div class="node-field">
+                  <strong>Previous Transaction Ledger Sequence:</strong> {{ didNode.PreviousTxnLgrSeq }}
+                </div>
+                <div class="node-field">
+                  <strong>URI:</strong> {{ didNode.URI }}
+                </div>
+                <div class="node-field">
+                  <strong>Index:</strong> {{ didNode.index }}
+                </div>
+                <div class="node-field">
+                    <strong>Ledger Hash:</strong> {{ ledgerHash }}
+                  </div>
+              </div>
+            </div>
+  
+            <!-- Display "No DID Data" Message -->
+            <div
+              class="no-did-message"
+              *ngIf="!didNode && !isLoading && !errorMessage && hasFetched"
+            >
+              <p>No DID data found for this account.</p>
+            </div>
+  
+            <!-- Display Error Message if there’s an error -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Loading DID information...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!hasFetched && !isLoading && !errorMessage">
+              Enter an account address and click "Get DID Information" to retrieve DID data.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

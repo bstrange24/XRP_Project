@@ -1,0 +1,74 @@
+<div class="app">
+  <mat-card>
+    <div class="centered-container">
+      <mat-card-content>
+        <div class="get-nfts-box">
+          <!-- NFT Fetch Form -->
+          <div class="form-container">
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Wallet Address</mat-label>
+              <input
+                matInput
+                [(ngModel)]="account"
+                placeholder="Enter XRP wallet address (e.g., r93BywwD6bg7TUNmq5nDjTvmEYuyLqGbyU)"
+                required
+              />
+            </mat-form-field>
+
+            <button mat-button color="primary" (click)="getNfts(true)" [disabled]="isLoading">
+              {{ isLoading ? 'Loading...' : 'Get NFTs' }}
+            </button>
+          </div>
+
+          <!-- Display NFTs in a Table with Scroll -->
+          <div class="nfts-container" *ngIf="nfts.length > 0 && !errorMessage">
+            <div #scrollContainer class="scroll-container">
+              <table class="nft-table">
+                <thead>
+                  <tr>
+                    <th *ngFor="let column of displayedColumns">{{ column }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let nft of nfts">
+                    <td>{{ nft.Issuer }}</td>
+                    <td>{{ nft.NFTokenID }}</td>
+                    <td>{{ nft.nft_serial }}</td>
+                    <td>{{ nft.Flags }}</td>
+                    <td>{{ nft.NFTokenTaxon }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button mat-button color="primary" (click)="loadMore()" [disabled]="isLoading || page >= totalPages">
+              {{ isLoading ? 'Loading...' : 'Load More' }}
+            </button>
+          </div>
+
+          <!-- Display "No NFTs" Message -->
+          <div
+            class="no-nfts-message"
+            *ngIf="nfts.length === 0 && !isLoading && !errorMessage && hasFetched"
+          >
+            <p>No NFTs found for this account.</p>
+          </div>
+
+          <!-- Display Error Message if there’s an error -->
+          <div class="error-message" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <!-- Loading State -->
+          <div class="loading" *ngIf="isLoading">
+            <p>Loading NFTs...</p>
+          </div>
+
+          <!-- Initial State -->
+          <div class="loading" *ngIf="!hasFetched && !isLoading && !errorMessage">
+            Enter a wallet address and click "Get NFTs" to retrieve NFT data.
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</div>

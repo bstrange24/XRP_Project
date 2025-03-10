@@ -1,0 +1,68 @@
+<div class="app">
+  <mat-card>
+    <div class="centered-container">
+      <mat-card-content>
+        <div class="server-info-box">
+          <!-- Loading State -->
+          <div *ngIf="isLoading" class="loading">
+            Loading server information...
+          </div>
+
+          <!-- Display Server Info if available and no error -->
+          <div class="info-container" *ngIf="serverInfo && !errorMessage">
+            <h3>XRPL Server Information</h3>
+            <div class="details-box">
+              <!-- <p><strong>Status:</strong> {{ serverInfo.status }}</p> -->
+              <!-- <p><strong>Message:</strong> {{ serverInfo.message }}</p> -->
+              <h4>Ledger Info</h4>
+              <p><strong>Build Version:</strong> {{ serverInfo.result.info.build_version }}</p>
+              <p><strong>Complete Ledgers:</strong> {{ serverInfo.result.info.complete_ledgers }}</p>
+              <p><strong>Host ID:</strong> {{ serverInfo.result.info.hostid }}</p>
+              <p><strong>Initial Sync Duration (μs):</strong> {{ serverInfo.result.info.initial_sync_duration_us }}</p>
+              <p><strong>IO Latency (ms):</strong> {{ serverInfo.result.info.io_latency_ms }}</p>
+              <p><strong>JQ Transaction Overflow:</strong> {{ serverInfo.result.info.jq_trans_overflow }}</p>
+              <p><strong>Last Close (Converge Time, Proposers):</strong> {{ serverInfo.result.info.last_close.converge_time_s }}s, {{ serverInfo.result.info.last_close.proposers }} proposers</p>
+              <p><strong>Load Factor:</strong> {{ serverInfo.result.info.load_factor }}</p>
+              <p><strong>Network ID:</strong> {{ serverInfo.result.info.network_id }}</p>
+              <p><strong>Peer Disconnects:</strong> {{ serverInfo.result.info.peer_disconnects }}</p>
+              <p><strong>Peer Disconnects (Resources):</strong> {{ serverInfo.result.info.peer_disconnects_resources }}</p>
+              <p><strong>Peers:</strong> {{ serverInfo.result.info.peers }}</p>
+              <h5>Ports:</h5>
+              <ul>
+                <li *ngFor="let port of serverInfo.result.info.ports">
+                  Port {{ port.port }} ({{ port.protocol.join(', ') }})
+                </li>
+              </ul>
+              <p><strong>Public Key Node:</strong> {{ serverInfo.result.info.pubkey_node }}</p>
+              <p><strong>Server State:</strong> {{ serverInfo.result.info.server_state }}</p>
+              <p><strong>Server State Duration (μs):</strong> {{ serverInfo.result.info.server_state_duration_us }}</p>
+              <h5>State Accounting:</h5>
+              <ul>
+                <li><strong>Connected:</strong> {{ serverInfo.result.info.state_accounting.connected.duration_us }}μs, {{ serverInfo.result.info.state_accounting.connected.transitions }} transitions</li>
+                <li><strong>Disconnected:</strong> {{ serverInfo.result.info.state_accounting.disconnected.duration_us }}μs, {{ serverInfo.result.info.state_accounting.disconnected.transitions }} transitions</li>
+                <li><strong>Full:</strong> {{ serverInfo.result.info.state_accounting.full.duration_us }}μs, {{ serverInfo.result.info.state_accounting.full.transitions }} transitions</li>
+                <li><strong>Syncing:</strong> {{ serverInfo.result.info.state_accounting.syncing.duration_us }}μs, {{ serverInfo.result.info.state_accounting.syncing.transitions }} transitions</li>
+                <li><strong>Tracking:</strong> {{ serverInfo.result.info.state_accounting.tracking.duration_us }}μs, {{ serverInfo.result.info.state_accounting.tracking.transitions }} transitions</li>
+              </ul>
+              <p><strong>Time:</strong> {{ serverInfo.result.info.time }}</p>
+              <p><strong>Uptime (seconds):</strong> {{ serverInfo.result.info.uptime }}</p>
+              <h5>Validated Ledger:</h5>
+              <p><strong>Age:</strong> {{ serverInfo.result.info.validated_ledger.age }}s</p>
+              <p><strong>Base Fee (XRP):</strong> {{ serverInfo.result.info.validated_ledger.base_fee_xrp }}</p>
+              <p><strong>Hash:</strong> {{ serverInfo.result.info.validated_ledger.hash }}</p>
+              <p><strong>Reserve Base (XRP):</strong> {{ serverInfo.result.info.validated_ledger.reserve_base_xrp }}</p>
+              <p><strong>Reserve Increment (XRP):</strong> {{ serverInfo.result.info.validated_ledger.reserve_inc_xrp }}</p>
+              <p><strong>Sequence:</strong> {{ serverInfo.result.info.validated_ledger.seq }}</p>
+              <p><strong>Validation Quorum:</strong> {{ serverInfo.result.info.validation_quorum }}</p>
+            </div>
+          </div>
+
+          <!-- Display Error Message if there’s an error -->
+          <div class="error-message" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</div>

@@ -1,0 +1,82 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="create-xrp-check-box">
+            <!-- Create XRP Check Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Sender Seed</mat-label>
+                <input matInput [(ngModel)]="senderSeed" placeholder="e.g., sEdVg7gRSeQ7D6jMTwWCENsJK742qxT" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Check Receiver Address</mat-label>
+                <input matInput [(ngModel)]="checkReceiverAddress" placeholder="e.g., rHS2zLdTv4Up18M6kapEavnVbwveRgQaFj" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Amount to Deliver (XRP)</mat-label>
+                <input matInput type="text" [(ngModel)]="amountToDeliver" placeholder="e.g., 10.00" required />
+                <mat-hint>Positive number (e.g., 10.00)</mat-hint>
+              </mat-form-field>
+  
+              <div class="time-group">
+                <mat-form-field class="time-field" appearance="fill">
+                  <mat-label>Expiration Value</mat-label>
+                  <mat-select [(ngModel)]="expirationValue" required>
+                    <mat-option *ngFor="let num of numberOptions" [value]="num">{{ num }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field class="time-field" appearance="fill">
+                  <mat-label>Expiration Unit</mat-label>
+                  <mat-select [(ngModel)]="expirationUnit" required>
+                    <mat-option *ngFor="let unit of timeUnits" [value]="unit">{{ unit }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+  
+              <button mat-button color="primary" (click)="createXrpCheck()" [disabled]="isLoading">
+                {{ isLoading ? 'Creating...' : 'Create XRP Check' }}
+              </button>
+            </div>
+  
+            <!-- Display tx_json on individual lines -->
+            <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+              <h3>Transaction Details</h3>
+              <div class="tx-json-lines">
+                <div>Account: {{ txJson.Account }}</div>
+                <div>Destination: {{ txJson.Destination }}</div>
+                <div>Expiration: {{ formatDate(txJson.Expiration) }}</div>
+                <div>Fee: {{ txJson.Fee }}</div>
+                <div>Flags: {{ txJson.Flags }}</div>
+                <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+                <div>SendMax: {{ formatSendMax(txJson.SendMax) }} XRP</div>
+                <div>Sequence: {{ txJson.Sequence }}</div>
+                <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+                <div>Transaction Type: {{ txJson.TransactionType }}</div>
+                <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+                <div>Date: {{ formatDate(txJson.date) }}</div>
+                <div>Ledger Index: {{ txJson.ledger_index }}</div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Creating XRP check...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+              Fill out the form and click "Create XRP Check" to create a new XRP check.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

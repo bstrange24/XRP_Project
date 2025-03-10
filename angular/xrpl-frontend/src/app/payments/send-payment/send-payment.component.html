@@ -1,0 +1,98 @@
+<div class="app">
+     <mat-card>
+       <div class="centered-container">
+         <mat-card-content>
+           <div class="send-payment-box">
+             <!-- Send Payment Form -->
+             <div class="form-container">
+               <mat-form-field class="wide-form-field" appearance="fill">
+                 <mat-label>Sender Seed</mat-label>
+                 <input matInput [(ngModel)]="senderSeed" placeholder="e.g., sEdTKRWoodVNY4uvVboRaJWrJYX2KJK" required />
+               </mat-form-field>
+   
+               <mat-form-field class="wide-form-field" appearance="fill">
+                 <mat-label>Receiver Account</mat-label>
+                 <input matInput [(ngModel)]="receiverAccount" placeholder="e.g., rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm" required />
+               </mat-form-field>
+   
+               <mat-form-field class="wide-form-field" appearance="fill">
+                 <mat-label>Amount (XRP)</mat-label>
+                 <input matInput type="text" [(ngModel)]="amountXrp" placeholder="e.g., 0.10" required />
+                 <mat-hint>Positive number (e.g., 0.10)</mat-hint>
+               </mat-form-field>
+   
+               <mat-checkbox [(ngModel)]="includeMemo" (change)="onMemoChange()">Memo</mat-checkbox>
+   
+               <div class="memo-fields" *ngIf="includeMemo">
+                 <mat-form-field class="wide-form-field" appearance="fill">
+                   <mat-label>Memo Data</mat-label>
+                   <input matInput [(ngModel)]="memoData" placeholder="e.g., Example Memo - 123 -=+" />
+                 </mat-form-field>
+   
+                 <mat-form-field class="wide-form-field" appearance="fill">
+                   <mat-label>Memo Type</mat-label>
+                   <input matInput [(ngModel)]="memoType" placeholder="e.g., Text" />
+                   <!-- <mat-hint>Allowed: A-Z, a-z, 0-9, -._~:/?#[]@!$&'()*+,;=%</mat-hint> -->
+                 </mat-form-field>
+   
+                 <mat-form-field class="wide-form-field" appearance="fill">
+                   <mat-label>Memo Format</mat-label>
+                   <input matInput [(ngModel)]="memoFormat" placeholder="e.g., text/plain" />
+                   <!-- <mat-hint>Allowed: A-Z, a-z, 0-9, -._~:/?#[]@!$&'()*+,;=%</mat-hint> -->
+                 </mat-form-field>
+               </div>
+   
+               <button mat-button color="primary" (click)="sendPayment()" [disabled]="isLoading">
+                 {{ isLoading ? 'Sending...' : 'Send Payment' }}
+               </button>
+             </div>
+   
+             <!-- Display tx_json, sender, and receiver on individual lines -->
+             <div class="tx-json-container" *ngIf="txJson && sender && receiver && !errorMessage">
+               <h3>Transaction Details</h3>
+               <div class="tx-json-lines">
+                 <div>Sender: {{ sender }}</div>
+                 <div>Receiver: {{ receiver }}</div>
+                 <div>Account: {{ txJson.Account }}</div>
+                 <div>DeliverMax: {{ formatAmount(txJson.DeliverMax) }} XRP</div>
+                 <div>Destination: {{ txJson.Destination }}</div>
+                 <div>Fee: {{ txJson.Fee }}</div>
+                 <div>Flags: {{ txJson.Flags }}</div>
+                 <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+                 <div *ngIf="txJson.Memos && txJson.Memos.length > 0 && txJson.Memos[0].Memo.MemoData">
+                   Memo Data: {{ decodeHex(txJson.Memos[0].Memo.MemoData) }}
+                 </div>
+                 <div *ngIf="txJson.Memos && txJson.Memos.length > 0 && txJson.Memos[0].Memo.MemoType">
+                   Memo Type: {{ decodeHex(txJson.Memos[0].Memo.MemoType) }}
+                 </div>
+                 <div *ngIf="txJson.Memos && txJson.Memos.length > 0 && txJson.Memos[0].Memo.MemoFormat">
+                   Memo Format: {{ decodeHex(txJson.Memos[0].Memo.MemoFormat) }}
+                 </div>
+                 <div>Sequence: {{ txJson.Sequence }}</div>
+                 <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+                 <div>Transaction Type: {{ txJson.TransactionType }}</div>
+                 <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+                 <div>Date: {{ formatDate(txJson.date) }}</div>
+                 <div>Ledger Index: {{ txJson.ledger_index }}</div>
+               </div>
+             </div>
+   
+             <!-- Display Error Message -->
+             <div class="error-message" *ngIf="errorMessage">
+               <p>{{ errorMessage }}</p>
+             </div>
+   
+             <!-- Loading State -->
+             <div class="loading" *ngIf="isLoading">
+               <p>Sending payment...</p>
+             </div>
+   
+             <!-- Initial State -->
+             <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+               Fill out the form and click "Send Payment" to send an XRP payment.
+             </div>
+           </div>
+         </mat-card-content>
+       </div>
+     </mat-card>
+   </div>

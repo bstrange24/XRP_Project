@@ -1,0 +1,46 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="cancel-nfts-box">
+            <!-- Cancel NFTs Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Issuer Seed</mat-label>
+                <input matInput [(ngModel)]="issuerSeed" placeholder="e.g., sEdSmdUTS9ashiJ1Nc4azm4rZYb6Lmf" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>NFT Token ID</mat-label>
+                <input matInput [(ngModel)]="nftTokenId" placeholder="e.g., 00010000591D12E66986DE1C01CA7D9065B9B24A2C1D7EE30549D608004FF3EF" required />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="cancelNfts()" [disabled]="isLoading">
+                {{ isLoading ? 'Cancelling...' : 'Cancel NFT Offer' }}
+              </button>
+            </div>
+  
+            <!-- Display Success Message -->
+            <div class="success-message" *ngIf="successMessage && !errorMessage">
+              <p>{{ successMessage }}</p>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Cancelling NFT offer...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !successMessage">
+              Enter the issuer seed and NFT token ID, then click "Cancel NFT Offer" to proceed.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

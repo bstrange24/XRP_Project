@@ -1,0 +1,105 @@
+<div class="app">
+  <mat-card>
+    <div class="centered-container">
+      <mat-card-content>
+        <div class="create-escrow-box">
+          <!-- Create Escrow Form -->
+          <div class="form-container">
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Escrow Receiver Account</mat-label>
+              <input matInput [(ngModel)]="escrowReceiverAccount" placeholder="e.g., rsydZs6mvW39cqFuatQavH5rgELbsxVuS7" required />
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Escrow Creator Seed</mat-label>
+              <input matInput [(ngModel)]="escrowCreatorSeed" placeholder="e.g., sEd7cDPd67fHP1yNhZKCv1zmwixks4k" required />
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Amount to Escrow (XRP)</mat-label>
+              <input matInput type="text" [(ngModel)]="amountToEscrow" placeholder="e.g., 10" required />
+              <mat-hint>Positive number (e.g., 10)</mat-hint>
+            </mat-form-field>
+
+            <div class="time-group">
+              <mat-form-field class="time-field" appearance="fill">
+                <mat-label>Finish After Value</mat-label>
+                <mat-select [(ngModel)]="finishAfterValue" required>
+                  <mat-option *ngFor="let num of numberOptions" [value]="num">{{ num }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="time-field" appearance="fill">
+                <mat-label>Finish After Unit</mat-label>
+                <mat-select [(ngModel)]="finishAfterUnit" required>
+                  <mat-option *ngFor="let unit of timeUnits" [value]="unit">{{ unit }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="time-group">
+              <mat-form-field class="time-field" appearance="fill">
+                <mat-label>Cancel After Value</mat-label>
+                <mat-select [(ngModel)]="cancelAfterValue" required>
+                  <mat-option *ngFor="let num of numberOptions" [value]="num">{{ num }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="time-field" appearance="fill">
+                <mat-label>Cancel After Unit</mat-label>
+                <mat-select [(ngModel)]="cancelAfterUnit" required>
+                  <mat-option *ngFor="let unit of timeUnits" [value]="unit">{{ unit }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="checkbox-group">
+              <mat-checkbox [(ngModel)]="timeBasedOnly" (change)="onCheckboxChange('timeBasedOnly')">Time Based Only</mat-checkbox>
+              <mat-checkbox [(ngModel)]="conditionalOnly" (change)="onCheckboxChange('conditionalOnly')">Conditional Only</mat-checkbox>
+              <mat-checkbox [(ngModel)]="combination" (change)="onCheckboxChange('combination')">Combination</mat-checkbox>
+            </div>
+
+            <button mat-button color="primary" (click)="createEscrow()" [disabled]="isLoading">
+              {{ isLoading ? 'Creating...' : 'Create Escrow' }}
+            </button>
+          </div>
+
+          <!-- Display tx_json on individual lines -->
+          <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+            <h3>Transaction Details</h3>
+            <div class="tx-json-lines">
+              <div>Account: {{ txJson.Account }}</div>
+              <div>Amount: {{ formatAmount(txJson.Amount) }} XRP</div>
+              <div>Cancel After: {{ formatDate(txJson.CancelAfter) }}</div>
+              <div>Condition: {{ txJson.Condition }}</div>
+              <div>Destination: {{ txJson.Destination }}</div>
+              <div>Fee: {{ txJson.Fee }}</div>
+              <div>Finish After: {{ formatDate(txJson.FinishAfter) }}</div>
+              <div>Flags: {{ txJson.Flags }}</div>
+              <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+              <div>Sequence: {{ txJson.Sequence }}</div>
+              <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+              <div>Transaction Type: {{ txJson.TransactionType }}</div>
+              <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+              <div>Date: {{ formatDate(txJson.date) }}</div>
+              <div>Ledger Index: {{ txJson.ledger_index }}</div>
+            </div>
+          </div>
+
+          <!-- Display Error Message -->
+          <div class="error-message" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <!-- Loading State -->
+          <div class="loading" *ngIf="isLoading">
+            <p>Creating escrow...</p>
+          </div>
+
+          <!-- Initial State -->
+          <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+            Fill out the form and click "Create Escrow" to create a new escrow.
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</div>

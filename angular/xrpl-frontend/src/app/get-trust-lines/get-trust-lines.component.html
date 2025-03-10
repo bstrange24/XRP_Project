@@ -1,0 +1,109 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <!-- Card Content -->
+        <mat-card-content>
+          <div class="trust-lines-box">
+            <!-- Trust Lines Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Account Address</mat-label>
+                <input matInput [(ngModel)]="account" placeholder="Enter XRP account address (e.g., rENh1oGGTxs6Kgn5SGFmbjY8nUBCRnUpnk)" required>
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="getTrustLines()" [disabled]="isLoading">
+                {{ isLoading ? 'Loading...' : 'Get Trust Lines' }}
+              </button>
+            </div>
+  
+            <!-- Display Trust Lines Table if status is "success" and trust lines exist -->
+            <div class="table-container" *ngIf="trustLines.length > 0 && !errorMessage">
+              <table mat-table [dataSource]="trustLines" class="mat-elevation-z8">
+                <!-- Account Column -->
+                <ng-container matColumnDef="account">
+                  <th mat-header-cell *matHeaderCellDef>Account</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.account }}</td>
+                </ng-container>
+  
+                <!-- Balance Column -->
+                <ng-container matColumnDef="balance">
+                  <th mat-header-cell *matHeaderCellDef>Balance</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.balance }}</td>
+                </ng-container>
+  
+                <!-- Currency Column -->
+                <ng-container matColumnDef="currency">
+                  <th mat-header-cell *matHeaderCellDef>Currency</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.currency }}</td>
+                </ng-container>
+  
+                <!-- Limit Column -->
+                <ng-container matColumnDef="limit">
+                  <th mat-header-cell *matHeaderCellDef>Limit</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.limit }}</td>
+                </ng-container>
+  
+                <!-- Limit Peer Column -->
+                <ng-container matColumnDef="limit_peer">
+                  <th mat-header-cell *matHeaderCellDef>Limit Peer</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.limit_peer }}</td>
+                </ng-container>
+  
+                <!-- No Ripple Column -->
+                <ng-container matColumnDef="no_ripple">
+                  <th mat-header-cell *matHeaderCellDef>No Ripple</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.no_ripple ? 'Yes' : 'No' }}</td>
+                </ng-container>
+  
+                <!-- No Ripple Peer Column -->
+                <ng-container matColumnDef="no_ripple_peer">
+                  <th mat-header-cell *matHeaderCellDef>No Ripple Peer</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.no_ripple_peer ? 'Yes' : 'No' }}</td>
+                </ng-container>
+  
+                <!-- Quality In Column -->
+                <ng-container matColumnDef="quality_in">
+                  <th mat-header-cell *matHeaderCellDef>Quality In</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.quality_in }}</td>
+                </ng-container>
+  
+                <!-- Quality Out Column -->
+                <ng-container matColumnDef="quality_out">
+                  <th mat-header-cell *matHeaderCellDef>Quality Out</th>
+                  <td mat-cell *matCellDef="let trustLine">{{ trustLine.quality_out }}</td>
+                </ng-container>
+  
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+  
+              <!-- Paginator -->
+              <mat-paginator [length]="totalAccountLines" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25]" (page)="onPageChange($event)"></mat-paginator>
+            </div>
+
+            <!-- Display "No Trustlines" Message -->
+          <div class="no-trustlines-message" *ngIf="trustLines.length === 0 && !isLoading && !errorMessage && hasFetched">
+            <p>There are no trust lines for this account.</p>
+          </div>
+  
+            <!-- Display Error Message if there’s an error -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+
+             <!-- Loading State -->
+          <div class="loading" *ngIf="isLoading">
+            <p>Loading offers...</p>
+          </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="!hasFetched && !isLoading && !errorMessage">
+            <!-- <div class="loading" *ngIf="!trustLines.length && !errorMessage && !isLoading"> -->
+              Enter an account address and click "Get Trust Lines" to retrieve trust lines.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+      <!-- Card Content -->
+    </mat-card>
+  </div>

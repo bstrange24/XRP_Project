@@ -1,0 +1,144 @@
+<!-- layout.component.html -->
+
+<header class="top-bar">
+    <div class="logo">
+        <h1>XRPL</h1>
+    </div>
+    <p class="welcome-text">Welcome to the XRPL! Explore your XRPL accounts and transactions.</p>
+    <div class="nav-bar">
+        <nav>
+            <ul>
+                <li><a (click)="navigateToHome()">Home</a></li>
+                <li><a (click)="navigateToHome()">About</a></li>
+                <li><a routerLink="/docs">Docs</a></li>
+                <li><a routerLink="/contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- Sidenav Container -->
+<mat-sidenav-container class="sidenav-container">
+    <!-- Sidenav (Full-height on left) -->
+    <mat-sidenav #sidenav mode="side" opened="true" position="start" class="sidenav">
+        <div class="sidenav-content">
+            <div class="input-button-container">
+                <button mat-button [matMenuTriggerFor]="taccountMenu" class="create-button">Accounts</button> 
+                <button mat-button [matMenuTriggerFor]="trustLinesMenu" class="create-button">Trust Lines</button>
+                <button mat-button [matMenuTriggerFor]="tpaymentsMenu" class="create-button">Payments</button>
+                <button mat-button [matMenuTriggerFor]="toffersMenu" class="create-button">Offers</button>
+                <button mat-button [matMenuTriggerFor]="tNftsMenu" class="create-button">NFT</button>
+                <button mat-button [matMenuTriggerFor]="tOraclesMenu" class="create-button">Oracles</button>
+                <button mat-button [matMenuTriggerFor]="tChecksMenu" class="create-button">Checks</button>
+                <button mat-button [matMenuTriggerFor]="tDidMenu" class="create-button">DID</button>
+                <button mat-button [matMenuTriggerFor]="tEscrowMenu" class="create-button">Escrow</button>
+                <button mat-button color="primary" (click)="navigateToGetServerInfo()" class="create-button">XRPL Server Info</button>
+                <!-- <button mat-button color="primary" (click)="navigateToGetLedgerInfo()" class="create-button">XRPL Ledger Info</button>s -->
+            </div>
+        </div>
+    </mat-sidenav>
+
+    <!-- Sidenav Content (Banner, Main Area, and Footer on right) -->
+    <mat-sidenav-content class="main-content">
+        <!-- Banner (Pushed to right of sidenav, reduced white space) -->
+        <div class="banner">
+            <div class="wallet-controls">
+                <button mat-button color="primary" (click)="openConnectWalletDialog()" *ngIf="!walletConnected">
+                    Connect Wallet
+                </button>
+                <ng-container *ngIf="walletConnected">
+                    <button mat-button color="warn" (click)="disconnectWallet()">
+                        Disconnect Wallet
+                    </button>
+                    <span class="wallet-address">{{ walletAddress }}</span>
+                </ng-container>
+                <mat-form-field class="wide-form-field" appearance="fill">
+                    <mat-label></mat-label>
+                    <input matInput [(ngModel)]="user_search_input" placeholder="Search by Address or Ledger" (keydown.enter)="onEnter()"
+                        class="full-width-input">
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <router-outlet></router-outlet>
+
+        <mat-card-footer class="footer">
+            <p>© 2025 XRPL. All rights reserved.</p>
+        </mat-card-footer>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+
+<!-- Trust Lines Dropdown Menu -->
+<mat-menu #trustLinesMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetTrustLines()">Get Trust Lines</button>
+    <button mat-menu-item (click)="navigateToCreateTrustLine()">Create Trust Line</button>
+    <button mat-menu-item (click)="navigateToRemoveTrustLine()">Remove Trust Line</button>
+</mat-menu>
+
+<!-- Payment Dropdown Menu -->
+<mat-menu #tpaymentsMenu="matMenu">
+    <button mat-menu-item (click)="navigateToSendPayment()">Send Payment</button>
+    <button mat-menu-item (click)="navigateToSendPaymentAndDeleteAccount()">Send Payment and Delete Account</button>
+    <button mat-menu-item (click)="navigateToSendPaymentAndBlackHoleAccount()">Send Payment and Black Hole Account</button>
+    <button mat-menu-item (click)="navigateToSendCurrencyPayment()">Send Currency Payment</button>
+</mat-menu>
+
+<!-- Offers Dropdown Menu -->
+<mat-menu #toffersMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountOffers()">Get Offers</button>
+    <button mat-menu-item (click)="navigateToCreateOffer()">Create Offers</button>
+    <button mat-menu-item (click)="navigateToCancelAccountOffers()">Cancel Offers</button>
+    <button mat-menu-item (click)="navigateToGetBookOffers()">Get Order Book Offers</button>
+</mat-menu>
+
+<!-- Account Dropdown Menu -->
+<mat-menu #taccountMenu="matMenu">
+    <button mat-menu-item (click)="createNewWallet()">Create Wallet</button>
+    <button mat-menu-item (click)="navigateToGetAccountConfig()">Get Account Config</button>
+    <button mat-menu-item (click)="navigateToUpdateAccountConfig()">Update Account Config</button>
+</mat-menu>
+
+<!-- Account Nft's Menu -->
+<mat-menu #tNftsMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountNfts()">Get NFT for Account</button>
+    <button mat-menu-item (click)="navigateToMintNfts()">Mint NFT</button>
+    <button mat-menu-item (click)="navigateToBuyNfts()">Buy NFT</button>
+    <button mat-menu-item (click)="navigateToSellNfts()">Sell NFT</button>
+    <button mat-menu-item (click)="navigateToBurnNfts()">Burn NFT</button>
+    <button mat-menu-item (click)="navigateToCancelNftsSellOffer()">Cancel NFT Sell Offer</button>
+</mat-menu>
+
+<!-- Account Escrow Menu -->
+<mat-menu #tEscrowMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountEscrow()">Get Escrows for Account</button>
+    <button mat-menu-item (click)="navigateToCreateEscrow()">Create Escrow</button>
+    <button mat-menu-item (click)="navigateToCancelEscrow()">Cancel Escrow</button>
+    <button mat-menu-item (click)="navigateToFinish()">Finish Escrow</button>
+
+</mat-menu>
+
+<!-- Account Checks Menu -->
+<mat-menu #tChecksMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountChecks()">Get Checks for Account</button>
+    <button mat-menu-item (click)="navigateToCreateTokenCheck()">Create Token Check</button>
+    <button mat-menu-item (click)="navigateToCreateXrpCheck()">Create XRP Check</button>
+    <button mat-menu-item (click)="navigateToCashTokenCheck()">Cash Token Check</button>
+    <button mat-menu-item (click)="navigateToCashXrpCheck()">Cash XRP Check</button>
+    <button mat-menu-item (click)="navigateToCancelCheck()">Cancel Check</button>
+</mat-menu>
+
+<!-- Account Oracles Menu -->
+<mat-menu #tOraclesMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetPriceOracle()">Get Price Oracle for Account</button>
+    <button mat-menu-item (click)="navigateToCreatePriceOracle()">Create Price Oracle</button>
+    <button mat-menu-item (click)="navigateToDeletePriceOracle()">Delete Price Oracle</button>
+</mat-menu>
+
+<!-- Account DID Menu -->
+<mat-menu #tDidMenu="matMenu">
+    <button mat-menu-item (click)="navigateToGetAccountDid()">Get DID for Account</button>
+    <button mat-menu-item (click)="navigateToSetDid()">Set DID</button>
+    <button mat-menu-item (click)="navigateToDeleteDid()">Delete DID</button>
+</mat-menu>
+

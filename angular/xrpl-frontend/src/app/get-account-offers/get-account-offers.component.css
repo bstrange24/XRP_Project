@@ -1,0 +1,65 @@
+/* get-account-offers.component.css */
+.app {
+    background-color: white;
+    color: black;
+  }
+  
+  .centered-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: calc(100vh - 0px - 0px);
+    padding: 0 15px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    background-color: white;
+  }
+  
+  .offers-box {
+    background-color: white;
+    padding: 20px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 1200px;
+  }
+  
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .wide-form-field {
+    width: 100%;
+  }
+  
+  .table-container {
+    margin-top: 20px;
+  }
+  
+  .mat-elevation-z8 {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .error-message {
+    color: red;
+    text-align: center;
+    padding: 20px;
+    background-color: #ffebee;
+    border-radius: 4px;
+  }
+  
+  .no-offers-message {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }

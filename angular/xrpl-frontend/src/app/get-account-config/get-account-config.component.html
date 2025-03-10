@@ -1,0 +1,53 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <!-- Card Content -->
+        <mat-card-content>
+          <div class="account-config-box">
+            <!-- Account Config Form -->
+            <div class="form-container">
+                <mat-form-field class="wide-form-field" appearance="fill">
+                  <mat-label>Account Address</mat-label>
+                  <input matInput [(ngModel)]="account" placeholder="Enter XRP account address (e.g., rLRYbzsJnf6DGEaQZ7jgh3sLWNnmeCpF3D)" required>
+                </mat-form-field>
+  
+              <button mat-button color="primary" (click)="getAccountConfig()" [disabled]="isLoading">
+                {{ isLoading ? 'Loading...' : 'Get Account Config' }}
+              </button>
+            </div>
+  
+            <!-- Display Account Flags if available and no error -->
+            <div class="result-container" *ngIf="accountFlags && !errorMessage">
+              <h3>Account Flags</h3>
+              <div class="details-box">
+                <ul>
+                  <li *ngFor="let entry of getEntries(accountFlags)">
+                    <strong>{{ entry[0] }}:</strong> {{ entry[1] ? 'Yes' : 'No' }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+  
+            <!-- Display Balance if available and no error -->
+            <div class="result-container" *ngIf="balance && !errorMessage">
+              <h3>Balance</h3>
+              <div class="details-box">
+                <p><strong>Balance:</strong> {{ balance }} XRP</p>
+              </div>
+            </div>
+  
+            <!-- Display Error Message if there’s an error -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div *ngIf="!accountFlags && !balance && !errorMessage && !isLoading" class="loading">
+              Enter an account address and click "Get Account Config" to retrieve account configuration.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+      <!-- Card Content -->
+    </mat-card>
+  </div>

@@ -1,0 +1,77 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="cash-token-check-box">
+            <!-- Cash Token Check Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Sender Seed</mat-label>
+                <input matInput [(ngModel)]="senderSeed" placeholder="e.g., sEdS5zxsgGbbtMKWkkBt3kdAvEBXdbY" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Token Name</mat-label>
+                <input matInput [(ngModel)]="tokenName" placeholder="e.g., USD" maxlength="3" required />
+                <mat-hint>3-character currency code</mat-hint>
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Token Issuer</mat-label>
+                <input matInput [(ngModel)]="tokenIssuer" placeholder="e.g., rHWvyBU4i9D98SwhkgLqXL6aBzUn23AtkT" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Cash Amount</mat-label>
+                <input matInput type="text" [(ngModel)]="cashAmount" placeholder="e.g., 9.00" required />
+                <mat-hint>Positive number (e.g., 9.00)</mat-hint>
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Check ID</mat-label>
+                <input matInput [(ngModel)]="checkId" placeholder="e.g., A8FAFF6543689F07C7A64B43876442D3123C6AD441EB8A1E2F77D19C2CCEE0D3" required />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="cashTokenCheck()" [disabled]="isLoading">
+                {{ isLoading ? 'Cashing...' : 'Cash Token Check' }}
+              </button>
+            </div>
+  
+            <!-- Display tx_json on individual lines -->
+            <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+              <h3>Transaction Details</h3>
+              <div class="tx-json-lines">
+                <div>Account: {{ txJson.Account }}</div>
+                <div>Check ID: {{ txJson.CheckID }}</div>
+                <div>Amount: {{ txJson.Amount.value }} {{ txJson.Amount.currency }} (Issuer: {{ txJson.Amount.issuer }})</div>
+                <div>Fee: {{ txJson.Fee }}</div>
+                <div>Flags: {{ txJson.Flags }}</div>
+                <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+                <div>Sequence: {{ txJson.Sequence }}</div>
+                <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+                <div>Transaction Type: {{ txJson.TransactionType }}</div>
+                <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+                <div>Date: {{ formatDate(txJson.date) }}</div>
+                <div>Ledger Index: {{ txJson.ledger_index }}</div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Cashing token check...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+              Fill out the form and click "Cash Token Check" to cash a token check.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

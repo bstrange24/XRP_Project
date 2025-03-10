@@ -1,0 +1,145 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="escrow-info-box">
+            <!-- Escrow Info Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Escrow Account</mat-label>
+                <input matInput [(ngModel)]="escrowAccount" placeholder="e.g., r4VYnMhpPKu7XZDfBAid9sNpQLcFgYK37L" />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Transaction Hash</mat-label>
+                <input matInput [(ngModel)]="txHash" placeholder="e.g., A10E092BC670B389164739A51E183842555EC9523BBEFD8100A771832936B25A" />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="getEscrowInfo()" [disabled]="isLoading">
+                {{ isLoading ? 'Retrieving...' : 'Get Escrow Info' }}
+              </button>
+            </div>
+  
+            <!-- Sent Escrows Table -->
+            <div class="table-container" *ngIf="sentData.length > 0 && !errorMessage">
+              <h3>Sent Escrows</h3>
+              <table mat-table [dataSource]="sentData" class="mat-elevation-z8">
+                <ng-container matColumnDef="escrow_id">
+                  <th mat-header-cell *matHeaderCellDef>Escrow ID</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.escrow_id }}</td>
+                </ng-container>
+                <ng-container matColumnDef="sender">
+                  <th mat-header-cell *matHeaderCellDef>Sender</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.sender }}</td>
+                </ng-container>
+                <ng-container matColumnDef="receiver">
+                  <th mat-header-cell *matHeaderCellDef>Receiver</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.receiver }}</td>
+                </ng-container>
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let escrow">{{ formatAmount(escrow.amount) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="prex_txn_id">
+                  <th mat-header-cell *matHeaderCellDef>Previous Txn ID</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.prex_txn_id }}</td>
+                </ng-container>
+                <ng-container matColumnDef="redeem_date">
+                  <th mat-header-cell *matHeaderCellDef>Redeem Date</th>
+                  <td mat-cell *matCellDef="let escrow">{{ formatDate(escrow.redeem_date) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="expiry_date">
+                  <th mat-header-cell *matHeaderCellDef>Expiry Date</th>
+                  <td mat-cell *matCellDef="let escrow">{{ formatDate(escrow.expiry_date) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="condition">
+                  <th mat-header-cell *matHeaderCellDef>Condition</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.condition }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="sentColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: sentColumns"></tr>
+              </table>
+            </div>
+  
+            <!-- Received Escrows Table -->
+            <div class="table-container" *ngIf="receivedData.length > 0 && !errorMessage">
+              <h3>Received Escrows</h3>
+              <table mat-table [dataSource]="receivedData" class="mat-elevation-z8">
+                <ng-container matColumnDef="escrow_id">
+                  <th mat-header-cell *matHeaderCellDef>Escrow ID</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.escrow_id }}</td>
+                </ng-container>
+                <ng-container matColumnDef="sender">
+                  <th mat-header-cell *matHeaderCellDef>Sender</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.sender }}</td>
+                </ng-container>
+                <ng-container matColumnDef="receiver">
+                  <th mat-header-cell *matHeaderCellDef>Receiver</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.receiver }}</td>
+                </ng-container>
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef>Amount</th>
+                  <td mat-cell *matCellDef="let escrow">{{ formatAmount(escrow.amount) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="prex_txn_id">
+                  <th mat-header-cell *matHeaderCellDef>Previous Txn ID</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.prex_txn_id }}</td>
+                </ng-container>
+                <ng-container matColumnDef="redeem_date">
+                  <th mat-header-cell *matHeaderCellDef>Redeem Date</th>
+                  <td mat-cell *matCellDef="let escrow">{{ formatDate(escrow.redeem_date) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="expiry_date">
+                  <th mat-header-cell *matHeaderCellDef>Expiry Date</th>
+                  <td mat-cell *matCellDef="let escrow">{{ formatDate(escrow.expiry_date) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="condition">
+                  <th mat-header-cell *matHeaderCellDef>Condition</th>
+                  <td mat-cell *matCellDef="let escrow">{{ escrow.condition }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="receivedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: receivedColumns"></tr>
+              </table>
+            </div>
+  
+            <!-- Transaction Details (tx_hash response) -->
+            <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+              <h3>Transaction Details</h3>
+              <div class="tx-json-lines">
+                <div>Account: {{ txJson.Account }}</div>
+                <div>Amount: {{ formatAmount(txJson.Amount) }}</div>
+                <div>Cancel After: {{ formatDate(txJson.CancelAfter) }}</div>
+                <div>Condition: {{ txJson.Condition }}</div>
+                <div>Destination: {{ txJson.Destination }}</div>
+                <div>Fee: {{ txJson.Fee }}</div>
+                <div>Finish After: {{ formatDate(txJson.FinishAfter) }}</div>
+                <div>Flags: {{ txJson.Flags }}</div>
+                <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+                <div>Sequence: {{ txJson.Sequence }}</div>
+                <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+                <div>Transaction Type: {{ txJson.TransactionType }}</div>
+                <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+                <div>Date: {{ formatDate(txJson.date) }}</div>
+                <div>Ledger Index: {{ txJson.ledger_index }}</div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Retrieving escrow information...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && sentData.length === 0 && receivedData.length === 0 && !txJson">
+              Enter an escrow account or transaction hash, then click "Get Escrow Info" to proceed.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

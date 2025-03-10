@@ -1,0 +1,4 @@
+*.pyc
+__pycache__/
+
+/xrpl_backend/debug.log

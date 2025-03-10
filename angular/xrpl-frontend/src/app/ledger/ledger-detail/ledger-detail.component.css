@@ -1,0 +1,30 @@
+.ledger-box {
+    background-color: white;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  
+  .ledger-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .secondary.details {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+  }
+  
+  .error-message {
+    color: red;
+    text-align: center;
+    padding: 20px;
+    background-color: #ffebee;
+    border-radius: 4px;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }

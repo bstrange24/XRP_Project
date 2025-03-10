@@ -1,0 +1,59 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="burn-nfts-box">
+            <!-- Burn NFTs Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Minter Seed</mat-label>
+                <input matInput [(ngModel)]="minterSeed" placeholder="e.g., sEdSmdUTS9ashiJ1Nc4azm4rZYb6Lmf" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>NFT Token ID</mat-label>
+                <input matInput [(ngModel)]="nftTokenId" placeholder="e.g., 00010000591D12E66986DE1C01CA7D9065B9B24A2C1D7EE3DDD1C318004FF41A" required />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="burnNfts()" [disabled]="isLoading">
+                {{ isLoading ? 'Burning...' : 'Burn NFT' }}
+              </button>
+            </div>
+  
+            <!-- Display tx_json on individual lines -->
+            <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+              <p>Transaction Details:</p>
+              <div class="tx-json-lines">
+                <div>Account: {{ txJson.Account }}</div>
+                <div>Fee: {{ txJson.Fee }}</div>
+                <div>Flags: {{ txJson.Flags }}</div>
+                <div>LastLedgerSequence: {{ txJson.LastLedgerSequence }}</div>
+                <div>NFTokenID: {{ txJson.NFTokenID }}</div>
+                <div>Sequence: {{ txJson.Sequence }}</div>
+                <div>SigningPubKey: {{ txJson.SigningPubKey }}</div>
+                <div>TransactionType: {{ txJson.TransactionType }}</div>
+                <div>TxnSignature: {{ txJson.TxnSignature }}</div>
+                <div>Date: {{ txJson.date }}</div>
+                <div>Ledger Index: {{ txJson.ledger_index }}</div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Burning NFT...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+              Enter the minter seed and NFT token ID, then click "Burn NFT" to proceed.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

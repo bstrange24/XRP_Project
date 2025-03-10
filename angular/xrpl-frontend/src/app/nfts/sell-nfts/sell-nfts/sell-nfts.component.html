@@ -1,0 +1,79 @@
+<div class="app">
+     <mat-card>
+          <div class="centered-container">
+               <mat-card-content>
+                    <div class="sell-nfts-box">
+                         <!-- Sell NFTs Form -->
+                         <div class="form-container">
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Seller Seed</mat-label>
+                                   <input matInput [(ngModel)]="sellerSeed"
+                                        placeholder="e.g., sEdSmdUTS9ashiJ1Nc4azm4rZYb6Lmf" required />
+                              </mat-form-field>
+
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>NFT Token ID</mat-label>
+                                   <input matInput [(ngModel)]="nftTokenId"
+                                        placeholder="e.g., 00020000591D12E66986DE1C01CA7D9065B9B24A2C1D7EE39924D585004FF417"
+                                        required />
+                              </mat-form-field>
+
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Sell Amount</mat-label>
+                                   <input matInput type="text" [(ngModel)]="nftokenSellAmount"
+                                        placeholder="e.g., 10000000" required />
+                                   <mat-hint>Must be a positive number</mat-hint>
+                              </mat-form-field>
+
+                              <div class="checkbox-group">
+                                   <mat-checkbox [(ngModel)]="checkExistingOffers">Check Existing Offers</mat-checkbox>
+                                   <mat-checkbox [(ngModel)]="cancelExistingOffers">Cancel Existing
+                                        Offers</mat-checkbox>
+                              </div>
+
+                              <button mat-button color="primary" (click)="sellNfts()" [disabled]="isLoading">
+                                   {{ isLoading ? 'Selling...' : 'Sell NFT' }}
+                              </button>
+                         </div>
+
+                         <!-- Display hash and tx_json on separate lines -->
+                         <div class="result-container" *ngIf="(hash || txJson) && !errorMessage">
+                              <p>Result:</p>
+                              <div class="result-lines">
+                                   <div>Hash: {{ hash }}</div>
+                                   <ng-container *ngIf="txJson">
+                                        <div>Account: {{ txJson.Account }}</div>
+                                        <div>Amount: {{ txJson.Amount }}</div>
+                                        <div>Fee: {{ txJson.Fee }}</div>
+                                        <div>Flags: {{ txJson.Flags }}</div>
+                                        <div>LastLedgerSequence: {{ txJson.LastLedgerSequence }}</div>
+                                        <div>NFTokenID: {{ txJson.NFTokenID }}</div>
+                                        <div>Sequence: {{ txJson.Sequence }}</div>
+                                        <div>SigningPubKey: {{ txJson.SigningPubKey }}</div>
+                                        <div>TransactionType: {{ txJson.TransactionType }}</div>
+                                        <div>TxnSignature: {{ txJson.TxnSignature }}</div>
+                                        <div>Date: {{ txJson.date }}</div>
+                                        <div>Ledger Index: {{ txJson.ledger_index }}</div>
+                                   </ng-container>
+                              </div>
+                         </div>
+
+                         <!-- Display Error Message -->
+                         <div class="error-message" *ngIf="errorMessage">
+                              <p>{{ errorMessage }}</p>
+                         </div>
+
+                         <!-- Loading State -->
+                         <div class="loading" *ngIf="isLoading">
+                              <p>Selling NFT...</p>
+                         </div>
+
+                         <!-- Initial State -->
+                         <div class="loading" *ngIf="!isLoading && !errorMessage && !hash && !txJson">
+                              Enter the NFT token ID, seller seed, and sell amount, then click "Sell NFT" to proceed.
+                         </div>
+                    </div>
+               </mat-card-content>
+          </div>
+     </mat-card>
+</div>

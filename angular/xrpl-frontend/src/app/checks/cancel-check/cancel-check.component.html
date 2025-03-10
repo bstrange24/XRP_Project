@@ -1,0 +1,59 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="cancel-check-box">
+            <!-- Cancel Check Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Account Seed</mat-label>
+                <input matInput [(ngModel)]="accountSeed" placeholder="e.g., sEdS84ZL2sU5JJFRAqrK5GRRX84UgDp" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Check ID</mat-label>
+                <input matInput [(ngModel)]="checkId" placeholder="e.g., 59BCC41981F85DEB2B6AE351AD89C6E4465FB5A395D88A10253067E3174DA630" required />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="cancelCheck()" [disabled]="isLoading">
+                {{ isLoading ? 'Cancelling...' : 'Cancel Check' }}
+              </button>
+            </div>
+  
+            <!-- Display tx_json on individual lines -->
+            <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+              <h3>Transaction Details</h3>
+              <div class="tx-json-lines">
+                <div>Account: {{ txJson.Account }}</div>
+                <div>Check ID: {{ txJson.CheckID }}</div>
+                <div>Fee: {{ txJson.Fee }}</div>
+                <div>Flags: {{ txJson.Flags }}</div>
+                <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+                <div>Sequence: {{ txJson.Sequence }}</div>
+                <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+                <div>Transaction Type: {{ txJson.TransactionType }}</div>
+                <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+                <div>Date: {{ formatDate(txJson.date) }}</div>
+                <div>Ledger Index: {{ txJson.ledger_index }}</div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Cancelling check...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+              Enter the account seed and check ID, then click "Cancel Check" to cancel the check.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

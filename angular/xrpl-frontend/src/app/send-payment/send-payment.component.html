@@ -1,0 +1,92 @@
+<div class="app">
+     <mat-card>
+          <div class="centered-container">
+               <!-- Card Content -->
+               <mat-card-content>
+                    <div class="payment-box">
+                         <!-- Payment Form -->
+                         <div class="form-container">
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Sender Wallet Seed</mat-label>
+                                   <input matInput [(ngModel)]="senderSeed"
+                                        placeholder="Enter sender wallet seed (e.g., sEdTKRWoodVNY4uvVboRaJWrJYX2KJK)"
+                                        required>
+                              </mat-form-field>
+
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Receiver Address</mat-label>
+                                   <input matInput [(ngModel)]="receiverAccount"
+                                        placeholder="Enter receiver XRP address (e.g., rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm)"
+                                        required>
+                              </mat-form-field>
+
+                              <mat-form-field class="wide-form-field" appearance="fill">
+                                   <mat-label>Amount (XRP)</mat-label>
+                                   <input matInput [(ngModel)]="amountXrp" placeholder="Enter XRP amount (e.g., 0.56)"
+                                        type="number" step="0.01" required>
+                              </mat-form-field>
+
+                              <button mat-button color="primary" (click)="sendPayment()" [disabled]="isLoading">
+                                   {{ isLoading ? 'Sending...' : 'Send Payment' }}
+                              </button>
+                         </div>
+
+                         <!-- Display Payment Result if status is "success" -->
+                         <div class="box payment-header" *ngIf="paymentResult && paymentResult.status === 'success'">
+                              <div class="section box-header">
+                                   <div class="title">Payment Sent</div>
+                                   <h1 class="classic">Success</h1>
+                              </div>
+                              <div class="box-content">
+                                   <div class="section header-container">
+                                        <div class="column third">
+                                             <div class="secondary details">
+                                                  <ul>
+                                                       <li *ngIf="paymentResult.receiver">
+                                                            <span class="label"
+                                                                 style="display: inline-block; margin-right: 10px;">Receiver:</span>
+                                                            <b style="display: inline-block;">{{ paymentResult.receiver
+                                                                 }}</b>
+                                                       </li>
+                                                       <li *ngIf="paymentResult.receiver">
+                                                            <span class="label"
+                                                                 style="display: inline-block; margin-right: 10px;">Sender:</span>
+                                                            <b style="display: inline-block;">{{
+                                                                 paymentResult.result.tx_json.Account }}</b>
+                                                       </li>
+                                                       <li *ngIf="paymentResult.amount">
+                                                            <span class="label"
+                                                                 style="display: inline-block; margin-right: 10px;">Sent
+                                                                 Amount:</span>
+                                                            <b style="display: inline-block;">{{ paymentResult.amount
+                                                                 }}</b>
+                                                       </li>
+                                                       <li *ngIf="paymentResult.fee_drops">
+                                                            <span class="label"
+                                                                 style="display: inline-block; margin-right: 10px;">Transaction
+                                                                 Fee:</span>
+                                                            <b style="display: inline-block;">{{ paymentResult.fee_drops
+                                                                 }}</b>
+                                                       </li>
+                                                  </ul>
+                                             </div>
+                                        </div>
+                                   </div>
+                              </div>
+                         </div>
+
+                         <!-- Display Error Message if status is not "success" -->
+                         <div class="error-message" *ngIf="paymentResult && paymentResult.status !== 'success'">
+                              <p>Error: {{ paymentResult.message || 'Failed to send payment. Please try again.' }}</p>
+                         </div>
+
+                         <!-- Loading State -->
+                         <div *ngIf="!paymentResult && !isLoading" class="loading">
+                              Enter details and click "Send Payment" to send XRP.
+                         </div>
+                    </div>
+               </mat-card-content>
+          </div>
+          <!-- Card Content -->
+     </mat-card>
+</div>

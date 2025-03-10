@@ -1,0 +1,62 @@
+<div class="app">
+  <mat-card>
+    <div class="centered-container">
+      <mat-card-content>
+        <div class="send-payment-delete-box">
+          <!-- Send Payment and Delete Account Form -->
+          <div class="form-container">
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>XRP Receiver Account</mat-label>
+              <input matInput [(ngModel)]="account" placeholder="e.g., rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm" required />
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Sender Seed</mat-label>
+              <input matInput [(ngModel)]="senderSeed" placeholder="e.g., sEdSWTnkQ2DRQwaJzRtT9RwpGCAL8be" required />
+            </mat-form-field>
+
+            <button mat-button color="primary" (click)="sendPaymentAndDeleteAccount()" [disabled]="isLoading">
+              {{ isLoading ? 'Processing...' : 'Send Payment & Delete Account' }}
+            </button>
+          </div>
+
+          <!-- Display tx_json, sender, and receiver on individual lines -->
+          <div class="tx-json-container" *ngIf="txJson && sender && receiver && !errorMessage">
+            <h3>Transaction Details</h3>
+            <div class="tx-json-lines">
+              <div>Sender: {{ sender }}</div>
+              <div>Receiver: {{ receiver }}</div>
+              <div>Account: {{ txJson.Account }}</div>
+              <div>Destination: {{ txJson.Destination }}</div>
+              <div>Amount: {{ formatAmount(txJson.Amount) }} XRP</div>
+              <div>Fee: {{ txJson.Fee }}</div>
+              <div>Flags: {{ txJson.Flags }}</div>
+              <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+              <div>Sequence: {{ txJson.Sequence }}</div>
+              <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+              <div>Transaction Type: {{ txJson.TransactionType }}</div>
+              <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+              <div>Date: {{ formatDate(txJson.date) }}</div>
+              <div>Ledger Index: {{ txJson.ledger_index }}</div>
+            </div>
+          </div>
+
+          <!-- Display Error Message -->
+          <div class="error-message" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <!-- Loading State -->
+          <div class="loading" *ngIf="isLoading">
+            <p>Processing payment and account deletion...</p>
+          </div>
+
+          <!-- Initial State -->
+          <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+            Enter the account to delete and sender seed, then click "Send Payment & Delete Account".
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</div>

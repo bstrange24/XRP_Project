@@ -1,0 +1,79 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="checks-info-box">
+            <!-- Checks Info Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Account Seed</mat-label>
+                <input matInput [(ngModel)]="accountSeed" placeholder="e.g., sEd7u7hCmpNDXk35DfY4u7DLgpgnBKm" required />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="getChecks()" [disabled]="isLoading">
+                {{ isLoading ? 'Retrieving...' : 'Get Checks Info' }}
+              </button>
+            </div>
+  
+            <!-- Checks Table -->
+            <div class="table-container" *ngIf="checks.length > 0 && !errorMessage">
+              <table mat-table [dataSource]="checks" class="mat-elevation-z8">
+                <ng-container matColumnDef="Account">
+                  <th mat-header-cell *matHeaderCellDef>Account</th>
+                  <td mat-cell *matCellDef="let check">{{ check.Account }}</td>
+                </ng-container>
+                <ng-container matColumnDef="Destination">
+                  <th mat-header-cell *matHeaderCellDef>Destination</th>
+                  <td mat-cell *matCellDef="let check">{{ check.Destination }}</td>
+                </ng-container>
+                <ng-container matColumnDef="Expiration">
+                  <th mat-header-cell *matHeaderCellDef>Expiration</th>
+                  <td mat-cell *matCellDef="let check">{{ formatDate(check.Expiration) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="SendMax">
+                  <th mat-header-cell *matHeaderCellDef>SendMax</th>
+                  <td mat-cell *matCellDef="let check">
+                    {{ check.SendMax.currency }} {{ formatSendMaxValue(check.SendMax.value) }} (Issuer: {{ check.SendMax.issuer }})
+                  </td>
+                </ng-container>
+                <ng-container matColumnDef="Sequence">
+                  <th mat-header-cell *matHeaderCellDef>Sequence</th>
+                  <td mat-cell *matCellDef="let check">{{ check.Sequence }}</td>
+                </ng-container>
+                <ng-container matColumnDef="index">
+                  <th mat-header-cell *matHeaderCellDef>Index</th>
+                  <td mat-cell *matCellDef="let check">{{ check.index }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+  
+              <!-- Pagination -->
+              <mat-paginator
+                [length]="totalCount"
+                [pageSize]="pageSize"
+                [pageIndex]="page - 1"
+                [pageSizeOptions]="[5, 10, 25, 50]"
+                (page)="onPageChange($event)"
+              ></mat-paginator>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Retrieving checks...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && checks.length === 0">
+              Enter the account seed and click "Get Checks Info" to retrieve checks.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

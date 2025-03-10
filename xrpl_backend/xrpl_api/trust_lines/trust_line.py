@@ -26,7 +26,7 @@ from ..constants.constants import ENTERING_FUNCTION_LOG, \
     MAX_RETRIES
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new, \
     process_unexpected_error
-from ..offers.account_offers.account_offers_util import prepare_account_lines_for_offer, prepare_account_offers
+from ..offers.offers_util import prepare_account_offers
 from ..utilities.utilities import get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, \
     validate_xrpl_response_data, count_xrp_received
 
@@ -335,7 +335,7 @@ class RemoveTrustLine(View):
                 raise XRPLException(error_response("Outstanding offers prevent trustline removal"))
 
             # Check trustline eligibility
-            response = client.request(prepare_account_lines_for_offer(sender_wallet.classic_address))
+            response = client.request(prepare_account_lines(sender_wallet.classic_address))
             lines = [line for line in response.result["lines"] if
                      line["currency"] == currency_code and line["account"] == issuer_address]
             if not lines:

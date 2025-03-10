@@ -10,7 +10,7 @@ from .escrows.escrows import CreateEscrow, GetEscrowSequenceNumber, CancelEscrow
 from .ledger.ledger import GetLedgerInfo, GetServerInfo, GetXrpReserves
 from .nft.nft import MintNft, GetAccountNft, BuyNft, CancelNftOffers, BurnNft, SellNft
 from .offers.offers import SellAccountOffers, BuyAccountOffers, TakerAccountOffers, AccountStatus, \
-    CancelAccountOffers
+    CancelAccountOffers, GetAccountOffers
 from .oracles.oracle import GetPriceOracle, CreatePriceOracle, DeletePriceOracles
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
 from .transactions.transactions import GetTransactionHistory, GetTransactionStatus
@@ -60,6 +60,7 @@ urlpatterns = [
     path('account/offers/taker', TakerAccountOffers.as_view(), name='taker_account_offers'),
     path('account/offers/cancel', CancelAccountOffers.as_view(), name='cancel_account_offers'),
     path('account/offers/get', AccountStatus.as_view(), name='get_account_status'),
+    path('account/offers/get/page', GetAccountOffers.as_view(), name='get_account_offers'),
 
     ################################# DID #################################
     # Endpoint to get created offers on an account.
@@ -77,14 +78,10 @@ urlpatterns = [
     path("checks/cash/xrp", CashXrpCheck.as_view(), name="cash_xrp_check"),
     path("checks/cancel", CancelCheck.as_view(), name="cancel_check"),
 
-
-
     ################################# Oracles #################################
     path("oracle/price/get", GetPriceOracle.as_view(), name="get_price_oracle"),
     path("oracle/price/create", CreatePriceOracle.as_view(), name="create_price_get_oracle"),
     path("oracle/price/delete", DeletePriceOracles.as_view(), name="delete_price_oracle"),
-
-
 
     ################################# Transactions #################################
     # Endpoint to fetch transaction history with pagination.

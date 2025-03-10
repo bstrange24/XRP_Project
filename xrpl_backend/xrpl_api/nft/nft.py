@@ -5,7 +5,6 @@ import time
 
 from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
-from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from tenacity import retry, wait_exponential, stop_after_attempt
 from xrpl import XRPLException
@@ -23,29 +22,18 @@ from .nft_utils import prepare_nftoken_mint_request, prepare_account_nft_request
     create_failed_nftoken_burn_response, prepare_nftoken_sell_offers_request, prepare_nftoken_accept_offer, \
     create_nftoken_buy_response, create_nftoken_cancel_response
 from ..constants.constants import RETRY_BACKOFF, MAX_RETRIES, ENTERING_FUNCTION_LOG, \
-    MISSING_REQUEST_PARAMETERS, ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, \
+    MISSING_REQUEST_PARAMETERS, LEAVING_FUNCTION_LOG, \
     SENDER_SEED_IS_INVALID, INVALID_WALLET_IN_REQUEST, MINT_NFT_TX_FLAG_OPTIONS, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new, \
     process_unexpected_error
-from ..utilities.utilities import get_xrpl_client, validate_xrpl_response_data, \
-    total_execution_time_in_millis, is_valid_xrpl_seed, validate_xrp_wallet, count_xrp_received
+from ..utilities.base_xrpl_view import BaseXRPLView
+from ..utilities.utilities import validate_xrpl_response_data, total_execution_time_in_millis, count_xrp_received
 
 logger = logging.getLogger('xrpl_app')
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class MintNft(View):
-    def __init__(self):
-        super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
+class MintNft(BaseXRPLView):
     def post(self, request, *args, **kwargs):
         return self.mint_nft(request)
 
@@ -59,7 +47,6 @@ class MintNft(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize the client if not already initialized
             self._initialize_client()
 
             data = json.loads(request.body)
@@ -70,10 +57,13 @@ class MintNft(View):
             nft_count = data.get("nft_count", 1)
             transfer_fee = data.get("transfer_fee", 100)  # default to 1%
 
-            if not minter_seed or not isinstance(nft_count, int) or nft_count <= 0:
+            if not all([minter_seed, tx_flags, sell_amounts, nft_count, transfer_fee]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
-            if not is_valid_xrpl_seed(minter_seed):
+            if not isinstance(nft_count, int) or nft_count <= 0:
+                raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
+
+            if not self._is_valid_xrpl_seed(minter_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
             if not mint_and_sell:
@@ -176,18 +166,7 @@ class MintNft(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GetAccountNft(View):
-    def __init__(self):
-        super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
+class GetAccountNft(BaseXRPLView):
     def post(self, request, *args, **kwargs):
         return self.get_account_nft(request)
 
@@ -212,7 +191,7 @@ class GetAccountNft(View):
             if not all([account]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
-            if not account or not validate_xrp_wallet(account):
+            if not account or not self._validate_xrp_wallet(account):
                 raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
 
             if not does_account_exist(account, self.client):
@@ -267,18 +246,7 @@ class GetAccountNft(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class BurnNft(View):
-    def __init__(self):
-        super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
+class BurnNft(BaseXRPLView):
     def post(self, request, *args, **kwargs):
         return self.burn_nft(request)
 
@@ -292,7 +260,6 @@ class BurnNft(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize the client if not already initialized
             self._initialize_client()
 
             # Extract parameters from the request
@@ -303,7 +270,7 @@ class BurnNft(View):
             if not all([nft_token_id]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
-            if not is_valid_xrpl_seed(minter_seed):
+            if not self._is_valid_xrpl_seed(minter_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
             issuer_wallet = Wallet.from_seed(minter_seed)
@@ -343,18 +310,7 @@ class BurnNft(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class SellNft(View):
-    def __init__(self):
-        super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
+class SellNft(BaseXRPLView):
     def post(self, request, *args, **kwargs):
         return self.sell_nft(request)
 
@@ -368,7 +324,6 @@ class SellNft(View):
         logger.info(f"Entering {function_name}")
 
         try:
-            # Initialize the client if not already initialized
             self._initialize_client()
 
             data = json.loads(request.body)
@@ -382,18 +337,7 @@ class SellNft(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class BuyNft(View):
-    def __init__(self):
-        super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
+class BuyNft(BaseXRPLView):
     def post(self, request, *args, **kwargs):
         return self.buy_nft(request)
 
@@ -407,7 +351,6 @@ class BuyNft(View):
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
-            # Initialize the client if not already initialized
             self._initialize_client()
 
             # Extract parameters from the request
@@ -420,7 +363,7 @@ class BuyNft(View):
             if not all([nft_token_id, issuer_seed, buyer_seed, buy_offer_amount]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
-            if not is_valid_xrpl_seed(issuer_seed) or not is_valid_xrpl_seed(buyer_seed):
+            if not self._is_valid_xrpl_seed(issuer_seed) or not self._is_valid_xrpl_seed(buyer_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
             issuer_wallet = Wallet.from_seed(issuer_seed)
@@ -502,18 +445,7 @@ class BuyNft(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class CancelNftOffers(View):
-    def __init__(self):
-        super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
-
+class CancelNftOffers(BaseXRPLView):
     def post(self, request, *args, **kwargs):
         return self.cancel_nft_offers(request)
 
@@ -538,7 +470,7 @@ class CancelNftOffers(View):
             if not all([nft_token_id, issuer_seed]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
-            if not is_valid_xrpl_seed(issuer_seed):
+            if not self._is_valid_xrpl_seed(issuer_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
             issuer_wallet = Wallet.from_seed(issuer_seed)

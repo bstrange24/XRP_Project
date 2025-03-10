@@ -16,8 +16,6 @@ from xrpl.core.keypairs import derive_keypair, derive_classic_address
 from xrpl.ledger import get_fee
 from xrpl.models import Response, AccountSetAsfFlag, Ledger
 from xrpl.utils import xrp_to_drops, drops_to_xrp
-from cryptography.fernet import Fernet
-from django.conf import settings
 
 from ..constants.constants import BASE_RESERVE, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS, ASF_FLAGS
 from ..errors.error_handling import handle_error, error_response
@@ -524,13 +522,13 @@ def find_xrp_difference(tx, address):
         # Interpret the XRP difference
         if transfer_detected:
             if xrp_diff > 0:
-                logger.info(f"Received {xrp_diff} XRP via {tx_type}")
+                logger.info(f"Received {xrp_to_drops(xrp_diff)} XRP via {tx_type}")
             elif xrp_diff < 0:
                 abs_diff = abs(xrp_diff)
                 if abs_diff <= 0.2:  # Adjust threshold as needed
-                    logger.info(f"Paid {abs_diff} XRP in fees for {tx_type}")
+                    logger.info(f"Paid {xrp_to_drops(abs_diff)} XRP in fees for {tx_type}")
                 else:
-                    logger.info(f"Spent or reserved {abs_diff} XRP via {tx_type}")
+                    logger.info(f"Spent or reserved {xrp_to_drops(abs_diff)} XRP via {tx_type}")
             else:
                 logger.info("No net XRP change detected")
         else:
@@ -539,6 +537,7 @@ def find_xrp_difference(tx, address):
     except Exception as e:
         logger.error(f"Error in find_xrp_difference: {str(e)}")
         raise Exception(f"{str(e)}")
+
 
 def convert_param_to_bool(param):
     true_list = ["True", "true", "yes", "Yes"]
@@ -552,6 +551,7 @@ def convert_param_to_bool(param):
     else:
         logger.info(f"defaulting False")
         return False
+
 
 def count_xrp_received(tx, address):
     try:
@@ -587,4 +587,3 @@ def get_ledger_current_index(client, ledger_index_status):
     except Exception as e:
         logger.error(f"Error getting ledger_index. Ignoring error: {str(e)} Returning None")
         return None
-

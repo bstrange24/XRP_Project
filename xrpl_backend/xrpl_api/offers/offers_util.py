@@ -1,56 +1,67 @@
+import logging
+
 from django.http import JsonResponse
-from xrpl import XRPLException
 from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.models import BookOffers, OfferCreate, AccountLines, AccountOffers, OfferCancel, TrustSet, \
     IssuedCurrencyAmount, AccountInfo
 
-from ..errors.error_handling import process_unexpected_error
+logger = logging.getLogger('xrpl_app')
 
 
-def check_balance(self, wallet):
-    """Check XRP and USD balances for a wallet."""
-    xrp_response = self.client.request(AccountInfo(account=wallet.classic_address, ledger_index="validated"))
-    xrp_balance = float(xrp_response.result["account_data"]["Balance"]) / 1000000  # Convert drops to XRP
+def check_balance(self, wallet, currency_code):
+    """Check XRP and currency code balances for a wallet."""
+    try:
+        xrp_response = self.client.request(prepare_account_info(wallet.classic_address))
+        xrp_balance = float(xrp_response.result["account_data"]["Balance"]) / 1000000
 
-    usd_response = self.client.request(AccountLines(account=wallet.classic_address, ledger_index="validated"))
-    usd_balance = 0.0
-    for line in usd_response.result.get("lines", []):
-        if line["currency"] == "USD":
-            usd_balance = float(line["balance"])
-    return {"xrp": xrp_balance, "usd": usd_balance}
+        currency_response = self.client.request(prepare_account_lines(wallet.classic_address))
+        currency_balance = 0.0
+        for line in currency_response.result.get("lines", []):
+            if currency_code is not None:
+                if line["currency"] == currency_code:
+                    currency_balance = float(line["balance"])
+
+        logger.info(f"XRP balance: {xrp_balance} {currency_code} {currency_balance}")
+
+        return {"xrp": xrp_balance, currency_code: currency_balance}
+
+    except Exception as e:
+        logger.error(f"Error getting balance: {str(e)}")
+        logger.error(f"Setting XRP balance and currency balance to error")
+        xrp_balance = str("Error")
+        currency_balance = str("Error")
+        return {"xrp": xrp_balance, currency_code: currency_balance}
 
 
-def check_and_create_trustline(self, wallet, issuer_address):
+def check_and_create_trust_line(self, wallet, issuer_address, currency_code, trust_line_limit_amount):
     """Check if a trust line exists between wallet and issuer; create if not."""
-    response = self.client.request(AccountLines(account=wallet.classic_address, ledger_index="validated"))
-    trustlines = response.result.get("lines", [])
-    has_trustline = any(
-        line["account"] == issuer_address and line["currency"] == "USD"
-        for line in trustlines
-    )
-    if not has_trustline:
-        trust_tx = TrustSet(
-            account=wallet.classic_address,
-            limit_amount=IssuedCurrencyAmount(currency="USD", issuer=issuer_address, value="1000")
+    try:
+        response = self.client.request(prepare_account_lines(wallet.classic_address))
+        trust_lines = response.result.get("lines", [])
+        has_trust_line = any(
+            line["account"] == issuer_address and line["currency"] == currency_code
+            for line in trust_lines
         )
-        submit_and_wait(trust_tx, self.client, wallet)
-        return True  # Trust line created
-    return False  # Trust line already exists
+        if not has_trust_line:
+            trust_tx = TrustSet(
+                account=wallet.classic_address,
+                limit_amount=IssuedCurrencyAmount(currency=currency_code, issuer=issuer_address,
+                                                  value=str(trust_line_limit_amount))
+            )
+            submit_and_wait(trust_tx, self.client, wallet)
+            return True  # Trust line created
+
+        return False  # Trust line already exists
+    except Exception as e:
+        logger.error(f"Error checking or setting trust lines: {str(e)}")
+        logger.error(f"Returning True")
+        return True
 
 
 def get_offer_status(self, wallet_address):
     """Get all active offers for a wallet."""
-    response = self.client.request(AccountOffers(account=wallet_address, ledger_index="validated"))
+    response = self.client.request(prepare_account_offers(wallet_address))
     return response.result.get("offers", [])
-
-
-# Ensure this function runs properly in Django's event loop
-async def process_offer(signed_tx, client):
-    try:
-        result = await submit_and_wait(signed_tx, client)
-    except XRPLException as e:
-        process_unexpected_error(e)
-    return result
 
 
 def create_get_account_offers_response(paginated_transactions, paginator):
@@ -89,33 +100,33 @@ def create_account_status_response(balances, offers, trustlines):
     })
 
 
-def create_seller_account_response(result, trustline_created, balances_before, balances_after):
+def create_seller_account_response(result, trust_line_created, balances_before, balances_after):
     return JsonResponse({
         "sequence": result["tx_json"]["Sequence"],
         "hash": result["hash"],
-        "trustline_created": trustline_created,
+        "trust_line_created": trust_line_created,
         "balances_before": balances_before,
         "balances_after": balances_after,
         "metadata": result.get("meta", {})
     })
 
 
-def create_buyer_account_response(result, trustline_created, balances_before, balances_after):
+def create_buyer_account_response(result, trust_line_created, balances_before, balances_after):
     return JsonResponse({
         "sequence": result["tx_json"]["Sequence"],
         "hash": result["hash"],
-        "trustline_created": trustline_created,
+        "trust_line_created": trust_line_created,
         "balances_before": balances_before,
         "balances_after": balances_after,
         "metadata": result.get("meta", {})
     })
 
 
-def create_taker_account_response(result, trustline_created, balances_before, balances_after):
+def create_taker_account_response(result, trust_line_created, balances_before, balances_after):
     return JsonResponse({
         "sequence": result["tx_json"]["Sequence"],
         "hash": result["hash"],
-        "trustline_created": trustline_created,
+        "trust_line_created": trust_line_created,
         "balances_before": balances_before,
         "balances_after": balances_after,
         "metadata": result.get("meta", {})
@@ -131,18 +142,22 @@ def create_cancel_account_status_response(result, balances_before, balances_afte
     })
 
 
-def prepare_cancel_offer(classic_address, sequence, offer_id, last_ledger_sequence, fee):
+def prepare_cancel_offer(classic_address, sequence):
     return OfferCancel(
         account=classic_address,
         sequence=sequence,
-        offer_sequence=offer_id,  # The sequence number of the offer to cancel
-        last_ledger_sequence=last_ledger_sequence + 200,
-        fee=fee
     )
 
 
-def prepare_account_lines_for_offer(wallet_address):
+def prepare_account_lines(wallet_address):
     return AccountLines(
+        account=wallet_address,
+        ledger_index="validated",
+    )
+
+
+def prepare_account_info(wallet_address):
+    return AccountInfo(
         account=wallet_address,
         ledger_index="validated",
     )
@@ -158,7 +173,7 @@ def prepare_account_offers(wallet_address):
 def prepare_account_offers_paginated(wallet_address, marker):
     return AccountOffers(
         account=wallet_address,
-        limit=200,
+        limit=100,
         marker=marker,
         ledger_index="validated",
     )
@@ -174,9 +189,21 @@ def create_book_offer(wallet_address, we_want, we_spend):
     )
 
 
-def create_offer(wallet_address, we_want, we_spend):
+def create_buy_offer(account, currency_code, issuer_address, amount, xrp_amount):
     return OfferCreate(
-        account=wallet_address,
-        taker_gets=we_spend["value"],
-        taker_pays=we_want["currency"].to_amount(we_want["value"]),
+        account=account,
+        taker_gets=create_issued_currency_amount(currency_code, issuer_address, str(amount)),
+        taker_pays=str(int(xrp_amount * 1000000))
     )
+
+
+def create_sell_offer(account, xrp_amount, currency_code, issuer_address, amount):
+    return OfferCreate(
+        account=account,
+        taker_gets=str(xrp_amount * 1000000),
+        taker_pays=create_issued_currency_amount(currency_code, issuer_address, str(amount))
+    )
+
+
+def create_issued_currency_amount(currency_code, issuer_address, amount):
+    return IssuedCurrencyAmount(currency=currency_code, issuer=issuer_address, value=str(amount))

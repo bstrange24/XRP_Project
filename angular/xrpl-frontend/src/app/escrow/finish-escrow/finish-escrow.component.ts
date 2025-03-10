@@ -8,7 +8,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import * as XRPL from 'xrpl';
 import { ValidationUtils } from '../../utlities/validation-utils';
 import { CalculationUtils } from '../../utlities/calculation-utils';
 

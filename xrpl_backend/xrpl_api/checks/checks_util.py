@@ -86,7 +86,7 @@ def prepare_xrp_check_create(sender_wallet_address, check_receiver_address, amou
     return CheckCreate(
         account=sender_wallet_address,
         destination=check_receiver_address,
-        send_max=amount_to_deliver,
+        send_max=xrp_to_drops(float(amount_to_deliver)),
         expiration=expiry_date
     )
 

@@ -1,0 +1,68 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <!-- Card Content -->
+        <mat-card-content>
+          <div class="payment-black-hole-box">
+            <!-- Payment and Black Hole Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Sender Wallet Seed</mat-label>
+                <input matInput [(ngModel)]="senderSeed" placeholder="Enter sender wallet seed (e.g., sEd7aBTTHXjUMb3PyRbPrhYTBtCQuwK)" required>
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Receiving Address</mat-label>
+                <input matInput [(ngModel)]="receivingAccount" placeholder="Enter receiving XRP address (e.g., rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm)" required>
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="sendPaymentAndBlackHoleAccount()" [disabled]="isLoading">
+                {{ isLoading ? 'Processing...' : 'Send Payment and Black Hole Account' }}
+              </button>
+            </div>
+  
+            <!-- Display Result if status is "success" -->
+            <div class="box payment-black-hole-header" *ngIf="actionResult && actionResult.status === 'success'">
+              <div class="section box-header">
+                <div class="title">Payment Sent and Account Black-Holed</div>
+                <h1 class="classic">Success</h1>
+              </div>
+              <div class="box-content">
+                <div class="section header-container">
+                  <div class="column third">
+                    <div class="secondary details">
+                      <ul>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Sender Seed:</span>
+                          <b style="display: inline-block;">{{ actionResult.sender_seed }}</b>
+                        </li>
+                        <li>
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Receiving Account:</span>
+                          <b style="display: inline-block;">{{ actionResult.receiving_account }}</b>
+                        </li>
+                        <li *ngIf="actionResult.transaction_hash">
+                          <span class="label" style="display: inline-block; margin-right: 10px;">Transaction Hash:</span>
+                          <b style="display: inline-block;">{{ actionResult.transaction_hash }}</b>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message if status is not "success" -->
+            <div class="error-message" *ngIf="actionResult && actionResult.status !== 'success'">
+              <p>Error: {{ actionResult.message || 'Failed to send payment and black-hole account. Please try again.' }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div *ngIf="!actionResult && !isLoading" class="loading">
+              Enter details and click "Send Payment and Black Hole Account" to proceed.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+      <!-- Card Content -->
+    </mat-card>
+  </div>

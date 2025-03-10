@@ -1,1 +1,102 @@
-<p>mint-nfts works!</p>
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="mint-nfts-box">
+            <!-- Mint NFTs Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Minter Seed</mat-label>
+                <input matInput [(ngModel)]="minterSeed" placeholder="e.g., sEdSmdUTS9ashiJ1Nc4azm4rZYb6Lmf" required />
+              </mat-form-field>
+  
+              <div class="flags-container">
+                <div class="flag-buttons">
+                  <button mat-raised-button *ngFor="let flag of txFlagsOptions" (click)="addFlag(flag)">
+                    Add {{ flag }}
+                  </button>
+                </div>
+                <div class="flags-list">
+                  <div *ngFor="let flag of txFlags; let i = index" class="flag-item">
+                    {{ flag }} <button mat-icon-button (click)="removeFlag(i)">X</button>
+                  </div>
+                </div>
+              </div>
+  
+              <div class="checkbox-group">
+                <mat-checkbox [(ngModel)]="mintOnly" (change)="onMintOnlyChange($event.checked)">Mint Only</mat-checkbox>
+                <mat-checkbox [(ngModel)]="mintAndSell" (change)="onMintAndSellChange($event.checked)">Mint and Sell</mat-checkbox>
+              </div>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>NFT Count</mat-label>
+                <input matInput type="number" [(ngModel)]="nftCount" min="1" step="1" required />
+              </mat-form-field>
+  
+              <mat-form-field *ngIf="mintAndSell" class="wide-form-field" appearance="fill">
+                <mat-label>Sell Amounts (comma-separated, e.g., 1000000, 2000000)</mat-label>
+                <input matInput [(ngModel)]="sellAmountsInput" placeholder="e.g., 1000000, 2000000" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Transfer Fee (basis points, 0-50000)</mat-label>
+                <input matInput type="number" [(ngModel)]="transferFee" min="0" max="50000" step="1" required />
+                <mat-hint>0.000% to 50.000% (e.g., 500 = 0.500%)</mat-hint>
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="mintNfts()" [disabled]="isLoading">
+                {{ isLoading ? 'Minting...' : 'Mint NFTs' }}
+              </button>
+            </div>
+  
+            <!-- Display Minted NFTs in a Table -->
+            <div class="nfts-container" *ngIf="mintedNfts.length > 0 && !errorMessage">
+              <table mat-table [dataSource]="mintedNfts" class="mat-elevation-z8">
+                <ng-container matColumnDef="NFTokenID">
+                  <th mat-header-cell *matHeaderCellDef>NFTokenID</th>
+                  <td mat-cell *matCellDef="let nft">{{ nft.NFTokenID }}</td>
+                </ng-container>
+                <ng-container matColumnDef="NFTokenTaxon">
+                  <th mat-header-cell *matHeaderCellDef>NFTokenTaxon</th>
+                  <td mat-cell *matCellDef="let nft">{{ nft.NFTokenTaxon }}</td>
+                </ng-container>
+                <ng-container matColumnDef="SellHash">
+                  <th mat-header-cell *matHeaderCellDef>Sell Hash</th>
+                  <td mat-cell *matCellDef="let nft">{{ nft.sell_result?.hash || 'N/A' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="SellOfferId">
+                  <th mat-header-cell *matHeaderCellDef>Sell Offer ID</th>
+                  <td mat-cell *matCellDef="let nft">{{ nft.sell_result?.offer_id || 'N/A' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="SellAccount">
+                  <th mat-header-cell *matHeaderCellDef>Sell Account</th>
+                  <td mat-cell *matCellDef="let nft">{{ nft.sell_result?.tx_json.Account || 'N/A' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="SellAmount">
+                  <th mat-header-cell *matHeaderCellDef>Sell Amount</th>
+                  <td mat-cell *matCellDef="let nft">{{ nft.sell_result?.tx_json.Amount || 'N/A' }}</td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Minting NFTs...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && mintedNfts.length === 0">
+              Fill out the form and click "Mint NFTs" to create new NFTs.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

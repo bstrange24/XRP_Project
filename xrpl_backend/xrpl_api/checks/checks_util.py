@@ -2,7 +2,7 @@ import logging
 
 from django.http import JsonResponse
 from xrpl.models import CheckCreate, IssuedCurrencyAmount, CheckCash, CheckCancel
-from xrpl.utils import xrp_to_drops, ripple_time_to_datetime, drops_to_xrp
+from xrpl.utils import xrp_to_drops, ripple_time_to_datetime
 
 from ..accounts.account_utils import prepare_account_object
 
@@ -25,7 +25,7 @@ def get_checks_for_account(client, account):
                 check_data = {"sender": check["Account"], "receiver": check["Destination"]}
                 if "Expiration" in check:
                     check_data["expiry_date"] = str(ripple_time_to_datetime(check["Expiration"]))
-                check_data["amount"] = str(drops_to_xrp(check["SendMax"]['value']))
+                # check_data["amount"] = str(drops_to_xrp(check["SendMax"]['value']))
                 check_data["check_id"] = check["index"]
                 if check_data["sender"] == account:
                     sent_checks.append(check_data)
@@ -86,7 +86,7 @@ def prepare_xrp_check_create(sender_wallet_address, check_receiver_address, amou
     return CheckCreate(
         account=sender_wallet_address,
         destination=check_receiver_address,
-        send_max=xrp_to_drops(float(amount_to_deliver)),
+        send_max=amount_to_deliver,
         expiration=expiry_date
     )
 

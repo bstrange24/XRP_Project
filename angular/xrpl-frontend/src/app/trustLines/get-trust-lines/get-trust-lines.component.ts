@@ -12,6 +12,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
 import { WalletService } from '../../services/wallet-services/wallet.service';
+import { ValidationUtils } from '../../utlities/validation-utils';
 
 // Define the interface for the API response
 interface TrustLinesResponse {
@@ -73,16 +74,16 @@ export class GetTrustLinesComponent implements OnInit {
      ) { }
 
      // Validate XRP wallet address using xrpl
-     private isValidXrpAddress(address: string): boolean {
-          if (!address || typeof address !== 'string') return false;
+     // private isValidXrpAddress(address: string): boolean {
+     //      if (!address || typeof address !== 'string') return false;
 
-          try {
-               return XRPL.isValidAddress(address.trim());
-          } catch (error) {
-               console.error('Error validating XRP address:', error);
-               return false;
-          }
-     }
+     //      try {
+     //           return XRPL.isValidAddress(address.trim());
+     //      } catch (error) {
+     //           console.error('Error validating XRP address:', error);
+     //           return false;
+     //      }
+     // }
 
      ngOnInit(): void {
           // Get the wallet from the service when the component initializes
@@ -99,7 +100,7 @@ export class GetTrustLinesComponent implements OnInit {
           this.errorMessage = '';
           this.trustLines = [];
 
-          if (!this.account.trim() || !this.isValidXrpAddress(this.account)) {
+          if (!this.account.trim() || !ValidationUtils.isValidXrpAddress(this.account)) {
                this.snackBar.open('Please enter a valid XRP account address.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
                this.isLoading = false;
                return;

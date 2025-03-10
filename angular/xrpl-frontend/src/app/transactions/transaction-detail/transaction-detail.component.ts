@@ -82,15 +82,15 @@ export class TransactionDetailComponent implements OnInit {
   // Fetch transaction data from the backend
   fetchTransactionData(wallet_address: string, transaction_hash: string): void {
     console.log('Making API call with wallet_address:', wallet_address); // Check if the method is called
-    this.transactionService.getTransactionHistory(wallet_address, transaction_hash).subscribe(
-      (data) => {
+    this.transactionService.getTransactionHistory(wallet_address, transaction_hash).subscribe({
+      next: (data) => {
         const transactionReponse = data;
         this.transactionData = transactionReponse.response; // Store the response in the component's property
         console.log('Transaction data:', this.transactionData); // Check the data in the console
       },
-      (error) => {
+      error: (error) => {
         console.error('Error fetching transaction data:', error);
       }
-    );
+  });
   }
 }

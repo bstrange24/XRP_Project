@@ -22,6 +22,7 @@ import { firstValueFrom } from 'rxjs';
 import { WalletService } from '../../services/wallet-services/wallet.service';
 import { CalculationUtils } from '../../utlities/calculation-utils';
 import { handleError } from '../../utlities/error-handling-utils';
+import { ValidationUtils } from '../../utlities/validation-utils';
 
 // Interfaces (adjusted for clarity)
 interface PriceData {
@@ -84,16 +85,6 @@ export class OracleInfoComponent implements OnInit {
           private readonly walletService: WalletService
      ) { }
 
-     private isValidXrpAddress(address: string): boolean {
-          if (!address || typeof address !== 'string') return false;
-          try {
-               return XRPL.isValidAddress(address.trim());
-          } catch (error) {
-               console.error('Error validating XRP address:', error);
-               return false;
-          }
-     }
-
      ngOnInit(): void {
           this.connectedWallet = this.walletService.getWallet();
           if (this.connectedWallet) {
@@ -109,7 +100,7 @@ export class OracleInfoComponent implements OnInit {
           this.fullTrustLines = [];
           this.trustLines = [];
 
-          if (!this.account.trim() || !this.isValidXrpAddress(this.account)) {
+          if (!this.account.trim() || !ValidationUtils.isValidXrpAddress(this.account)) {
                this.snackBar.open('Please enter a valid XRP account address.', 'Close', {
                     duration: 3000,
                     panelClass: ['error-snackbar'],

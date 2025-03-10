@@ -1,1 +1,133 @@
-<p>set-did works!</p>
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="did-set-box">
+            <!-- DID Set Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Account Seed</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="accountSeed"
+                  placeholder="Enter account seed (e.g., sEdTTbT4Ux4F5DkoVo1Ux7BQW6DxX1J)"
+                  required
+                />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Document ID</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="document"
+                  placeholder="Enter DID document (e.g., did:example:123#public-key-0)"
+                  required
+                />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>URI</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="uri"
+                  placeholder="Enter URI (e.g., https://example.did.com/123)"
+                  required
+                />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>DID Data</mat-label>
+                <input
+                  matInput
+                  [(ngModel)]="didData"
+                  placeholder="Enter DID data (e.g., did:example:123#key-1)"
+                  required
+                />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="setDid()" [disabled]="isLoading">
+                {{ isLoading ? 'Submitting...' : 'Set DID' }}
+              </button>
+            </div>
+  
+            <!-- Display DID Set Result if data exists -->
+            <div class="did-result" *ngIf="hash && txJson && !errorMessage">
+              <h3>DID Set Result</h3>
+  
+              <!-- Hash -->
+              <div class="result-field">
+                <strong>Transaction Hash:</strong> {{ hash }}
+              </div>
+  
+              <!-- Tx JSON Details -->
+              <div class="tx-json">
+                <h4>Transaction JSON Details</h4>
+                <div class="tx-field">
+                  <strong>Account:</strong> {{ txJson.Account }}
+                </div>
+                <div class="tx-field">
+                  <strong>DID Document:</strong> {{ txJson.DIDDocument }}
+                </div>
+                <div class="tx-field">
+                  <strong>Data:</strong> {{ txJson.Data }}
+                </div>
+                <div class="tx-field">
+                  <strong>Fee:</strong> {{ txJson.Fee }}
+                </div>
+                <div class="tx-field">
+                  <strong>Flags:</strong> {{ txJson.Flags }}
+                </div>
+                <div class="tx-field">
+                  <strong>Last Ledger Sequence:</strong> {{ txJson.LastLedgerSequence }}
+                </div>
+                <div class="tx-field">
+                  <strong>Sequence:</strong> {{ txJson.Sequence }}
+                </div>
+                <div class="tx-field">
+                  <strong>Signing Public Key:</strong> {{ txJson.SigningPubKey }}
+                </div>
+                <div class="tx-field">
+                  <strong>Transaction Type:</strong> {{ txJson.TransactionType }}
+                </div>
+                <div class="tx-field">
+                  <strong>Transaction Signature:</strong> {{ txJson.TxnSignature }}
+                </div>
+                <div class="tx-field">
+                  <strong>URI:</strong> {{ txJson.URI }}
+                </div>
+                <div class="tx-field">
+                  <strong>Date:</strong> {{ txJson.date }}
+                </div>
+                <div class="tx-field">
+                  <strong>Ledger Index:</strong> {{ txJson.ledger_index }}
+                </div>
+              </div>
+            </div>
+  
+            <!-- Display "No Result" Message -->
+            <div
+              class="no-result-message"
+              *ngIf="!hash && !txJson && !isLoading && !errorMessage && hasSubmitted"
+            >
+              <p>No DID set result available.</p>
+            </div>
+  
+            <!-- Display Error Message if there’s an error -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Submitting DID information...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!hasSubmitted && !isLoading && !errorMessage">
+              Enter all fields and click "Set DID" to submit the DID data.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

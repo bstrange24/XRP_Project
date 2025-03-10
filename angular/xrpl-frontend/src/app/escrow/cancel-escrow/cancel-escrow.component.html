@@ -1,1 +1,60 @@
-<p>cancel-escrow works!</p>
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="cancel-escrow-box">
+            <!-- Cancel Escrow Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Escrow Creator Seed</mat-label>
+                <input matInput [(ngModel)]="escrowCreatorSeed" placeholder="e.g., sEdTBV3Wu9wfc4ch1nJWd2Q7bFHjTXH" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Transaction Hash</mat-label>
+                <input matInput [(ngModel)]="txHash" placeholder="e.g., FACFF2DC4A75C68E2B03B7B420E98FAC71124E9D0FFAD782457ED8B1DC3271D5" required />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="cancelEscrow()" [disabled]="isLoading">
+                {{ isLoading ? 'Cancelling...' : 'Cancel Escrow' }}
+              </button>
+            </div>
+  
+            <!-- Display tx_json on individual lines -->
+            <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+              <h3>Transaction Details</h3>
+              <div class="tx-json-lines">
+                <div>Account: {{ txJson.Account }}</div>
+                <div>Fee: {{ txJson.Fee }}</div>
+                <div>Flags: {{ txJson.Flags }}</div>
+                <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+                <div>Offer Sequence: {{ txJson.OfferSequence }}</div>
+                <div>Owner: {{ txJson.Owner }}</div>
+                <div>Sequence: {{ txJson.Sequence }}</div>
+                <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+                <div>Transaction Type: {{ txJson.TransactionType }}</div>
+                <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+                <div>Date: {{ formatDate(txJson.date) }}</div>
+                <div>Ledger Index: {{ txJson.ledger_index }}</div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Cancelling escrow...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+              Enter the escrow creator seed and transaction hash, then click "Cancel Escrow" to proceed.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

@@ -25,6 +25,7 @@ import { WalletService } from '../services/wallet-services/wallet.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MediaMatcher } from '@angular/cdk/layout';
+import { ValidationUtils } from '../utlities/validation-utils';
 
 @Component({
      selector: 'app-layout',
@@ -140,38 +141,38 @@ export class LayoutComponent implements OnInit {
           }
      }
 
-     private isValidXrpAddress(address: string): boolean {
-          if (!address || typeof address !== 'string') return false;
-          try {
-               return XRPL.isValidAddress(address.trim());
-          } catch (error) {
-               console.error('Error validating XRP address:', error);
-               return false;
-          }
-     }
+     // private isValidXrpAddress(address: string): boolean {
+     //      if (!address || typeof address !== 'string') return false;
+     //      try {
+     //           return XRPL.isValidAddress(address.trim());
+     //      } catch (error) {
+     //           console.error('Error validating XRP address:', error);
+     //           return false;
+     //      }
+     // }
 
-     private async isValidLedgerIndex(ledgerIndex: number): Promise<boolean> {
-          try {
-               const client = new XRPL.Client('wss://s1.ripple.com');
-               await client.connect();
-               const response = await client.request({
-                    command: 'ledger',
-                    ledger_index: ledgerIndex,
-                    transactions: false,
-                    expand: false,
-               });
-               await client.disconnect();
-               return response.result.validated === true;
-          } catch (error) {
-               console.error('Error validating ledger index:', error);
-               return false;
-          }
-     }
+     // private async isValidLedgerIndex(ledgerIndex: number): Promise<boolean> {
+     //      try {
+     //           const client = new XRPL.Client('wss://s1.ripple.com');
+     //           await client.connect();
+     //           const response = await client.request({
+     //                command: 'ledger',
+     //                ledger_index: ledgerIndex,
+     //                transactions: false,
+     //                expand: false,
+     //           });
+     //           await client.disconnect();
+     //           return response.result.validated === true;
+     //      } catch (error) {
+     //           console.error('Error validating ledger index:', error);
+     //           return false;
+     //      }
+     // }
 
-     private isSyntacticallyValidLedgerIndex(index: string | number): boolean {
-          const num = Number(index);
-          return Number.isInteger(num) && num > 0 && num <= 4294967295;
-     }
+     // private isSyntacticallyValidLedgerIndex(index: string | number): boolean {
+     //      const num = Number(index);
+     //      return Number.isInteger(num) && num > 0 && num <= 4294967295;
+     // }
 
      async onEnter(): Promise<void> {
           const userInput = this.user_search_input.trim();
@@ -179,7 +180,7 @@ export class LayoutComponent implements OnInit {
           sessionStorage.setItem('userSearchInput', userInput);
 
           if (userInput) {
-               if (this.isValidXrpAddress(userInput)) {
+               if (ValidationUtils.isValidXrpAddress(userInput)) {
                     this.wallet_address = userInput;
                     this.sharedDataService.setWalletAddress(this.wallet_address);
                     this.isVisible = true;
@@ -188,10 +189,10 @@ export class LayoutComponent implements OnInit {
                     // this.router.navigate(['/account-info', this.wallet_address]).then(() => {
                          // console.log('Navigation completed to /account-info/', this.wallet_address);
                     // });
-               } else if (this.isSyntacticallyValidLedgerIndex(userInput)) {
+               } else if (ValidationUtils.isSyntacticallyValidLedgerIndex(userInput)) {
                     const ledgerIndexNum = Number(userInput);
                     console.log('Validating ledger index:', ledgerIndexNum);
-                    const isValid = await this.isValidLedgerIndex(ledgerIndexNum);
+                    const isValid = await ValidationUtils.isValidLedgerIndex(ledgerIndexNum);
                     if (isValid) {
                          this.ledger_index = userInput;
                          this.sharedDataService.setLedgerIndex(this.ledger_index);
@@ -281,14 +282,34 @@ export class LayoutComponent implements OnInit {
      navigateToSendPaymentAndBlackHoleAccount() { this.router.navigate(['/send-payment-and-black-hole-account']); }
      navigateToSendCurrencyPayment() { this.router.navigate(['/send-currency-payment']); }
      navigateToGetTrustLines() { this.router.navigate(['/get-trust-lines']); }
+     
      navigateToGetAccountOffers() { this.router.navigate(['/get-account-offers']); }
      navigateToCancelAccountOffers() { this.router.navigate(['/cancel-account-offers']); }
+     navigateToCreateOffer() { this.router.navigate(['/create-account-offers']); }
+     navigateToGetBookOffers(){ this.router.navigate(['/get-book-offers']); }
+
      navigateToGetServerInfo() { this.router.navigate(['/get-server-info']); }
      navigateToGetLedgerInfo() { this.router.navigate(['/get-ledger-info']); }
      navigateToGetAccountConfig() { this.router.navigate(['/get-account-config']); }
      navigateToUpdateAccountConfig() { this.router.navigate(['/update-account-config']); }
      navigateToConnectWallet() { this.router.navigate(['/connect-wallet']); }
+
      navigateToGetAccountNfts(){ this.router.navigate(['/get-nfts']); }
+     navigateToMintNfts(){ this.router.navigate(['/mint-nfts']); }
+     navigateToCancelNftsSellOffer(){ this.router.navigate(['/cancel-nfts']); }
+     navigateToBuyNfts(){ this.router.navigate(['/buy-nfts']); }
+     navigateToSellNfts(){ this.router.navigate(['/sell-nfts']); }
+     navigateToBurnNfts(){ this.router.navigate(['/burn-nfts']); }
+
+
+     navigateToGetAccountChecks(){ this.router.navigate(['/get-checks']); }
+     navigateToCreateTokenCheck(){ this.router.navigate(['/create_token-check']); }
+     navigateToCreateXrpCheck(){ this.router.navigate(['/create_xrp-check']); }
+     navigateToCashTokenCheck(){ this.router.navigate(['/cash-token-check']); }
+     navigateToCashXrpCheck(){ this.router.navigate(['/cash-xrp-check']); }
+     navigateToCancelCheck(){ this.router.navigate(['/cancel-check']); }
+
+     
      navigateToGetPriceOracle(){ this.router.navigate(['/get-price-oracle']); }
      navigateToCreatePriceOracle(){ this.router.navigate(['/create-price-oracle']); }
      navigateToDeletePriceOracle(){ this.router.navigate(['/delete-price-oracle']); }

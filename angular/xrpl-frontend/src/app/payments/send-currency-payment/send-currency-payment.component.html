@@ -1,122 +1,97 @@
 <div class="app">
-    <mat-card>
-      <div class="centered-container">
-        <!-- Card Content -->
-        <mat-card-content>
-          <div class="currency-payment-box">
-            <!-- Currency Payment Form -->
-            <div class="form-container">
-              <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label>Sender Wallet Seed</mat-label>
-                <input matInput [(ngModel)]="senderSeed" placeholder="Enter sender wallet seed (e.g., sEdTiSkyP4m336cqk3sH3ZdPbyLRag5)" required>
-              </mat-form-field>
-  
-              <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label>Destination Address</mat-label>
-                <input matInput [(ngModel)]="destinationAddress" placeholder="Enter destination XRP address (e.g., rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm)" required>
-              </mat-form-field>
-  
-              <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label>Source Currency</mat-label>
-                <input matInput [(ngModel)]="sourceCurrency" placeholder="Enter 3-character source currency (e.g., USD)" required>
-              </mat-form-field>
-  
-              <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label>Source Issuer</mat-label>
-                <input matInput [(ngModel)]="sourceIssuer" placeholder="Enter source issuer XRP address (e.g., rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd)" required>
-              </mat-form-field>
-  
-              <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label>Destination Currency</mat-label>
-                <input matInput [(ngModel)]="destinationCurrency" placeholder="Enter 3-character destination currency (e.g., EUR)" required>
-              </mat-form-field>
-  
-              <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label>Destination Issuer</mat-label>
-                <input matInput [(ngModel)]="destinationIssuer" placeholder="Enter destination issuer XRP address (e.g., rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd)" required>
-              </mat-form-field>
-  
-              <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label>Amount to Deliver</mat-label>
-                <input matInput [(ngModel)]="amountToDeliver" placeholder="Enter amount to deliver (e.g., 5)" type="text" required>
-              </mat-form-field>
-  
-              <mat-form-field class="wide-form-field" appearance="fill">
-                <mat-label>Max to Spend</mat-label>
-                <input matInput [(ngModel)]="maxToSpend" placeholder="Enter max to spend (e.g., 2)" type="text" required>
-              </mat-form-field>
-  
-              <button mat-button color="primary" (click)="sendCurrencyPayment()" [disabled]="isLoading">
-                {{ isLoading ? 'Sending...' : 'Send Currency Payment' }}
-              </button>
-            </div>
-  
-            <!-- Display Payment Result if status is "success" -->
-            <div class="box currency-payment-header" *ngIf="paymentResult && paymentResult.status === 'success'">
-              <div class="section box-header">
-                <div class="title">Cross-Currency Payment Sent</div>
-                <h1 class="classic">Success</h1>
-              </div>
-              <div class="box-content">
-                <div class="section header-container">
-                  <div class="column third">
-                    <div class="secondary details">
-                      <ul>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Sender Seed:</span>
-                          <b style="display: inline-block;">{{ paymentResult.sender_seed }}</b>
-                        </li>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Destination Address:</span>
-                          <b style="display: inline-block;">{{ paymentResult.destination_address }}</b>
-                        </li>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Source Currency:</span>
-                          <b style="display: inline-block;">{{ paymentResult.source_currency }}</b>
-                        </li>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Source Issuer:</span>
-                          <b style="display: inline-block;">{{ paymentResult.source_issuer }}</b>
-                        </li>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Destination Currency:</span>
-                          <b style="display: inline-block;">{{ paymentResult.destination_currency }}</b>
-                        </li>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Destination Issuer:</span>
-                          <b style="display: inline-block;">{{ paymentResult.destination_issuer }}</b>
-                        </li>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Amount to Deliver:</span>
-                          <b style="display: inline-block;">{{ paymentResult.amount_to_deliver }}</b>
-                        </li>
-                        <li>
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Max to Spend:</span>
-                          <b style="display: inline-block;">{{ paymentResult.max_to_spend }}</b>
-                        </li>
-                        <li *ngIf="paymentResult.transaction_hash">
-                          <span class="label" style="display: inline-block; margin-right: 10px;">Transaction Hash:</span>
-                          <b style="display: inline-block;">{{ paymentResult.transaction_hash }}</b>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-  
-            <!-- Display Error Message if status is not "success" -->
-            <div class="error-message" *ngIf="paymentResult && paymentResult.status !== 'success'">
-              <p>Error: {{ paymentResult.message || 'Failed to send cross-currency payment. Please try again.' }}</p>
-            </div>
-  
-            <!-- Loading State -->
-            <div *ngIf="!paymentResult && !isLoading" class="loading">
-              Enter details and click "Send Currency Payment" to send a cross-currency payment.
+  <mat-card>
+    <div class="centered-container">
+      <mat-card-content>
+        <div class="send-currency-payment-box">
+          <!-- Send Cross-Currency Payment Form -->
+          <div class="form-container">
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Sender Seed</mat-label>
+              <input matInput [(ngModel)]="senderSeed" placeholder="e.g., sEdTiSkyP4m336cqk3sH3ZdPbyLRag5" required />
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Destination Address</mat-label>
+              <input matInput [(ngModel)]="destinationAddress" placeholder="e.g., rBKnvchY2NwDj1bufNUB61KXGnpPTMZ1Mm" required />
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Source Currency</mat-label>
+              <input matInput [(ngModel)]="sourceCurrency" placeholder="e.g., USD" maxlength="3" required />
+              <mat-hint>3-character currency code</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Source Issuer</mat-label>
+              <input matInput [(ngModel)]="sourceIssuer" placeholder="e.g., rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd" required />
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Destination Currency</mat-label>
+              <input matInput [(ngModel)]="destinationCurrency" placeholder="e.g., EUR" maxlength="3" required />
+              <mat-hint>3-character currency code</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Destination Issuer</mat-label>
+              <input matInput [(ngModel)]="destinationIssuer" placeholder="e.g., rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd" required />
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Amount to Deliver</mat-label>
+              <input matInput type="text" [(ngModel)]="amountToDeliver" placeholder="e.g., 5" required />
+              <mat-hint>Positive number in destination currency</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Max to Spend</mat-label>
+              <input matInput type="text" [(ngModel)]="maxToSpend" placeholder="e.g., 2" required />
+              <mat-hint>Positive number in source currency</mat-hint>
+            </mat-form-field>
+
+            <button mat-button color="primary" (click)="sendCurrencyPayment()" [disabled]="isLoading">
+              {{ isLoading ? 'Sending...' : 'Send Currency Payment' }}
+            </button>
+          </div>
+
+          <!-- Display tx_json, sender, and receiver on individual lines -->
+          <div class="tx-json-container" *ngIf="txJson && sender && receiver && !errorMessage">
+            <h3>Transaction Details</h3>
+            <div class="tx-json-lines">
+              <div>Sender: {{ sender }}</div>
+              <div>Receiver: {{ receiver }}</div>
+              <div>Account: {{ txJson.Account }}</div>
+              <div>Destination: {{ txJson.Destination }}</div>
+              <div>Amount: {{ txJson.Amount.value }} {{ txJson.Amount.currency }} (Issuer: {{ txJson.Amount.issuer }})</div>
+              <div>SendMax: {{ txJson.SendMax.value }} {{ txJson.SendMax.currency }} (Issuer: {{ txJson.SendMax.issuer }})</div>
+              <div>Fee: {{ txJson.Fee }}</div>
+              <div>Flags: {{ txJson.Flags }}</div>
+              <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+              <div>Sequence: {{ txJson.Sequence }}</div>
+              <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+              <div>Transaction Type: {{ txJson.TransactionType }}</div>
+              <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+              <div>Date: {{ formatDate(txJson.date) }}</div>
+              <div>Ledger Index: {{ txJson.ledger_index }}</div>
             </div>
           </div>
-        </mat-card-content>
-      </div>
-      <!-- Card Content -->
-    </mat-card>
-  </div>
+
+          <!-- Display Error Message -->
+          <div class="error-message" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <!-- Loading State -->
+          <div class="loading" *ngIf="isLoading">
+            <p>Sending cross-currency payment...</p>
+          </div>
+
+          <!-- Initial State -->
+          <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+            Fill out the form and click "Send Currency Payment" to send a cross-currency payment.
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</div>

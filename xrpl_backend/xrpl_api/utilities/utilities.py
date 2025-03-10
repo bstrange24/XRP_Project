@@ -540,6 +540,18 @@ def find_xrp_difference(tx, address):
         logger.error(f"Error in find_xrp_difference: {str(e)}")
         raise Exception(f"{str(e)}")
 
+def convert_param_to_bool(param):
+    true_list = ["True", "true", "yes", "Yes"]
+    false_list = ["False", "false", "No", "no"]
+    if param in true_list:
+        logger.info(f"param is False")
+        return True
+    elif param in false_list:
+        logger.info(f"param is False")
+        return False
+    else:
+        logger.info(f"defaulting False")
+        return False
 
 def count_xrp_received(tx, address):
     try:

@@ -7,9 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
 import { WalletService } from '../../services/wallet-services/wallet.service';
+import { ValidationUtils } from '../../utlities/validation-utils';
+import { handleError } from '../../utlities/error-handling-utils';
 
 // Define the interface for the API response
 interface AccountConfigResponse {
@@ -76,18 +77,6 @@ export class GetAccountConfigComponent implements OnInit {
           private readonly walletService: WalletService
      ) { }
 
-     // Validate XRP wallet address using xrpl
-     private isValidXrpAddress(address: string): boolean {
-          if (!address || typeof address !== 'string') return false;
-
-          try {
-               return XRPL.isValidAddress(address.trim());
-          } catch (error) {
-               console.error('Error validating XRP address:', error);
-               return false;
-          }
-     }
-
      ngOnInit(): void {
           // Get the wallet from the service when the component initializes
           this.connectedWallet = this.walletService.getWallet();
@@ -104,14 +93,14 @@ export class GetAccountConfigComponent implements OnInit {
           this.accountFlags = null;
           this.balance = null;
 
-          if (!this.account.trim() || !this.isValidXrpAddress(this.account)) {
+          if (!this.account.trim() || !ValidationUtils.isValidXrpAddress(this.account)) {
                this.snackBar.open('Please enter a valid XRP account address.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
                this.isLoading = false;
                return;
           }
 
           console.log('I:M HERE 1-----------------------')
-          
+
           try {
                const bodyData = {
                     account: this.account.trim(),
@@ -120,7 +109,6 @@ export class GetAccountConfigComponent implements OnInit {
                const headers = new HttpHeaders({
                     'Content-Type': 'application/json',
                });
-
 
                const response = await firstValueFrom(
                     this.http.post<AccountConfigResponse>(
@@ -136,20 +124,10 @@ export class GetAccountConfigComponent implements OnInit {
                console.log('Account config retrieved:', response);
           } catch (error: any) {
                console.error('Error retrieving account config:', error);
-               let errorMessage: string;
-               if (error instanceof Error) {
-                    errorMessage = error.message;
-               } else if (typeof error === 'object' && error !== null && 'message' in error) {
-                    errorMessage = error.error.message
-               } else {
-                    errorMessage = 'An unexpected error occurred while retrieving account config.';
-               }
-               this.errorMessage = errorMessage;
-               this.snackBar.open(this.errorMessage, 'Close', {
-                    duration: 3000,
-                    panelClass: ['error-snackbar']
-               });
-               this.isLoading = false;
+               handleError(error, this.snackBar, 'Creating token check', {
+                    setErrorMessage: (msg) => (this.errorMessage = msg),
+                    setLoading: (loading) => (this.isLoading = loading),
+               })
           }
      }
 

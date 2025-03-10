@@ -3,6 +3,7 @@ import logging
 import time
 
 from asgiref.sync import sync_to_async
+from django.apps import apps
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -15,10 +16,10 @@ from xrpl.core.addresscodec import XRPLAddressCodecException
 from xrpl.models import AccountSetAsfFlag
 from xrpl.utils import xrp_to_drops, get_balance_changes, get_final_balances
 from xrpl.wallet import Wallet
-from django.apps import apps
 
 from .payments_util import check_pay_channel_entries, create_payment_transaction, process_payment_response, \
-    process_payment, get_account_reserves, check_account_ledger_entries, save_account_delete_tx_response
+    process_payment, get_account_reserves, check_account_ledger_entries, save_account_delete_tx_response, \
+    create_payment_transaction_with_memo
 from ..accounts.account_utils import prepare_account_data, check_check_entries, \
     create_account_delete_transaction, prepare_regular_key, prepare_account_set_enabled_tx, \
     delete_account_response
@@ -68,10 +69,12 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 sender_wallet = Wallet.from_seed(sender_seed)
 
                 check_account_ledger_entries_start_time = time.time()
-                valid_address, account_objects = await check_account_ledger_entries(client, sender_wallet.classic_address)
+                valid_address, account_objects = await check_account_ledger_entries(client,
+                                                                                    sender_wallet.classic_address)
                 if not valid_address:
                     raise XRPLException(error_response("Wallet not found on ledger. Unable to delete wallet"))
-                logger.info(f"await check_account_ledger_entries total time: {total_execution_time_in_millis(check_account_ledger_entries_start_time)}")
+                logger.info(
+                    f"await check_account_ledger_entries total time: {total_execution_time_in_millis(check_account_ledger_entries_start_time)}")
 
                 account_info_request = prepare_account_data(sender_wallet.classic_address, False)
 
@@ -94,7 +97,8 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 if validate_xrpl_response_data(account_info_response):
                     process_transaction_error(account_info_response)
 
-                logger.info(f"await account_info_response total time: {total_execution_time_in_millis(account_info_response_start_time)}")
+                logger.info(
+                    f"await account_info_response total time: {total_execution_time_in_millis(account_info_response_start_time)}")
 
                 balance = int(account_info_response.result['account_data']['Balance'])
 
@@ -102,7 +106,8 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 base_reserve, reserve_increment = await get_account_reserves(client)
                 if base_reserve is None or reserve_increment is None:
                     raise XRPLException(error_response("Failed to retrieve reserve requirements from the XRPL."))
-                logger.info(f"await get_account_reserves total time: {total_execution_time_in_millis(get_account_reserves_start_time)}")
+                logger.info(
+                    f"await get_account_reserves total time: {total_execution_time_in_millis(get_account_reserves_start_time)}")
 
                 drops = xrp_to_drops(base_reserve)
                 transferable_amount = int(balance) - int(drops)
@@ -118,7 +123,8 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 if validate_xrpl_response_data(payment_response):
                     process_transaction_error(payment_response)
 
-                logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_start_time)}")
+                logger.info(
+                    f"await process_payment total time: {total_execution_time_in_millis(process_payment_start_time)}")
 
                 calculate_last_ledger_sequence_start_time = time.time()
                 last_ledger_sequence = await get_latest_validated_ledger_sequence(client)
@@ -134,7 +140,8 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 if validate_xrpl_response_data(account_delete_response):
                     process_transaction_error(account_delete_response)
 
-                logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_sequence_start_time)}")
+                logger.info(
+                    f"await process_payment total time: {total_execution_time_in_millis(process_payment_sequence_start_time)}")
 
                 logger.info(f"Get balance changes: {get_balance_changes(payment_response.result['meta'])}")
                 logger.info(f"Get final balances: {get_final_balances(payment_response.result['meta'])}")
@@ -143,8 +150,9 @@ class SendXrpPaymentsAndDeleteAccount(View):
                 # Use `sync_to_async` to handle database operations asynchronously
                 # Always await coroutines in asynchronous code.
                 return await sync_to_async(save_account_delete_tx_response, thread_sensitive=True)(
-                    account_delete_response, payment_response, sender_wallet.classic_address, account, transferable_amount,
-                                     drops
+                    account_delete_response, payment_response, sender_wallet.classic_address, account,
+                    transferable_amount,
+                    drops
                 )
         except (XRPLRequestFailureException, XRPLException) as e:
             # Handle error message
@@ -154,6 +162,7 @@ class SendXrpPaymentsAndDeleteAccount(View):
             return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class SendXrpPayments(View):
@@ -175,6 +184,9 @@ class SendXrpPayments(View):
             sender_seed = data.get("sender_seed")  # Creator of the escrow
             receiver_account = data.get("receiver_account")  # Seed of the escrow creator
             amount_xrp = data.get("amount_xrp")  # Sequence number of the escrow create tx
+            memo_data = data.get("memo_data", None)
+            memo_type = data.get("memo_type", None)
+            memo_format = data.get("memo_format", None)
 
             validate_request_data(sender_seed, receiver_account, amount_xrp)
 
@@ -190,17 +202,27 @@ class SendXrpPayments(View):
                 sender_address = sender_wallet.classic_address
 
                 logger.info("Balances of wallets before Payment tx")
-                logger.info(f"Sender Address Balance: { await get_balance(sender_address, client)}")
+                logger.info(f"Sender Address Balance: {await get_balance(sender_address, client)}")
                 logger.info(f"Receiver Address Balance: {await get_balance(receiver_account, client)}")
 
                 fee_drops = await fetch_network_fee(client)
                 logger.info(f"fee_drops: {fee_drops}")
 
-                payment_transaction = create_payment_transaction(sender_address, receiver_account, str(amount_drops), str(fee_drops), False)
+                if memo_data is not None and memo_type is not None and memo_format is not None:
+                    memo_data = memo_data.encode('utf-8').hex()
+                    memo_type = memo_type.encode('utf-8').hex()
+                    memo_format = memo_format.encode('utf-8').hex()
+                    payment_transaction = create_payment_transaction_with_memo(sender_address, receiver_account,
+                                                                               str(amount_drops), str(fee_drops),
+                                                                               memo_data, memo_type, memo_format)
+                else:
+                    payment_transaction = create_payment_transaction(sender_address, receiver_account,
+                                                                     str(amount_drops), str(fee_drops), False)
 
                 process_payment_start_time = time.time()
                 payment_response = await process_payment(payment_transaction, client, sender_wallet)
-                logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_start_time)}")
+                logger.info(
+                    f"await process_payment total time: {total_execution_time_in_millis(process_payment_start_time)}")
 
                 # Validate client response. Raise exception on error
                 if validate_xrpl_response_data(payment_response):
@@ -231,6 +253,7 @@ class SendXrpPayments(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class SendXrpPaymentAndBlackHoleAccount(View):
 
@@ -257,9 +280,11 @@ class SendXrpPaymentAndBlackHoleAccount(View):
 
             if not receiving_account:
                 receiving_account = xrpl_config.BLACK_HOLE_ADDRESS
-                logger.info(f"Receiving account is {receiving_account}. We are sending the accounts XRP to a black hole address")
+                logger.info(
+                    f"Receiving account is {receiving_account}. We are sending the accounts XRP to a black hole address")
             else:
-                logger.info(f"Receiving account is {receiving_account}. We are not sending the accounts XRP to a black hole address")
+                logger.info(
+                    f"Receiving account is {receiving_account}. We are not sending the accounts XRP to a black hole address")
                 if not validate_xrp_wallet(receiving_account):
                     raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
 
@@ -292,7 +317,8 @@ class SendXrpPaymentAndBlackHoleAccount(View):
 
                 fee_drops = await get_fee(client)
 
-                payment_tx = create_payment_transaction(wallet.classic_address, receiving_account, str(transferable_amount), fee_drops, False)
+                payment_tx = create_payment_transaction(wallet.classic_address, receiving_account,
+                                                        str(transferable_amount), fee_drops, False)
 
                 try:
                     logger.info("signing and submitting the transaction, awaiting a response")
@@ -327,11 +353,13 @@ class SendXrpPaymentAndBlackHoleAccount(View):
                     process_transaction_error(tx_response)
 
                 # Prepare a transaction to disable the master key on the account.
-                tx_disable_master_key = prepare_account_set_enabled_tx(wallet.classic_address, AccountSetAsfFlag.ASF_DISABLE_MASTER)
+                tx_disable_master_key = prepare_account_set_enabled_tx(wallet.classic_address,
+                                                                       AccountSetAsfFlag.ASF_DISABLE_MASTER)
 
                 try:
                     logger.info("signing and submitting the transaction, awaiting a response")
-                    submit_tx_disable = await submit_and_wait(transaction=tx_disable_master_key, client=client, wallet=wallet)
+                    submit_tx_disable = await submit_and_wait(transaction=tx_disable_master_key, client=client,
+                                                              wallet=wallet)
                 except XRPLException as e:
                     process_unexpected_error(e)
 
@@ -354,10 +382,12 @@ class SendXrpPaymentAndBlackHoleAccount(View):
 
                 # Verify if the master key has been successfully disabled.
                 if get_acc_flag_response.result['account_data']['Flags'] == asfDisableMaster:
-                    logger.info(f"Account {wallet.classic_address}'s master key has been disabled, account is black holed.")
+                    logger.info(
+                        f"Account {wallet.classic_address}'s master key has been disabled, account is black holed.")
                     logger.info(f"Account {wallet.classic_address}'s sent all of it's XRP to {receiving_account}.")
                 else:
-                    logger.info(f"Account {wallet.classic_address}'s master key is still enabled, account is NOT black holed")
+                    logger.info(
+                        f"Account {wallet.classic_address}'s master key is still enabled, account is NOT black holed")
 
                 # Return the response indicating the account status after the operation.
                 return delete_account_response(get_acc_flag_response)

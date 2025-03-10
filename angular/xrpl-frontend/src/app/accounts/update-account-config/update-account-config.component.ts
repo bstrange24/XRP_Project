@@ -8,10 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
+import { ValidationUtils } from '../../utlities/validation-utils';
+import { handleError } from '../../utlities/error-handling-utils';
 
-// Define interfaces for API responses (unchanged)
 interface GetAccountConfigResponse {
      status: string;
      message: string;
@@ -121,17 +121,7 @@ export class UpdateAccountConfigComponent implements OnInit {
      constructor(
           private readonly snackBar: MatSnackBar,
           private readonly http: HttpClient
-     ) {}
-
-     private isValidXrpAddress(address: string): boolean {
-          if (!address || typeof address !== 'string') return false;
-          try {
-               return XRPL.isValidAddress(address.trim());
-          } catch (error) {
-               console.error('Error validating XRP address:', error);
-               return false;
-          }
-     }
+     ) { }
 
      private async fetchSeedFromAccount(account: string): Promise<string> {
           return 'sEdSCJUHe5sa2TE5CmUQoJHeogDKxie'; // Mocked for now
@@ -163,14 +153,14 @@ export class UpdateAccountConfigComponent implements OnInit {
      }
 
      async fetchInitialValues(): Promise<void> {
-          if (!this.account.trim() || !this.isValidXrpAddress(this.account)) {
+          if (!this.account.trim() || !ValidationUtils.isValidXrpAddress(this.account)) {
                this.snackBar.open('Please enter a valid XRP account address to load initial values.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
                return;
           }
 
           this.isLoading = true;
           this.errorMessage = '';
-          this.responseMessage = null; // Clear previous response
+          this.responseMessage = null;
           this.resetFields();
 
           try {
@@ -253,14 +243,15 @@ export class UpdateAccountConfigComponent implements OnInit {
                this.responseMessage = 'Initial values loaded successfully.';
           } catch (error: any) {
                console.error('Error loading initial account config:', error);
-               this.errorMessage = error.message || 'An unexpected error occurred while loading initial account config.';
-               this.snackBar.open(this.errorMessage, 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-               this.isLoading = false;
+               handleError(error, this.snackBar, 'Getting account config', {
+                    setErrorMessage: (msg) => (this.errorMessage = msg),
+                    setLoading: (loading) => (this.isLoading = loading),
+               })
           }
      }
 
      async updateAccountConfig(): Promise<void> {
-          if (!this.account.trim() || !this.isValidXrpAddress(this.account)) {
+          if (!this.account.trim() || !ValidationUtils.isValidXrpAddress(this.account)) {
                this.snackBar.open('Please enter a valid XRP account address.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
                this.isLoading = false;
                return;
@@ -315,10 +306,10 @@ export class UpdateAccountConfigComponent implements OnInit {
                console.log('Account config updated:', response);
           } catch (error: any) {
                console.error('Error updating account config:', error);
-               this.errorMessage = error.message || 'An unexpected error occurred while updating account config.';
-               this.responseMessage = this.errorMessage;
-               this.snackBar.open(this.errorMessage, 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-               this.isLoading = false;
+               handleError(error, this.snackBar, 'Getting account config', {
+                    setErrorMessage: (msg) => (this.errorMessage = msg),
+                    setLoading: (loading) => (this.isLoading = loading),
+               })
           }
      }
 }

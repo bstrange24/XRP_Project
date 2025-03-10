@@ -1,1 +1,57 @@
-<p>buy-nfts works!</p>
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="buy-nfts-box">
+            <!-- Buy NFTs Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>NFT Token ID</mat-label>
+                <input matInput [(ngModel)]="nftTokenId" placeholder="e.g., 00020000591D12E66986DE1C01CA7D9065B9B24A2C1D7EE38C5E4A59004FF3BD" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Issuer Seed</mat-label>
+                <input matInput [(ngModel)]="issuerSeed" placeholder="e.g., sEdSmdUTS9ashiJ1Nc4azm4rZYb6Lmf" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Buyer Seed</mat-label>
+                <input matInput [(ngModel)]="buyerSeed" placeholder="e.g., sEdVrcHQRSAfqvHZkmi7i4L8hZuCeDB" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Buy Offer Amount</mat-label>
+                <input matInput type="text" [(ngModel)]="buyOfferAmount" placeholder="e.g., 10000000" required />
+                <mat-hint>Must be a positive number</mat-hint>
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="buyNfts()" [disabled]="isLoading">
+                {{ isLoading ? 'Buying...' : 'Buy NFT' }}
+              </button>
+            </div>
+  
+            <!-- Display Success Message -->
+            <div class="success-message" *ngIf="successMessage && !errorMessage">
+              <p>{{ successMessage }}</p>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Buying NFT...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !successMessage">
+              Enter the NFT token ID, issuer seed, buyer seed, and buy offer amount, then click "Buy NFT" to proceed.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

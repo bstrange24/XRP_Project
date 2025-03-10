@@ -1,0 +1,81 @@
+.mint-nfts-box {
+    padding: 20px;
+  }
+  
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .wide-form-field {
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .flags-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .flag-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .flags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .flag-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    background: #f0f0f0;
+    border-radius: 4px;
+  }
+  
+  .flag-item button {
+    margin-left: 5px;
+    color: #f44336;
+  }
+  
+  .nfts-container {
+    margin-top: 20px;
+  }
+  
+  .mat-elevation-z8 {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background: #f5f5f5;
+    position: sticky;
+    top: 0;
+  }
+  
+  .error-message,
+  .loading {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .error-message {
+    color: red;
+  }

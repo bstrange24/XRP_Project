@@ -1,0 +1,51 @@
+.get-account-offers-box {
+  padding: 20px;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.wide-form-field {
+  width: 100%;
+  max-width: 500px;
+}
+
+.table-container {
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f5f5f5;
+}
+
+tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+mat-paginator {
+  margin-top: 10px;
+}
+
+.error-message,
+.loading {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.error-message {
+  color: red;
+}

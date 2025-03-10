@@ -1,0 +1,90 @@
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <!-- Card Content -->
+        <mat-card-content>
+          <div class="offers-box">
+            <!-- Offers Cancellation Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Account Address</mat-label>
+                <input matInput [(ngModel)]="account" placeholder="Enter XRP account address (e.g., r3po3SnWLsxifM3CaT34e1vWBp1Mroq8Lh)" required>
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="cancelAccountOffers()" [disabled]="isLoading">
+                {{ isLoading ? 'Cancelling...' : 'Cancel Offers' }}
+              </button>
+            </div>
+  
+            <!-- Display Deleted Nodes if they exist and no error -->
+            <div class="table-container" *ngIf="deletedNodes.length > 0 && !errorMessage">
+              <h3>Cancelled Offers (Deleted Nodes)</h3>
+              <table mat-table [dataSource]="deletedNodes" class="mat-elevation-z8">
+                <!-- Account Column -->
+                <ng-container matColumnDef="account">
+                  <th mat-header-cell *matHeaderCellDef>Account</th>
+                  <td mat-cell *matCellDef="let node">{{ node.FinalFields.Account }}</td>
+                </ng-container>
+  
+                <!-- Currency Column -->
+                <ng-container matColumnDef="currency">
+                  <th mat-header-cell *matHeaderCellDef>Currency</th>
+                  <td mat-cell *matCellDef="let node">{{ node.FinalFields.TakerPays.currency }}</td>
+                </ng-container>
+  
+                <!-- Issuer Column -->
+                <ng-container matColumnDef="issuer">
+                  <th mat-header-cell *matHeaderCellDef>Issuer</th>
+                  <td mat-cell *matCellDef="let node">{{ node.FinalFields.TakerPays.issuer }}</td>
+                </ng-container>
+  
+                <!-- Value Column -->
+                <ng-container matColumnDef="value">
+                  <th mat-header-cell *matHeaderCellDef>Value</th>
+                  <td mat-cell *matCellDef="let node">{{ node.FinalFields.TakerPays.value }}</td>
+                </ng-container>
+  
+                <!-- Sequence Column -->
+                <ng-container matColumnDef="sequence">
+                  <th mat-header-cell *matHeaderCellDef>Sequence</th>
+                  <td mat-cell *matCellDef="let node">{{ node.FinalFields.Sequence }}</td>
+                </ng-container>
+  
+                <tr mat-header-row *matHeaderRowDef="['account', 'currency', 'issuer', 'value', 'sequence']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['account', 'currency', 'issuer', 'value', 'sequence']"></tr>
+              </table>
+            </div>
+  
+            <!-- Display tx_json if it exists and no error -->
+            <div class="details-container" *ngIf="txJson && !errorMessage">
+              <h3>Transaction Details</h3>
+              <div class="details-box">
+                <p><strong>Account:</strong> {{ txJson.Account }}</p>
+                <p><strong>Fee:</strong> {{ txJson.Fee }}</p>
+                <p><strong>Flags:</strong> {{ txJson.Flags }}</p>
+                <p><strong>Last Ledger Sequence:</strong> {{ txJson.LastLedgerSequence }}</p>
+                <p><strong>Offer Sequence:</strong> {{ txJson.OfferSequence }}</p>
+                <p><strong>Sequence:</strong> {{ txJson.Sequence }}</p>
+                <p><strong>Signing Pub Key:</strong> {{ txJson.SigningPubKey }}</p>
+                <p><strong>Transaction Type:</strong> {{ txJson.TransactionType }}</p>
+                <p><strong>Transaction Signature:</strong> {{ txJson.TxnSignature }}</p>
+                <p><strong>Date:</strong> {{ txJson.date }}</p>
+                <p><strong>Ledger Index:</strong> {{ txJson.ledger_index }}</p>
+              </div>
+            </div>
+  
+            <!-- Display Error Message if there’s an error -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div *ngIf="!deletedNodes.length && !txJson && !errorMessage && !isLoading" class="loading">
+              Enter an account address and click "Cancel Offers" to cancel account offers.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+      <!-- Card Content -->
+    </mat-card>
+  </div>

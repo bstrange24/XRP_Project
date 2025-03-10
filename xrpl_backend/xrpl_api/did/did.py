@@ -2,7 +2,9 @@ import json
 import logging
 import time
 
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from xrpl import XRPLException
 from xrpl.account import does_account_exist
 from xrpl.asyncio.clients import XRPLRequestFailureException
@@ -19,7 +21,7 @@ from ..utilities.utilities import get_xrpl_client, total_execution_time_in_milli
 
 logger = logging.getLogger('xrpl_app')
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class GetDid(View):
     def __init__(self):
         super().__init__()
@@ -84,7 +86,7 @@ class GetDid(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class SetDid(View):
     def __init__(self):
         super().__init__()
@@ -130,9 +132,9 @@ class SetDid(View):
 
             logger.info(f"Document: {document} Data: {did_data} URI: {uri}")
 
-            result, message = validate_did_set_data(did_data, uri)
-            if not result:
-                raise XRPLException(error_response(message))
+            # result, message = validate_did_set_data(did_data, uri)
+            # if not result:
+            #     raise XRPLException(error_response(message))
 
             account_did_creator = Wallet.from_seed(account_seed)
 
@@ -162,7 +164,7 @@ class SetDid(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class DeleteDid(View):
     def __init__(self):
         super().__init__()

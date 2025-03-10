@@ -1,0 +1,55 @@
+<div class="app">
+  <mat-card>
+    <div class="centered-container">
+      <!-- Card Content -->
+      <mat-card-content>
+        <div class="account-config-box">
+          <!-- Account Config Form -->
+          <div class="form-container">
+            <mat-form-field class="wide-form-field address-field" appearance="fill">
+              <mat-label>Account Address</mat-label>
+              <textarea matInput [(ngModel)]="account" placeholder="Enter XRP account address (e.g., rLRYbzsJnf6DGEaQZ7jgh3sLWNnmeCpF3D)" required rows="3"></textarea>
+            </mat-form-field>
+
+            <button mat-button color="primary" (click)="fetchInitialValues()" [disabled]="isLoading || !account.trim()">
+              {{ isLoading ? 'Loading...' : 'Load Initial Values' }}
+            </button>
+
+            <div class="fields-grid">
+              <ng-container *ngFor="let field of asfFields; let i = index">
+                <div class="checkbox-container">
+                  <mat-checkbox [(ngModel)]="field.value" color="primary">
+                    {{ field.label }}
+                  </mat-checkbox>
+                </div>
+                <ng-container *ngIf="(i + 1) % 3 === 0 && i !== asfFields.length - 1">
+                  <div class="grid-spacer"></div> <!-- Spacer for grid layout -->
+                </ng-container>
+              </ng-container>
+            </div>
+
+            <button mat-button color="primary" (click)="updateAccountConfig()" [disabled]="isLoading || !account.trim()">
+              {{ isLoading ? 'Updating...' : 'Update Account Config' }}
+            </button>
+          </div>
+
+          <!-- Display Response Message if available -->
+          <div class="result-container" *ngIf="responseMessage">
+            <p>{{ responseMessage }}</p>
+          </div>
+
+          <!-- Display Error Message if there’s an error -->
+          <div class="error-message" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <!-- Loading State -->
+          <div *ngIf="!responseMessage && !errorMessage && isLoading" class="loading">
+            Loading initial values or updating account config...
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+    <!-- Card Content -->
+  </mat-card>
+</div>

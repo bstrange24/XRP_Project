@@ -87,9 +87,9 @@
 <!-- Offers Dropdown Menu -->
 <mat-menu #toffersMenu="matMenu">
     <button mat-menu-item (click)="navigateToGetAccountOffers()">Get Offers</button>
-    <button mat-menu-item (click)="navigateToSendPayment()">Create Offers</button>
+    <button mat-menu-item (click)="navigateToCreateOffer()">Create Offers</button>
     <button mat-menu-item (click)="navigateToCancelAccountOffers()">Cancel Offers</button>
-    <button mat-menu-item (click)="navigateToSendCurrencyPayment()">Get Order Book Offers</button>
+    <button mat-menu-item (click)="navigateToGetBookOffers()">Get Order Book Offers</button>
 </mat-menu>
 
 <!-- Account Dropdown Menu -->
@@ -102,11 +102,11 @@
 <!-- Account Nft's Menu -->
 <mat-menu #tNftsMenu="matMenu">
     <button mat-menu-item (click)="navigateToGetAccountNfts()">Get NFT for Account</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Mint NFT</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Buy NFT</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Sell NFT</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Burn NFT</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cancel NFT Offer</button>
+    <button mat-menu-item (click)="navigateToMintNfts()">Mint NFT</button>
+    <button mat-menu-item (click)="navigateToBuyNfts()">Buy NFT</button>
+    <button mat-menu-item (click)="navigateToSellNfts()">Sell NFT</button>
+    <button mat-menu-item (click)="navigateToBurnNfts()">Burn NFT</button>
+    <button mat-menu-item (click)="navigateToCancelNftsSellOffer()">Cancel NFT Sell Offer</button>
 </mat-menu>
 
 <!-- Account Escrow Menu -->
@@ -120,12 +120,12 @@
 
 <!-- Account Checks Menu -->
 <mat-menu #tChecksMenu="matMenu">
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Get Checks for Account</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Create Token Check</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Create XRP Check</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cash Token Check</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cash XRP Check</button>
-    <button mat-menu-item (click)="navigateToGetAccountOffers()">Cancel Check</button>
+    <button mat-menu-item (click)="navigateToGetAccountChecks()">Get Checks for Account</button>
+    <button mat-menu-item (click)="navigateToCreateTokenCheck()">Create Token Check</button>
+    <button mat-menu-item (click)="navigateToCreateXrpCheck()">Create XRP Check</button>
+    <button mat-menu-item (click)="navigateToCashTokenCheck()">Cash Token Check</button>
+    <button mat-menu-item (click)="navigateToCashXrpCheck()">Cash XRP Check</button>
+    <button mat-menu-item (click)="navigateToCancelCheck()">Cancel Check</button>
 </mat-menu>
 
 <!-- Account Oracles Menu -->

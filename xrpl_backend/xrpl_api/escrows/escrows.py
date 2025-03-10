@@ -27,7 +27,8 @@ from .escrows_util import create_escrow_account_transaction, \
     get_escrow_tx_id_account_response, generate_escrow_condition_and_fulfillment, create_escrow_account_response, \
     set_claim_date, create_escrow_sequence_number_response, \
     get_escrow_sequence, create_escrow_cancel_response, get_escrow_data_from_db, validate_fulfillment, \
-    create_escrow_transaction_with_finsh_cancel
+    create_escrow_transaction_combination, create_escrow_transaction_time_based_only, \
+    create_escrow_transaction_condition_only
 from ..constants.constants import ENTERING_FUNCTION_LOG, \
     ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
     ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, SENDER_SEED_IS_INVALID, MISSING_REQUEST_PARAMETERS, INVALID_TX_ID_IN_REQUEST
@@ -36,7 +37,7 @@ from ..errors.error_handling import process_transaction_error, handle_error_new,
 from ..transactions.transactions_util import prepare_tx
 from ..utilities.utilities import get_xrpl_client, \
     total_execution_time_in_millis, validate_xrp_wallet, is_valid_xrpl_seed, validate_xrpl_response_data, \
-    is_valid_txn_id_format, does_txn_exist, count_xrp_received
+    is_valid_txn_id_format, does_txn_exist, count_xrp_received, convert_param_to_bool
 
 logger = logging.getLogger('xrpl_app')
 
@@ -154,18 +155,18 @@ class GetEscrowAccountInfo(View):
                 if validate_xrpl_response_data(transaction_id_response):
                     process_transaction_error(transaction_id_response)
 
-                if "Sequence" not in transaction_id_response:
+                if "Sequence" not in transaction_id_response.result['tx_json']:
                     raise XRPLException(error_response("EscrowCreate transaction not found or invalid."))
 
                 # Return the result
                 result = transaction_id_response.result
 
                 # Print escrow sequence if available
-                if "Sequence" in result:
-                    logger.info(f'escrow sequence: {result["Sequence"]}')
+                if "Sequence" in result['tx_json']:
+                    logger.info(f'escrow sequence: {result['tx_json']["Sequence"]}')
                 # Use escrow ticket sequence if escrow sequence is not available
-                if "TicketSequence" in result:
-                    logger.info(f'escrow ticket sequence: {result["TicketSequence"]}')
+                if "TicketSequence" in result['tx_json']:
+                    logger.info(f'escrow ticket sequence: {result['tx_json']["TicketSequence"]}')
 
                 return get_escrow_tx_id_account_response(result)
 
@@ -258,9 +259,15 @@ class CreateEscrow(View):
             amount_to_escrow = data.get("amount_to_escrow")
             finish_after_time = data.get("finish_after_time")
             cancel_after_time = data.get("cancel_after_time")
+            time_based_only = convert_param_to_bool(data.get("time_based_only", False))
+            conditional_only = convert_param_to_bool(data.get("conditional_only", False))
+            combination = convert_param_to_bool(data.get("combination", False))
 
             if not all([escrow_receiver_account, escrow_creator_seed, amount_to_escrow]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
+
+            if not time_based_only and not conditional_only and not combination:
+                raise ValueError(error_response("Invalid escrow complete values."))
 
             if not is_valid_xrpl_seed(escrow_creator_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
@@ -273,32 +280,34 @@ class CreateEscrow(View):
 
             xrpl_config = apps.get_app_config('xrpl_api')
 
-            if finish_after_time and cancel_after_time:
-                finish_after = set_claim_date(finish_after_time)
-                logger.info(f"Finish after set to: {finish_after}")
+            if time_based_only or combination:
+                if finish_after_time and cancel_after_time:
+                    finish_after = set_claim_date(finish_after_time)
+                    logger.info(f"Finish after set to: {finish_after}")
 
-                cancel_after = set_claim_date(cancel_after_time)
-                logger.info(f"Cancel after set to: {cancel_after}")
-            else:
-                try:
-                    finish_after = set_claim_date(xrpl_config.ESCROW_DEFAULT_FINISH_AFTER_DATE)
-                    print(f"Claim date set to: {finish_after}")
-                except ValueError as e:
-                    print(f"Error parsing finish_after: {e}")
-                    print(f"Setting finish_after to defaults 1 day")
-                    finish_after = datetime_to_ripple_time(datetime.now() + timedelta(days=1))
+                    cancel_after = set_claim_date(cancel_after_time)
+                    logger.info(f"Cancel after set to: {cancel_after}")
+                else:
+                    try:
+                        finish_after = set_claim_date(xrpl_config.ESCROW_DEFAULT_FINISH_AFTER_DATE)
+                        print(f"Claim date set to: {finish_after}")
+                    except ValueError as e:
+                        print(f"Error parsing finish_after: {e}")
+                        print(f"Setting finish_after to defaults 1 day")
+                        finish_after = datetime_to_ripple_time(datetime.now() + timedelta(days=1))
 
-                try:
-                    cancel_after = set_claim_date(xrpl_config.ESCROW_DEFAULT_CLAIM_AFTER_DATE)
-                    print(f"Claim date set to: {cancel_after}")
-                except ValueError as e:
-                    print(f"Error parsing cancel_after: {e}")
-                    print(f"Setting cancel_after to defaults 1 day")
-                    cancel_after = datetime_to_ripple_time(datetime.now() + timedelta(days=1))
+                    try:
+                        cancel_after = set_claim_date(xrpl_config.ESCROW_DEFAULT_CLAIM_AFTER_DATE)
+                        print(f"Claim date set to: {cancel_after}")
+                    except ValueError as e:
+                        print(f"Error parsing cancel_after: {e}")
+                        print(f"Setting cancel_after to defaults 1 day")
+                        cancel_after = datetime_to_ripple_time(datetime.now() + timedelta(days=1))
 
-            condition, fulfillment = generate_escrow_condition_and_fulfillment()
-            condition = "A02580203882E2EB9B44130530541C4CC360D079F265792C4A7ED3840968897CB7DF2DA1810120"
-            fulfillment = "A0228020AED2C5FE4D147D310D3CFEBD9BFA81AD0F63CE1ADD92E00379DDDAF8E090E24C"
+            if conditional_only or combination:
+                condition, fulfillment = generate_escrow_condition_and_fulfillment()
+                condition = "A02580203882E2EB9B44130530541C4CC360D079F265792C4A7ED3840968897CB7DF2DA1810120"
+                fulfillment = "A0228020AED2C5FE4D147D310D3CFEBD9BFA81AD0F63CE1ADD92E00379DDDAF8E090E24C"
 
             # sender wallet object
             escrow_creator_seed_wallet = Wallet.from_seed(escrow_creator_seed)
@@ -311,7 +320,24 @@ class CreateEscrow(View):
             current_ledger = ledger_response.result["ledger_current_index"]
 
             # Build escrow create transaction
-            create_escrow_txn = create_escrow_transaction_with_finsh_cancel(escrow_creator_seed_wallet.address, Decimal(amount_to_escrow), escrow_receiver_account, condition, sequence, str(fee), current_ledger, finish_after, cancel_after)
+            if time_based_only:
+                create_escrow_txn = create_escrow_transaction_time_based_only(escrow_creator_seed_wallet.address,
+                                                                                Decimal(amount_to_escrow),
+                                                                                escrow_receiver_account,
+                                                                                sequence, str(fee), current_ledger,
+                                                                                finish_after, cancel_after)
+            elif conditional_only:
+                create_escrow_txn = create_escrow_transaction_condition_only(escrow_creator_seed_wallet.address,
+                                                                                Decimal(amount_to_escrow),
+                                                                                escrow_receiver_account, condition,
+                                                                                sequence, str(fee), current_ledger)
+            else:
+                create_escrow_txn = create_escrow_transaction_combination(escrow_creator_seed_wallet.address,
+                                                                                Decimal(amount_to_escrow),
+                                                                                escrow_receiver_account, condition,
+                                                                                sequence, str(fee), current_ledger,
+                                                                                finish_after, cancel_after)
+
 
             # Autofill, sign, then submit transaction and wait for result
             logger.debug(f"Raw transaction before submission: {create_escrow_txn.to_dict()}")

@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from xrpl import XRPLException
 from xrpl.asyncio.clients import AsyncWebsocketClient
 from xrpl.asyncio.transaction import submit_and_wait
-from xrpl.models import Payment, Ledger, ServerInfo, AccountObjects
+from xrpl.models import Payment, Ledger, ServerInfo, AccountObjects, Memo
 
 from .db_operations.payments_db_operations import save_payment_data
 from ..accounts.account_utils import account_delete_tx_response
@@ -200,6 +200,20 @@ def send_payment_response(result: dict, transaction_hash: str, sender_address: s
         'fee_drops': fee_drops,
     })
 
+def create_payment_transaction_with_memo(sender_address, receiver_account, amount_drops, fee_drops, memo_data, memo_type, memo_format):
+    return Payment(
+        account=sender_address,
+        destination=receiver_account,
+        amount=str(amount_drops),
+        fee=str(fee_drops),
+        memos=[
+            Memo(
+                memo_type=memo_type,
+                memo_data=memo_data,
+                memo_format=memo_format
+            ),
+        ],
+    )
 
 def create_payment_transaction(sender_address: str, receiver_address: str, amount_drops: str, fee_drops: str,
                                send_and_delete_wallet: bool) -> Payment:

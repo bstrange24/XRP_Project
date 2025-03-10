@@ -1,41 +1,45 @@
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 export function handleError(
-    error: any,
-    snackBar: MatSnackBar,
-    action: string = 'performing an action',
-    options: {
-        setErrorMessage?: (msg: string) => void;
-        setLoading?: (loading: boolean) => void;
-        setFetched?: (fetched: boolean) => void;
-    } = {}
+     error: any,
+     snackBar: MatSnackBar,
+     action: string = 'performing an action',
+     options: {
+          setErrorMessage?: (msg: string) => void;
+          setLoading?: (loading: boolean) => void;
+          setFetched?: (fetched: boolean) => void;
+          setisLoadingAssets?: (isLoadingAssets: boolean) => void;
+     } = {}
 ): string {
-    console.error(`Error ${action}:`, error);
-    let errorMessage: string;
-    if (error instanceof Error) {
-        errorMessage = error.message;
-    } else if (typeof error === 'object' && error !== null && 'message' in error) {
-        errorMessage = error.error.message; // Type assertion to access message
-    } else {
-        errorMessage = `An unexpected error occurred while ${action}.`;
-    }
+     console.error(`Error ${action}:`, error);
+     let errorMessage: string;
+     if (error instanceof Error) {
+          errorMessage = error.message;
+     } else if (typeof error === 'object' && error !== null && 'message' in error) {
+          errorMessage = error.error.message; // Type assertion to access message
+     } else {
+          errorMessage = `An unexpected error occurred while ${action}.`;
+     }
 
-    // Display snackbar notification
-    snackBar.open(errorMessage, 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar'],
-    });
+     // Display snackbar notification
+     snackBar.open(errorMessage, 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar'],
+     });
 
-    // Apply optional setters
-    if (options.setErrorMessage) {
-        options.setErrorMessage(errorMessage);
-    }
-    if (options.setLoading) {
-        options.setLoading(false);
-    }
-    if (options.setFetched) {
-        options.setFetched(true);
-    }
+     // Apply optional setters
+     if (options.setErrorMessage) {
+          options.setErrorMessage(errorMessage);
+     }
+     if (options.setLoading) {
+          options.setLoading(false);
+     }
+     if (options.setFetched) {
+          options.setFetched(true);
+     }
+     if (options.setisLoadingAssets) {
+          options.setisLoadingAssets(true);
+     }
 
-    return errorMessage; // Return for potential further use
+     return errorMessage; // Return for potential further use
 }

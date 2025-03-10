@@ -44,13 +44,13 @@ export class LedgerDetailComponent implements OnInit {
   fetchLedgerData(ledger_index: string) {
     this.isLoading = true;
     this.errorMessage = '';
-    this.xrplService.getLedgerInfo(ledger_index).subscribe(
-      (data) => {
+    this.xrplService.getLedgerInfo(ledger_index).subscribe({
+      next: (data) => {
         this.ledgerInfo = data;
         this.isLoading = false;
         console.log('Ledger Info Fetched:', data);
       },
-      (error) => {
+      error: (error) => {
         console.error('Error fetching ledger information:', error);
         this.ledgerInfo = { status: 'error', message: 'Failed to fetch ledger information. Please try again.' };
         this.errorMessage = error.message || 'An error occurred while fetching ledger data.';
@@ -60,6 +60,6 @@ export class LedgerDetailComponent implements OnInit {
         });
         this.isLoading = false;
       }
-    );
+  });
   }
 }

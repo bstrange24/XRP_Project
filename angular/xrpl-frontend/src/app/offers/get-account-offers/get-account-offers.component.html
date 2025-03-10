@@ -1,0 +1,83 @@
+<div class="app">
+  <mat-card>
+    <div class="centered-container">
+      <mat-card-content>
+        <div class="get-account-offers-box">
+          <!-- Get Account Offers Form -->
+          <div class="form-container">
+            <mat-form-field class="wide-form-field" appearance="fill">
+              <mat-label>Account</mat-label>
+              <input
+                matInput
+                [(ngModel)]="account"
+                placeholder="e.g., rHS2zLdTv4Up18M6kapEavnVbwveRgQaFj"
+                required
+                (keydown.enter)="getAccountOffers()"
+              />
+            </mat-form-field>
+
+            <button mat-button color="primary" (click)="getAccountOffers()" [disabled]="isLoading">
+              {{ isLoading ? 'Retrieving...' : 'Get Account Offers' }}
+            </button>
+          </div>
+
+          <!-- Display offers in a table -->
+          <div class="table-container" *ngIf="offers.length > 0 && !errorMessage">
+            <table mat-table [dataSource]="offers">
+              <ng-container matColumnDef="flags">
+                <th mat-header-cell *matHeaderCellDef>Flags</th>
+                <td mat-cell *matCellDef="let offer">{{ offer.flags }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="quality">
+                <th mat-header-cell *matHeaderCellDef>Quality</th>
+                <td mat-cell *matCellDef="let offer">{{ offer.quality }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="seq">
+                <th mat-header-cell *matHeaderCellDef>Sequence</th>
+                <td mat-cell *matCellDef="let offer">{{ offer.seq }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="takerGets">
+                <th mat-header-cell *matHeaderCellDef>Taker Gets</th>
+                <td mat-cell *matCellDef="let offer">{{ offer.taker_gets.value }} {{ offer.taker_gets.currency }} (Issuer: {{ offer.taker_gets.issuer }})</td>
+              </ng-container>
+
+              <ng-container matColumnDef="takerPays">
+                <th mat-header-cell *matHeaderCellDef>Taker Pays</th>
+                <td mat-cell *matCellDef="let offer">{{ formatTakerPays(offer.taker_pays) }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <mat-paginator
+              [length]="totalOffers"
+              [pageSize]="pageSize"
+              [pageIndex]="currentPage - 1"
+              [pageSizeOptions]="[5, 10, 25, 50]"
+              (page)="onPageChange($event)">
+            </mat-paginator>
+          </div>
+
+          <!-- Display Error Message -->
+          <div class="error-message" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <!-- Loading State -->
+          <div class="loading" *ngIf="isLoading">
+            <p>Retrieving account offers...</p>
+          </div>
+
+          <!-- Initial/No Offers State -->
+          <div class="loading" *ngIf="!isLoading && !errorMessage && offers.length === 0">
+            Enter the account and click "Get Account Offers" or press Enter to retrieve offers, or no offers found for this page.
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </mat-card>
+</div>

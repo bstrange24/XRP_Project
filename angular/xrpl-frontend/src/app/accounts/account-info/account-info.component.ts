@@ -17,6 +17,7 @@ import { MatTabsModule, MatTabChangeEvent } from '@angular/material/tabs';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { XrplService } from '../../services/xrpl-data/xrpl.service';
 import { SharedDataService } from '../../services/shared-data/shared-data.service';
+import { handleError } from '../../utlities/error-handling-utils';
 
 @Component({
      selector: 'app-account-info',
@@ -174,85 +175,87 @@ export class AccountInfoComponent implements OnInit {
 
           this.xrplService.getAccountTransactionHistoryWithPaginations(this.wallet_address, this.currentPage, this.pageSize, bodyData).subscribe({
                next: (data) => {
-                   console.log('API Response:', data);
-                   console.log('Transactions length:', data?.transactions?.length);
-                   if (data?.transactions) { 
-                       const newTransactions = data.transactions.map((tx: any) => {
-                           let additionalInfo: string;
-                           let tx_type: string;
-                           let currency: string;
-                           let issuer: string;
-                           let value: string;
-           
-                           try {
-                               switch (tx.tx_json.TransactionType) {
-                                   case 'TrustSet':
-                                       tx_type = 'SET TRUST LIMIT';
-                                       currency = tx.tx_json.LimitAmount?.currency || 'N/A';
-                                       issuer = tx.tx_json.LimitAmount?.issuer || 'N/A';
-                                       value = tx.tx_json.LimitAmount?.value || '0';
-                                       additionalInfo = `${tx_type} ${currency}$${value} ${currency}.${issuer}`;
-                                       break;
-                                   case 'Payment':
-                                       tx_type = 'SEND';
-                                       if (typeof tx.meta.delivered_amount === 'string') {
-                                           value = (parseInt(tx.meta.delivered_amount) / 1000000).toFixed(2);
-                                           currency = 'XRP';
-                                           issuer = tx.tx_json.Destination || 'N/A';
-                                       } else {
-                                           currency = tx.meta.Amount?.currency || 'N/A';
-                                           issuer = tx.tx_json.Destination || 'N/A';
-                                           value = (parseInt(tx.meta.delivered_amount) / 1000000).toFixed(2) || '0';
-                                       }
-                                       additionalInfo = `${tx_type} ${value} ${currency} to ${issuer}`;
-                                       break;
-                                   case 'AccountDelete':
-                                       tx_type = 'Account Delete';
-                                       currency = tx.tx_json.LimitAmount?.currency || 'N/A';
-                                       issuer = tx.tx_json.LimitAmount?.issuer || 'N/A';
-                                       value = tx.tx_json.LimitAmount?.value || '0';
-                                       additionalInfo = `${tx_type} ${currency}$${value} ${currency}.${issuer}`;
-                                       break;
-                                   default:
-                                       additionalInfo = tx.tx_json.TransactionType;
-                               }
-                           } catch (error) {
-                               console.error('Error processing transaction:', tx.tx_json.TransactionType, error);
-                               additionalInfo = `${tx.tx_json.TransactionType} (Error processing details)`;
-                           }
-           
-                           return {
-                               ...tx.tx_json,
-                               date: tx.close_time_iso,
-                               delivered_amount: tx.meta.delivered_amount ?? '',
-                               transaction_result: tx.meta.TransactionResult.indexOf('SUCCESS') > -1 ? 'Success' : tx.meta.TransactionResult,
-                               additional_information: additionalInfo,
-                               transaction_hash: tx.hash,
-                           };
-                       });
-                       this.transactions = [...this.transactions, ...newTransactions];
-                       this.totalItems = data.total_count || 0; // Fix here
-                       this.currentPage++;
-                       this.hasMore = this.transactions.length < this.totalItems;
-                       console.log('Fetch complete - Total items:', this.totalItems, 'Loaded:', this.transactions.length, 'Has more:', this.hasMore, 'Next page:', this.currentPage);
-                   } else {
-                       console.warn('No transactions in API response');
-                       this.hasMore = false;
-                   }
-                   this.isLoading = false;
-                   this.cdr.detectChanges();
+                    console.log('API Response:', data);
+                    console.log('Transactions length:', data?.transactions?.length);
+                    if (data?.transactions) {
+                         const newTransactions = data.transactions.map((tx: any) => {
+                              let additionalInfo: string;
+                              let tx_type: string;
+                              let currency: string;
+                              let issuer: string;
+                              let value: string;
+
+                              try {
+                                   switch (tx.tx_json.TransactionType) {
+                                        case 'TrustSet':
+                                             tx_type = 'SET TRUST LIMIT';
+                                             currency = tx.tx_json.LimitAmount?.currency || 'N/A';
+                                             issuer = tx.tx_json.LimitAmount?.issuer || 'N/A';
+                                             value = tx.tx_json.LimitAmount?.value || '0';
+                                             additionalInfo = `${tx_type} ${currency}$${value} ${currency}.${issuer}`;
+                                             break;
+                                        case 'Payment':
+                                             tx_type = 'SEND';
+                                             if (typeof tx.meta.delivered_amount === 'string') {
+                                                  value = (parseInt(tx.meta.delivered_amount) / 1000000).toFixed(2);
+                                                  currency = 'XRP';
+                                                  issuer = tx.tx_json.Destination || 'N/A';
+                                             } else {
+                                                  currency = tx.meta.Amount?.currency || 'N/A';
+                                                  issuer = tx.tx_json.Destination || 'N/A';
+                                                  value = (parseInt(tx.meta.delivered_amount) / 1000000).toFixed(2) || '0';
+                                             }
+                                             additionalInfo = `${tx_type} ${value} ${currency} to ${issuer}`;
+                                             break;
+                                        case 'AccountDelete':
+                                             tx_type = 'Account Delete';
+                                             currency = tx.tx_json.LimitAmount?.currency || 'N/A';
+                                             issuer = tx.tx_json.LimitAmount?.issuer || 'N/A';
+                                             value = tx.tx_json.LimitAmount?.value || '0';
+                                             additionalInfo = `${tx_type} ${currency}$${value} ${currency}.${issuer}`;
+                                             break;
+                                        default:
+                                             additionalInfo = tx.tx_json.TransactionType;
+                                   }
+                              } catch (error) {
+                                   console.error('Error processing transaction:', tx.tx_json.TransactionType, error);
+                                   additionalInfo = `${tx.tx_json.TransactionType} (Error processing details)`;
+                              }
+
+                              return {
+                                   ...tx.tx_json,
+                                   date: tx.close_time_iso,
+                                   delivered_amount: tx.meta.delivered_amount ?? '',
+                                   transaction_result: tx.meta.TransactionResult.indexOf('SUCCESS') > -1 ? 'Success' : tx.meta.TransactionResult,
+                                   additional_information: additionalInfo,
+                                   transaction_hash: tx.hash,
+                              };
+                         });
+                         this.transactions = [...this.transactions, ...newTransactions];
+                         this.totalItems = data.total_count || 0; // Fix here
+                         this.currentPage++;
+                         this.hasMore = this.transactions.length < this.totalItems;
+                         console.log('Fetch complete - Total items:', this.totalItems, 'Loaded:', this.transactions.length, 'Has more:', this.hasMore, 'Next page:', this.currentPage);
+                    } else {
+                         console.warn('No transactions in API response');
+                         this.hasMore = false;
+                    }
+                    this.isLoading = false;
+                    this.cdr.detectChanges();
                },
                error: (error) => {
-                   console.error('Error fetching account transactions:', error);
-                   this.isLoading = false;
-                   this.hasMore = false;
-                   this.cdr.detectChanges();
+                    console.error('Error fetching account transactions:', error);
+                    handleError(error, this.snackBar, 'Creating token check', {
+                         setErrorMessage: (msg) => (this.errorMessage = msg),
+                         setLoading: (loading) => (this.isLoading = loading),
+                    })
+                    this.cdr.detectChanges();
                },
                complete: () => {
-                   // Optional: Add any cleanup or finalization logic here
-                   console.log('Transaction history fetch completed.');
+                    // Optional: Add any cleanup or finalization logic here
+                    console.log('Transaction history fetch completed.');
                }
-           });
+          });
      }
 
      onTabChange(event: MatTabChangeEvent): void {
@@ -271,7 +274,7 @@ export class AccountInfoComponent implements OnInit {
           const bodyData = {
                account: this.wallet_address
           };
-          console.log('Request body:', bodyData); 
+          console.log('Request body:', bodyData);
 
           this.isLoadingAssets = true;
           console.log('Fetching assets for:', this.wallet_address);
@@ -298,10 +301,13 @@ export class AccountInfoComponent implements OnInit {
                     this.cdr.detectChanges();
                },
                error: (error) => {
-                    console.error('Error fetching account assets:', error);
-                    this.errorMessage = 'Error fetching account assets. Please try again.';
                     this.assets = [];
-                    this.isLoadingAssets = false;
+                    console.error('Error fetching account assets:', error);
+                    handleError(error, this.snackBar, 'Creating token check', {
+                         setErrorMessage: (msg) => (this.errorMessage = msg),
+                         setLoading: (loading) => (this.isLoading = loading),
+                         setisLoadingAssets: (isLoadingAssets) => (this.isLoadingAssets = isLoadingAssets),
+                    })
                     this.cdr.detectChanges();
                }
           });

@@ -76,10 +76,11 @@ class MintNft(View):
             if not is_valid_xrpl_seed(minter_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
-            logger.info(f"Tx flag count: {len(tx_flags)} Sell amount count: {len(sell_amounts)} Nft Count: {nft_count}")
-            if not (len(tx_flags) == len(sell_amounts) == nft_count):
-                raise ValueError(
-                    f"Size mismatch: Tx Flags = {len(tx_flags)}, Sell Amounts = {len(sell_amounts)}, Nft Count = {nft_count}")
+            if not mint_and_sell:
+                logger.info(f"Tx flag count: {len(tx_flags)} Sell amount count: {len(sell_amounts)} Nft Count: {nft_count}")
+                if not (len(tx_flags) == len(sell_amounts) == nft_count):
+                    raise ValueError(
+                        f"Size mismatch: Tx Flags = {len(tx_flags)}, Sell Amounts = {len(sell_amounts)}, Nft Count = {nft_count}")
 
             minter_wallet = Wallet.from_seed(minter_seed)
             minter_wallet_address = minter_wallet.classic_address
@@ -243,11 +244,13 @@ class GetAccountNft(View):
                     break
 
             # Extract pagination parameters from the request
-            page = request.GET.get('page', 1)
+            page = data.get('page', 1)
             page = int(page) if page else 1
 
-            page_size = request.GET.get('page_size', 10)
+            page_size = data.get('page_size', 10)
             page_size = int(page_size) if page_size else 1
+
+            logger.info(f"page: {page} page_size: {page_size}")
 
             # Paginate the transactions
             paginator = Paginator(account_nfts_transactions, page_size)
@@ -520,7 +523,7 @@ class CancelNftOffers(View):
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def cancel_nft_offers(self, request):
         start_time = time.time()
-        function_name = 'buy_nft'
+        function_name = 'cancel_nft_offers'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
 
         try:
@@ -549,7 +552,7 @@ class CancelNftOffers(View):
             if existing_offers:
                 offer_ids = [offer['nft_offer_index'] for offer in existing_offers]
                 cancel_nft_sell_offers(self.client, issuer_wallet, offer_ids)
-                return create_nftoken_cancel_response(f"NFT {nft_token_id} offer has bee cancelled successfully.",
+                return create_nftoken_cancel_response(f"NFT {nft_token_id} offer has been cancelled successfully.",
                                                       offer_ids)
             else:
                 return create_nftoken_cancel_response(f"NFT {nft_token_id} has not offers.", None)

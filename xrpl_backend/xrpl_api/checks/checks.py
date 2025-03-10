@@ -4,7 +4,9 @@ import time
 from datetime import datetime, timedelta
 
 from django.core.paginator import Paginator
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from xrpl import XRPLException
 from xrpl.asyncio.clients import XRPLRequestFailureException
 from xrpl.transaction import submit_and_wait
@@ -18,12 +20,13 @@ from ..accounts.account_utils import prepare_account_object_with_pagination
 from ..constants.constants import ENTERING_FUNCTION_LOG, ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, \
     SENDER_SEED_IS_INVALID, MISSING_REQUEST_PARAMETERS
 from ..errors.error_handling import process_transaction_error, error_response, handle_error_new
+from ..escrows.escrows_util import set_claim_date
 from ..utilities.utilities import get_xrpl_client, total_execution_time_in_millis, validate_xrpl_response_data, \
     is_valid_xrpl_seed
 
 logger = logging.getLogger('xrpl_app')
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class GetChecks(View):
     def __init__(self):
         super().__init__()
@@ -79,7 +82,7 @@ class GetChecks(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class GetChecksPage(View):
     def __init__(self):
         super().__init__()
@@ -174,7 +177,7 @@ class GetChecksPage(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class CreateTokenCheck(View):
     def __init__(self):
         super().__init__()
@@ -208,10 +211,10 @@ class CreateTokenCheck(View):
             token_name = data.get("token_name")
             token_issuer = data.get("token_issuer")
             amount_to_deliver = data.get("amount_to_deliver")
-            expiration_days = data.get("expiration_days")
+            expiration = data.get("expiration")
 
             required_fields = ["sender_seed", "check_receiver_address", "token_name", "token_issuer",
-                               "amount_to_deliver", "expiration_days"]
+                               "amount_to_deliver", "expiration"]
             if not all(field in data for field in required_fields):
                 return ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
@@ -219,10 +222,9 @@ class CreateTokenCheck(View):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
             logger.info(
-                f"Check receiver address: {check_receiver_address} Token name: {token_name} Token issuer: {token_issuer} Amount to deliver: {amount_to_deliver} Expiration days: {expiration_days}")
+                f"Check receiver address: {check_receiver_address} Token name: {token_name} Token issuer: {token_issuer} Amount to deliver: {amount_to_deliver} Expiration: {expiration}")
 
-            # Set check to expire after 5 days
-            expiry_date = datetime_to_ripple_time(datetime.now() + timedelta(days=float(expiration_days)))
+            expiry_date = set_claim_date(expiration)
 
             sender_wallet = Wallet.from_seed(sender_seed)
 
@@ -250,7 +252,7 @@ class CreateTokenCheck(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class CreateXrpCheck(View):
     def __init__(self):
         super().__init__()
@@ -283,9 +285,9 @@ class CreateXrpCheck(View):
             sender_seed = data.get("sender_seed")
             check_receiver_address = data.get("check_receiver_address")
             amount_to_deliver = data.get("amount_to_deliver")
-            expiration_days = data.get("expiration_days")
+            expiration = data.get("expiration")
 
-            required_fields = ["sender_seed", "check_receiver_address", "amount_to_deliver", "expiration_days"]
+            required_fields = ["sender_seed", "check_receiver_address", "amount_to_deliver", "expiration"]
             if not all(field in data for field in required_fields):
                 return ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
@@ -293,10 +295,11 @@ class CreateXrpCheck(View):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
             logger.info(
-                f"Check receiver address: {check_receiver_address} Amount to deliver: {amount_to_deliver} Expiration days: {expiration_days}")
+                f"Check receiver address: {check_receiver_address} Amount to deliver: {amount_to_deliver} Expiration: {expiration}")
 
             # Set check to expire after 5 days
-            expiry_date = datetime_to_ripple_time(datetime.now() + timedelta(days=float(expiration_days)))
+            # expiry_date = datetime_to_ripple_time(datetime.now() + timedelta(days=float(expiration_days)))
+            expiry_date = set_claim_date(expiration)
 
             sender_wallet = Wallet.from_seed(sender_seed)
 
@@ -324,7 +327,7 @@ class CreateXrpCheck(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class CashTokenCheck(View):
     def __init__(self):
         super().__init__()
@@ -391,7 +394,7 @@ class CashTokenCheck(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class CashXrpCheck(View):
     def __init__(self):
         super().__init__()
@@ -457,7 +460,7 @@ class CashXrpCheck(View):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class CancelCheck(View):
     def __init__(self):
         super().__init__()

@@ -1,1 +1,76 @@
-<p>finish-escrow works!</p>
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="finish-escrow-box">
+            <!-- Finish Escrow Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Escrow Creator Account</mat-label>
+                <input matInput [(ngModel)]="escrowCreatorAccount" placeholder="e.g., rPrfGdLe6bpKAvk6axkXonYp9cVzoC3Hsi" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Escrow Creator Seed</mat-label>
+                <input matInput [(ngModel)]="escrowCreatorSeed" placeholder="e.g., sEd7cDPd67fHP1yNhZKCv1zmwixks4k" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Offer Sequence</mat-label>
+                <input matInput type="text" [(ngModel)]="offerSequence" placeholder="e.g., 5441080" required />
+                <mat-hint>Generate from the escrow create Transaction</mat-hint>
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Condition (Optional)</mat-label>
+                <input matInput [(ngModel)]="condition" placeholder="e.g., A02580203882E2EB9B44130530541C4CC360D079F265792C4A7ED3840968897CB7DF2DA1810120" />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Transaction Hash</mat-label>
+                <input matInput [(ngModel)]="txnHash" placeholder="e.g., 5D4A289BE85491D4DFDB4E5AE0361A93028323D8D0295FC2101665AB818D57EF" required />
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="finishEscrow()" [disabled]="isLoading">
+                {{ isLoading ? 'Finishing...' : 'Finish Escrow' }}
+              </button>
+            </div>
+  
+            <!-- Display tx_json on individual lines -->
+            <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+              <h3>Transaction Details</h3>
+              <div class="tx-json-lines">
+                <div>Account: {{ txJson.Account }}</div>
+                <div>Offer Sequence: {{ txJson.OfferSequence }}</div>
+                <div *ngIf="txJson.Condition">Condition: {{ txJson.Condition }}</div>
+                <div>Fee: {{ txJson.Fee }}</div>
+                <div>Flags: {{ txJson.Flags }}</div>
+                <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+                <div>Sequence: {{ txJson.Sequence }}</div>
+                <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+                <div>Transaction Type: {{ txJson.TransactionType }}</div>
+                <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+                <div>Date: {{ formatDate(txJson.date) }}</div>
+                <div>Ledger Index: {{ txJson.ledger_index }}</div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Finishing escrow...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+              Fill out the form and click "Finish Escrow" to finish an escrow.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

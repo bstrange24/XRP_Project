@@ -84,11 +84,17 @@ def parse_time_delta(finish_after_time):
     # Map units to timedelta arguments
     unit_map = {
         "sec": {"seconds": number},
+        "seconds": {"seconds": number},
         "min": {"minutes": number},
+        "minutes": {"minutes": number},
         "hour": {"hours": number},
+        "hours": {"hours": number},
         "day": {"days": number},
+        "days": {"days": number},
         "month": {"days": number * 30},  # Approx: 30 days per month
-        "year": {"days": number * 365}   # Approx: 365 days per year
+        "months": {"days": number * 30},  # Approx: 30 days per month
+        "year": {"days": number * 365},  # Approx: 365 days per year
+        "years": {"days": number * 365}  # Approx: 365 days per year
     }
 
     # Check if unit is valid
@@ -250,11 +256,11 @@ def create_escrow_account_transaction(account):
         type=AccountObjectType.ESCROW
     )
 
-def create_escrow_transaction(sender_address, amount_to_escrow, receiving_account, condition, sequence, fee, last_ledger):
+def create_escrow_transaction(escrow_creator_account, amount_to_escrow, escrow_receiver_account, condition, sequence, fee, last_ledger):
     return EscrowCreate(
-        account=sender_address,
+        account=escrow_creator_account,
         amount=xrp_to_drops(amount_to_escrow),
-        destination=receiving_account,
+        destination=escrow_receiver_account,
         sequence=sequence,
         fee=fee,
         last_ledger_sequence=last_ledger + 300,
@@ -263,11 +269,36 @@ def create_escrow_transaction(sender_address, amount_to_escrow, receiving_accoun
         condition=condition,
     )
 
-def create_escrow_transaction_with_finsh_cancel(sender_address, amount_to_escrow, receiving_account, condition, sequence, fee, last_ledger, finish_after, cancel_after):
+def create_escrow_transaction_condition_only(escrow_creator_account, amount_to_escrow, escrow_receiver_account, condition, sequence, fee, last_ledger):
     return EscrowCreate(
-        account=sender_address,
+        account=escrow_creator_account,
         amount=xrp_to_drops(amount_to_escrow),
-        destination=receiving_account,
+        destination=escrow_receiver_account,
+        # sequence=sequence,
+        # fee=fee,
+        last_ledger_sequence=last_ledger + 300,
+        condition=condition,
+    )
+
+def create_escrow_transaction_time_based_only(escrow_creator_account, amount_to_escrow, escrow_receiver_account, sequence, fee, last_ledger, finish_after, cancel_after):
+    return EscrowCreate(
+        account=escrow_creator_account,
+        amount=xrp_to_drops(amount_to_escrow),
+        destination=escrow_receiver_account,
+        # sequence=sequence,
+        # fee=fee,
+        last_ledger_sequence=last_ledger + 300,
+        finish_after=finish_after,
+        cancel_after=cancel_after,
+        # condition=condition,
+    )
+
+
+def create_escrow_transaction_combination(escrow_creator_account, amount_to_escrow, escrow_receiver_account, condition, sequence, fee, last_ledger, finish_after, cancel_after):
+    return EscrowCreate(
+        account=escrow_creator_account,
+        amount=xrp_to_drops(amount_to_escrow),
+        destination=escrow_receiver_account,
         # sequence=sequence,
         # fee=fee,
         last_ledger_sequence=last_ledger + 300,

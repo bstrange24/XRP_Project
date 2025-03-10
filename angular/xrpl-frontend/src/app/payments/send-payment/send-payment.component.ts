@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -6,135 +6,216 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import * as XRPL from 'xrpl';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ValidationUtils } from '../../utlities/validation-utils';
+import { CalculationUtils } from '../../utlities/calculation-utils';
+
+interface Memo {
+     Memo: {
+          MemoData: string;
+          MemoType: string;
+          MemoFormat: string;
+     };
+}
+
+interface TxJson {
+     Account: string;
+     DeliverMax: string; // In drops
+     Destination: string;
+     Fee: string;
+     Flags: number;
+     LastLedgerSequence: number;
+     Memos?: Memo[];
+     Sequence: number;
+     SigningPubKey: string;
+     TransactionType: string;
+     TxnSignature: string;
+     date: number;
+     ledger_index: number;
+}
+
+interface SendPaymentApiResponse {
+     status: string;
+     message: string;
+     result: {
+          close_time_iso: string;
+          ctid: string;
+          hash: string;
+          ledger_hash: string;
+          ledger_index: number;
+          meta: any;
+          tx_json: TxJson;
+          validated: boolean;
+     };
+     sender: string;
+     receiver: string;
+}
 
 @Component({
-  selector: 'app-send-payment',
-  standalone: true,
-  imports: [CommonModule, FormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule],
-  templateUrl: './send-payment.component.html',
-  styleUrls: ['./send-payment.component.css']
+     selector: 'app-send-payment',
+     standalone: true,
+     imports: [
+          CommonModule,
+          FormsModule,
+          MatCardModule,
+          MatFormFieldModule,
+          MatInputModule,
+          MatButtonModule,
+          MatCheckboxModule,
+     ],
+     templateUrl: './send-payment.component.html',
+     styleUrls: ['./send-payment.component.css'],
 })
-export class SendPaymentComponent {
-  senderSeed: string = '';
-  receiverAccount: string = '';
-  amountXrp: string = ''; // Explicitly typed as string
-  paymentResult: any | null = null;
-  isLoading: boolean = false;
-  errorMessage: string = '';
+export class SendPaymentComponent implements OnInit {
+     senderSeed: string = '';
+     receiverAccount: string = '';
+     amountXrp: string = '';
+     memoData: string = '';
+     memoType: string = '';
+     memoFormat: string = '';
+     includeMemo: boolean = false; // Checkbox state
+     isLoading: boolean = false;
+     errorMessage: string = '';
+     txJson: TxJson | null = null;
+     sender: string = '';
+     receiver: string = '';
 
-  constructor(
-    private readonly snackBar: MatSnackBar,
-    private readonly http: HttpClient
-  ) {}
+     constructor(
+          private readonly snackBar: MatSnackBar,
+          private readonly http: HttpClient
+     ) { }
 
-  // Validate XRP wallet address using xrpl
-  private isValidXrpAddress(address: string): boolean {
-    if (!address || typeof address !== 'string') return false;
-    
-    try {
-      return XRPL.isValidAddress(address.trim());
-    } catch (error) {
-      console.error('Error validating XRP address:', error);
-      return false;
-    }
-  }
+     ngOnInit(): void { }
 
-  // Validate amount (positive number as string)
-  private isValidAmount(amount: any): boolean {
-    let amountStr: string;
-    if (typeof amount === 'number') {
-      amountStr = amount.toString(); // Convert number to string
-      console.log('Converted amount to string:', amountStr);
-    } else if (typeof amount === 'string') {
-      amountStr = amount;
-    } else {
-      return false;
-    }
-    const trimmedAmount = amountStr.trim();
-    const num = Number(trimmedAmount);
-    return !isNaN(num) && num > 0;
-  }
+     // Clear memo fields when checkbox is unchecked
+     onMemoChange(): void {
+          if (!this.includeMemo) {
+               this.memoData = '';
+               this.memoType = '';
+               this.memoFormat = '';
+          }
+     }
 
-  async sendPayment(): Promise<void> {
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.paymentResult = null;
+     // Validate inputs before submission
+     private validateInputs(): boolean {
+          if (!this.senderSeed.trim()) {
+               this.snackBar.open('Sender seed is required.', 'Close', { duration: 3000 });
+               return false;
+          }
+          if (!ValidationUtils.isValidXrpSeed(this.senderSeed.trim())) {
+               this.snackBar.open('Sender seed must be a valid XRP seed.', 'Close', { duration: 3000 });
+               return false;
+          }
+          if (!this.receiverAccount.trim()) {
+               this.snackBar.open('Receiver account is required.', 'Close', { duration: 3000 });
+               return false;
+          }
+          if (!ValidationUtils.isValidXrpAddress(this.receiverAccount.trim())) {
+               this.snackBar.open('Receiver account must be a valid XRP address.', 'Close', { duration: 3000 });
+               return false;
+          }
+          if (!ValidationUtils.isValidAmount(this.amountXrp.trim())) {
+               this.snackBar.open('Amount in XRP must be a positive number.', 'Close', { duration: 3000 });
+               return false;
+          }
+          if (this.includeMemo) {
+               if (this.memoType.trim() && !CalculationUtils.ALLOWED_CHARS.test(this.memoType.trim())) {
+                    this.snackBar.open('Memo type contains invalid characters.', 'Close', { duration: 3000 });
+                    return false;
+               }
+               if (this.memoFormat.trim() && !CalculationUtils.ALLOWED_CHARS.test(this.memoFormat.trim())) {
+                    this.snackBar.open('Memo format contains invalid characters.', 'Close', { duration: 3000 });
+                    return false;
+               }
+               const memoSize = this.calculateMemoSize();
+               if (memoSize > CalculationUtils.MAX_MEMO_SIZE) {
+                    this.snackBar.open('Memo size exceeds 1 KB limit.', 'Close', { duration: 3000 });
+                    return false;
+               }
+          }
+          return true;
+     }
 
-    console.log('senderSeed:', this.senderSeed, typeof this.senderSeed);
-    console.log('receiverAccount:', this.receiverAccount, typeof this.receiverAccount);
-    console.log('amountXrp before validation:', this.amountXrp, typeof this.amountXrp)
+     // Calculate memo size in bytes (simplified estimation)
+     private calculateMemoSize(): number {
+          const memoDataBytes = new TextEncoder().encode(this.memoData.trim()).length;
+          const memoTypeBytes = new TextEncoder().encode(this.memoType.trim()).length;
+          const memoFormatBytes = new TextEncoder().encode(this.memoFormat.trim()).length;
+          return memoDataBytes + memoTypeBytes + memoFormatBytes;
+     }
 
-    try {
-      // Validate inputs, ensuring amountXrp is treated as a string
-      if (!this.senderSeed.trim()) {
-        this.snackBar.open('Please enter a sender wallet seed.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-        this.isLoading = false;
-        return;
-      }
-      if (!this.receiverAccount.trim() || !this.isValidXrpAddress(this.receiverAccount)) {
-        this.snackBar.open('Please enter a valid receiver XRP address.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-        this.isLoading = false;
-        return;
-      }
-      if (!this.amountXrp || !this.isValidAmount(this.amountXrp)) {
-        this.snackBar.open('Please enter a valid positive XRP amount.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-        this.isLoading = false;
-        return;
-      }
-    } catch (error: any) {
-        this.snackBar.open('Invalid data. Please try again', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
-        this.isLoading = false;
-        return;
-    }
+     async sendPayment(): Promise<void> {
+          if (!this.validateInputs()) return;
 
-    console.log('senderSeed:', this.senderSeed, typeof this.senderSeed);
-    console.log('receiverAccount:', this.receiverAccount, typeof this.receiverAccount);
-    console.log('amountXrp before before:', this.amountXrp, typeof this.amountXrp)
-    this.amountXrp = this.amountXrp.toString()
-    console.log('amountXrp before after conversion:', this.amountXrp, typeof this.amountXrp)
+          this.isLoading = true;
+          this.errorMessage = '';
+          this.txJson = null;
+          this.sender = '';
+          this.receiver = '';
 
-    try {
-      const bodyData = {
-        sender_seed: this.senderSeed.trim(), 
-        receiver_account: this.receiverAccount.trim(),
-        amount_xrp: this.amountXrp.trim()
-      };
-      
-      const headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-      });
-      
-      const response = await firstValueFrom(
-        this.http.post(
-          'http://127.0.0.1:8000/xrpl/payment/send-xrp/',
-          bodyData,
-          { headers }
-        )
-      );
+          try {
+               const body: any = {
+                    sender_seed: this.senderSeed.trim(),
+                    receiver_account: this.receiverAccount.trim(),
+                    amount_xrp: this.amountXrp.trim(),
+               };
+               if (this.includeMemo) {
+                    if (this.memoData.trim()) body.memo_data = this.memoData.trim();
+                    if (this.memoType.trim()) body.memo_type = this.memoType.trim();
+                    if (this.memoFormat.trim()) body.memo_format = this.memoFormat.trim();
+               }
 
-      this.paymentResult = response;
-      this.isLoading = false;
-      console.log('Payment sent:', response);
-    } catch (error: any) {
-      console.error('Error sending payment:', error);
-      let errorMessage: string;
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'object' && error !== null && 'message' in error) {
-        errorMessage = (error as any).message;
-      } else {
-        errorMessage = 'An unexpected error occurred while sending the payment.';
-      }
-      this.paymentResult = { status: 'error', message: errorMessage };
-      this.errorMessage = errorMessage;
-      this.snackBar.open(this.errorMessage, 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-      this.isLoading = false;
-    }
-  }
+               const headers = new HttpHeaders({
+                    'Content-Type': 'application/json',
+               });
+
+               const response = await firstValueFrom(
+                    this.http.post<SendPaymentApiResponse>('http://127.0.0.1:8000/xrpl/payment/send-xrp/', body, { headers })
+               );
+
+               console.log('Raw response:', response);
+
+               if (response && response.status === 'success') {
+                    this.txJson = response.result.tx_json;
+                    this.sender = response.sender;
+                    this.receiver = response.receiver;
+                    this.snackBar.open(response.message, 'Close', { duration: 5000 });
+               } else {
+                    this.errorMessage = 'Failed to send payment.';
+                    this.snackBar.open(this.errorMessage, 'Close', { duration: 5000 });
+               }
+
+               this.isLoading = false;
+          } catch (error: any) {
+               this.errorMessage = 'Error sending payment: ' + (error.message || 'Unknown error');
+               this.snackBar.open(this.errorMessage, 'Close', { duration: 5000 });
+               this.isLoading = false;
+          }
+     }
+
+     // Format amount from drops to XRP with 2 decimal places
+     formatAmount(drops: string): string {
+          const amount = parseFloat(drops) / 1000000; // Convert drops to XRP
+          return isNaN(amount) ? drops : amount.toFixed(2);
+     }
+
+     // Format XRPL timestamp to local date string
+     formatDate(xrplTimestamp: number): string {
+          const unixTimestamp = xrplTimestamp + CalculationUtils.XRPL_EPOCH_OFFSET; // Adjust to Unix epoch
+          const date = new Date(unixTimestamp * 1000); // Convert seconds to milliseconds
+          return date.toLocaleString();
+     }
+
+     // Decode hex to readable string
+     decodeHex(hex: string): string {
+          try {
+               const bytes = new Uint8Array(hex.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)));
+               return new TextDecoder().decode(bytes);
+          } catch (error) {
+               console.error('Error decoding hex:', error);
+               return hex; // Return raw hex if decoding fails
+          }
+     }
 }

@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
-import { WalletService } from '../../services/wallet-services/wallet.service';
+import { WalletService } from '../services/wallet-services/wallet.service';
 
 // Define the interface for the API response
 interface AccountOffersResponse {

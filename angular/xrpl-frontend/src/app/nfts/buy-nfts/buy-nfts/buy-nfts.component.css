@@ -1,0 +1,30 @@
+.buy-nfts-box {
+    padding: 20px;
+  }
+  
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .wide-form-field {
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .success-message,
+  .error-message,
+  .loading {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .success-message {
+    color: green;
+  }
+  
+  .error-message {
+    color: red;
+  }

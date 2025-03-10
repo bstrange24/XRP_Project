@@ -9,6 +9,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
+import { ValidationUtils } from '../../utlities/validation-utils';
+import { handleError } from '../../utlities/error-handling-utils';
 
 @Component({
      selector: 'app-create-trust-line',
@@ -31,31 +33,6 @@ export class CreateTrustLineComponent {
           private readonly http: HttpClient
      ) { }
 
-     // Validate XRP wallet address using xrpl
-     private isValidXrpAddress(address: string): boolean {
-          if (!address || typeof address !== 'string') return false;
-
-          try {
-               return XRPL.isValidAddress(address.trim());
-          } catch (error) {
-               console.error('Error validating XRP address:', error);
-               return false;
-          }
-     }
-
-     // Validate 3-character currency code (e.g., USD, CAD, EUR)
-     private isValidCurrencyCode(code: string): boolean {
-          if (!code || typeof code !== 'string') return false;
-          const trimmedCode = code.trim().toUpperCase();
-          return /^[A-Z]{3}$/.test(trimmedCode); // Matches exactly 3 uppercase letters
-     }
-
-     // Validate limit (positive number)
-     private isValidLimit(limit: number): boolean {
-          const num = Number(limit);
-          return !isNaN(num) && num > 0;
-     }
-
      async createTrustLine(): Promise<void> {
           this.isLoading = true;
           this.errorMessage = '';
@@ -67,17 +44,17 @@ export class CreateTrustLineComponent {
                this.isLoading = false;
                return;
           }
-          if (!this.issuerAddress.trim() || !this.isValidXrpAddress(this.issuerAddress)) {
+          if (!this.issuerAddress.trim() || !ValidationUtils.isValidXrpAddress(this.issuerAddress)) {
                this.snackBar.open('Please enter a valid issuer XRP address.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
                this.isLoading = false;
                return;
           }
-          if (!this.currencyCode.trim() || !this.isValidCurrencyCode(this.currencyCode)) {
+          if (!this.currencyCode.trim() || !ValidationUtils.isValidCurrencyCode(this.currencyCode)) {
                this.snackBar.open('Please enter a valid 3-character currency code (e.g., CAD, USD).', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
                this.isLoading = false;
                return;
           }
-          if (!this.limit || !this.isValidLimit(this.limit)) {
+          if (!this.limit || !ValidationUtils.isValidLimit(this.limit)) {
                this.snackBar.open('Please enter a valid positive limit.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
                this.isLoading = false;
                return;
@@ -100,22 +77,26 @@ export class CreateTrustLineComponent {
                this.isLoading = false;
                console.log('Trust line created:', response);
           } catch (error: any) {
-               console.error('Error creating trust line:', error);
-               let errorMessage: string;
-               if (error instanceof Error) {
-                    errorMessage = error.message;
-               } else if (typeof error === 'object' && error !== null && 'message' in error) {
-                    errorMessage = error.error.message
-               } else {
-                    errorMessage = 'An unexpected error occurred while creating the trust line.';
-               }
-               this.trustLineResult = { status: 'error', message: errorMessage };
-               this.errorMessage = errorMessage;
-               this.snackBar.open(this.errorMessage, 'Close', {
-                    duration: 3000,
-                    panelClass: ['error-snackbar']
-               });
-               this.isLoading = false;
+                handleError(error, this.snackBar, 'Fetching DID Information', {
+                                   setErrorMessage: (msg) => (this.errorMessage = msg),
+                                   setLoading: (loading) => (this.isLoading = loading),
+                              });
+               // console.error('Error creating trust line:', error);
+               // let errorMessage: string;
+               // if (error instanceof Error) {
+               //      errorMessage = error.message;
+               // } else if (typeof error === 'object' && error !== null && 'message' in error) {
+               //      errorMessage = error.error.message
+               // } else {
+               //      errorMessage = 'An unexpected error occurred while creating the trust line.';
+               // }
+               // this.trustLineResult = { status: 'error', message: errorMessage };
+               // this.errorMessage = errorMessage;
+               // this.snackBar.open(this.errorMessage, 'Close', {
+               //      duration: 3000,
+               //      panelClass: ['error-snackbar']
+               // });
+               // this.isLoading = false;
           }
      }
 }

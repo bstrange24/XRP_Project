@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
+import { ValidationUtils } from '../../utlities/validation-utils';
 
 @Component({
      selector: 'app-remove-trust-line',
@@ -31,16 +32,16 @@ export class RemoveTrustLineComponent {
      ) { }
 
      // Validate XRP wallet address using xrpl
-     private isValidXrpAddress(address: string): boolean {
-          if (!address || typeof address !== 'string') return false;
+     // private isValidXrpAddress(address: string): boolean {
+     //      if (!address || typeof address !== 'string') return false;
 
-          try {
-               return XRPL.isValidAddress(address.trim());
-          } catch (error) {
-               console.error('Error validating XRP address:', error);
-               return false;
-          }
-     }
+     //      try {
+     //           return XRPL.isValidAddress(address.trim());
+     //      } catch (error) {
+     //           console.error('Error validating XRP address:', error);
+     //           return false;
+     //      }
+     // }
 
      // Validate 3-character currency code (e.g., USD, CAD, EUR)
      private isValidCurrencyCode(code: string): boolean {
@@ -60,7 +61,7 @@ export class RemoveTrustLineComponent {
                this.isLoading = false;
                return;
           }
-          if (!this.issuerAddress.trim() || !this.isValidXrpAddress(this.issuerAddress)) {
+          if (!this.issuerAddress.trim() || !ValidationUtils.isValidXrpAddress(this.issuerAddress)) {
                this.snackBar.open('Please enter a valid issuer XRP address.', 'Close', { duration: 3000, panelClass: ['error-snackbar'] });
                this.isLoading = false;
                return;

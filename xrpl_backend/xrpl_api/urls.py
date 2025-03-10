@@ -1,4 +1,4 @@
-from django.urls import path, reverse
+from django.urls import path
 
 from .accounts.accounts import CreateTestAccounts, CreateTestAccount, GetAccountInfo, GetAccountInfoFromHash, \
     GetAccountBalance, GetAccountConfiguration, UpdateAccountConfiguration
@@ -9,11 +9,10 @@ from .did.did import GetDid, SetDid, DeleteDid
 from .escrows.escrows import CreateEscrow, GetEscrowSequenceNumber, CancelEscrow, FinishEscrow, GetEscrowAccountInfo
 from .ledger.ledger import GetLedgerInfo, GetServerInfo, GetXrpReserves
 from .nft.nft import MintNft, GetAccountNft, BuyNft, CancelNftOffers, BurnNft, SellNft
-from .offers.account_offers.account_offers import GetAccountOffers, CancelAccountOffers
-from .offers.book_offers.book_offers import GetBookOffers, CreateBookOffer
+from .offers.offers import SellAccountOffers, BuyAccountOffers, TakerAccountOffers, AccountStatus, \
+    CancelAccountOffers
 from .oracles.oracle import GetPriceOracle, CreatePriceOracle, DeletePriceOracles
 from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
-from .test.offers_grok import CreateSellBookOffersGrok, BuyBookOffersGrok, CancelBookOffersGrok
 from .transactions.transactions import GetTransactionHistory, GetTransactionStatus
 from .trust_lines.trust_line import GetAccountTrustLines, SetTrustLines, RemoveTrustLine
 
@@ -55,27 +54,12 @@ urlpatterns = [
 
 
     ################################# Offers #################################
-    # Endpoint to get all pairs in the order book
-    # http://127.0.0.1:8000/xrpl/get-book-offers/?taker_gets_currency=XRP&taker_pays_currency=USD&taker_pays_issuer=rIssuerAddress&page=1&page_size=10
-    path('get-book-offers/', GetBookOffers.as_view(), name='get_book_offers'),
-
     # Endpoint to get active offers on an account.
-    # Example: http://127.0.0.1:8000/xrpl/get-account-offers/?wallet_address=r4ocA7HYdBXuvQPe1Dd7XUncZu8CT1QzkK
-    path('account/offers/', GetAccountOffers.as_view(), name='get_account_offers'),
-
-    path("create-book-offers-easy-grok/", CreateSellBookOffersGrok.as_view(), name="create_offer_view"),
-    path("create-buy-book-offers-easy-grok/", BuyBookOffersGrok.as_view(), name="buy_offer_view"),
-    path("cancel-book-offers-easy/", CancelBookOffersGrok.as_view(), name="cancel_book_offers_easy"),
-
-    # Endpoint to cancel an offer on an account.
-    # Example: http://127.0.0.1:8000/xrpl/create-book-offer/?wallet_address=raGfE6LfRpUXNjmSYRqUyhWkU429XeYgEg&currency=TST&value=25&sendes_seed=sEdS82hNoMmkM7GottuGAFVecYTxRPH
-    # path("create-book-offers/", CreateBookOffer.as_view(), name="create_book_offers"),
-    path("create-book-offers-easy/", CreateBookOffer.as_view(), name="create_book_offers_easy"),
-
-    # Endpoint to get created offers on an account.
-    # Example: http://127.0.0.1:8000/xrpl/cancel-account-offers/?sender_seed=sEdVWMNWboHkJmE5sWC69Y4KghW1KXC
-    path("cancel-account-offers/", CancelAccountOffers.as_view(), name="cancel_account_offers"),
-
+    path('account/offers/sell', SellAccountOffers.as_view(), name='sell_account_offers'),
+    path('account/offers/buy', BuyAccountOffers.as_view(), name='buy_account_offers'),
+    path('account/offers/taker', TakerAccountOffers.as_view(), name='taker_account_offers'),
+    path('account/offers/cancel', CancelAccountOffers.as_view(), name='cancel_account_offers'),
+    path('account/offers/get', AccountStatus.as_view(), name='get_account_status'),
 
     ################################# DID #################################
     # Endpoint to get created offers on an account.

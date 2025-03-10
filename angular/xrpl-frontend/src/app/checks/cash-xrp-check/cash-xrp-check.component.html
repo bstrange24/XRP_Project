@@ -1,1 +1,67 @@
-<p>cash-xrp-check works!</p>
+<div class="app">
+    <mat-card>
+      <div class="centered-container">
+        <mat-card-content>
+          <div class="cash-xrp-check-box">
+            <!-- Cash XRP Check Form -->
+            <div class="form-container">
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Sender Seed</mat-label>
+                <input matInput [(ngModel)]="senderSeed" placeholder="e.g., sEdS5zxsgGbbtMKWkkBt3kdAvEBXdbY" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Check ID</mat-label>
+                <input matInput [(ngModel)]="checkId" placeholder="e.g., C86A6B1244D108935BF35D4CDB96F9DD8FC001A2615C104F59070B27345A897A" required />
+              </mat-form-field>
+  
+              <mat-form-field class="wide-form-field" appearance="fill">
+                <mat-label>Cash Amount (XRP)</mat-label>
+                <input matInput type="text" [(ngModel)]="cashAmount" placeholder="e.g., 10.00" required />
+                <mat-hint>Positive number (e.g., 10.00)</mat-hint>
+              </mat-form-field>
+  
+              <button mat-button color="primary" (click)="cashXrpCheck()" [disabled]="isLoading">
+                {{ isLoading ? 'Cashing...' : 'Cash XRP Check' }}
+              </button>
+            </div>
+  
+            <!-- Display tx_json on individual lines -->
+            <div class="tx-json-container" *ngIf="txJson && !errorMessage">
+              <h3>Transaction Details</h3>
+              <div class="tx-json-lines">
+                <div>Account: {{ txJson.Account }}</div>
+                <div>Destination: {{ txJson.Destination }}</div>
+                <div>Expiration: {{ formatDate(txJson.Expiration) }}</div>
+                <div>Fee: {{ txJson.Fee }}</div>
+                <div>Flags: {{ txJson.Flags }}</div>
+                <div>Last Ledger Sequence: {{ txJson.LastLedgerSequence }}</div>
+                <div>SendMax: {{ formatSendMax(txJson.SendMax) }} XRP</div>
+                <div>Sequence: {{ txJson.Sequence }}</div>
+                <div>Signing Pub Key: {{ txJson.SigningPubKey }}</div>
+                <div>Transaction Type: {{ txJson.TransactionType }}</div>
+                <div>Txn Signature: {{ txJson.TxnSignature }}</div>
+                <div>Date: {{ formatDate(txJson.date) }}</div>
+                <div>Ledger Index: {{ txJson.ledger_index }}</div>
+              </div>
+            </div>
+  
+            <!-- Display Error Message -->
+            <div class="error-message" *ngIf="errorMessage">
+              <p>{{ errorMessage }}</p>
+            </div>
+  
+            <!-- Loading State -->
+            <div class="loading" *ngIf="isLoading">
+              <p>Cashing XRP check...</p>
+            </div>
+  
+            <!-- Initial State -->
+            <div class="loading" *ngIf="!isLoading && !errorMessage && !txJson">
+              Fill out the form and click "Cash XRP Check" to cash an XRP check.
+            </div>
+          </div>
+        </mat-card-content>
+      </div>
+    </mat-card>
+  </div>

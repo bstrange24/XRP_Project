@@ -3,13 +3,16 @@ import logging
 import time
 
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from xrpl import XRPLException
 from xrpl.account import does_account_exist
 from xrpl.asyncio.clients import XRPLRequestFailureException
 from xrpl.core.addresscodec import XRPLAddressCodecException
+from xrpl.models import OfferCreate, IssuedCurrencyAmount, BookOffers
 from xrpl.transaction import submit_and_wait
+from xrpl.utils import xrp_to_drops
 from xrpl.wallet import Wallet
 
 from .offers_util import check_balance, check_and_create_trust_line, get_offer_status, create_account_status_response, \
@@ -22,9 +25,75 @@ from ..errors.error_handling import error_response, handle_error_new, process_tr
     process_unexpected_error
 from ..utilities.base_xrpl_view import BaseXRPLView
 from ..utilities.utilities import total_execution_time_in_millis, is_valid_xrpl_seed, \
-     validate_xrpl_response_data
+    validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class GetAccountBookOffers(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
+    def post(self, request):
+        return self.get_account_book_offers(request)
+
+    def get(self, request):
+        return self.get_account_book_offers(request)
+
+    def get_account_book_offers(self, request=None):
+        # Capture the start time to track the execution duration.
+        start_time = time.time()
+        function_name = 'get_account_book_offers'
+        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+
+        try:
+            # Initialize the client if not already initialized
+            self._initialize_client()
+
+            # Extract wallet address from request parameters
+            data = json.loads(request.body)
+            account = data.get("account")
+
+            if not account or not self._validate_xrp_wallet(account):
+                raise XRPLException(error_response(INVALID_WALLET_IN_REQUEST))
+
+            if not does_account_exist(account, self.client):
+                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(account)))
+
+            # Prepare the account offers request with the current marker (for pagination)
+            account_offers_info = BookOffers(
+                taker_gets={"currency": "RJS", "issuer": account},
+                taker_pays={"currency": "XRP"},
+                limit=10
+            )
+
+            # Send the request to XRPL to fetch account offers
+            account_offers_response = self.client.request(account_offers_info)
+            if validate_xrpl_response_data(account_offers_response):
+                process_transaction_error(account_offers_response)
+
+            offers = account_offers_response.result.get('offers', [])
+            if offers:
+                logger.info(f"Found {len(offers)} offers for wallet {account}.")
+            else:
+                logger.info(f"No offers found for wallet {account} in this batch.")
+
+            return JsonResponse({
+                "status": "success",
+                "message": "Account offers successfully retrieved.",
+                "offers": account_offers_response.result,
+            })
+
+        except (XRPLRequestFailureException, XRPLException, XRPLAddressCodecException, ValueError) as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        except Exception as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        finally:
+            logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAccountOffers(BaseXRPLView):
@@ -110,6 +179,9 @@ class GetAccountOffers(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class AccountStatus(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.get_account_status(request)
 
@@ -159,7 +231,103 @@ class AccountStatus(BaseXRPLView):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
+class SellAccountOffersNonXrp(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
+    def post(self, request):
+        return self.sell_account_offers_non_xrp(request)
+
+    def get(self, request):
+        return self.sell_account_offers_non_xrp(request)
+
+    def sell_account_offers_non_xrp(self, request):
+        start_time = time.time()
+        function_name = 'sell_account_offers_non_xrp'
+        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+
+        try:
+            self._initialize_client()
+
+            data = json.loads(request.body)
+            seller_seed = data.get("seller_seed")
+            issuer_address = data.get("issuer_address")
+            xrp_amount = data.get("xrp_amount")
+            amount = data.get("amount")
+            currency_code = data.get("currency_code")
+
+            if not all([seller_seed, issuer_address, xrp_amount, amount, currency_code]):
+                raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
+
+            if not self._is_valid_xrpl_seed(seller_seed):
+                raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
+
+            if not does_account_exist(issuer_address, self.client):
+                raise XRPLException(error_response(ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER.format(issuer_address)))
+
+            if not self._is_valid_xrp_amount(xrp_amount):
+                raise ValueError(error_response("Invalid XRP amount"))
+
+            if not self._is_valid_currency_amount(str(amount), currency_code):
+                raise ValueError(error_response("Invalid currency code or amount"))
+
+            seller_wallet = Wallet.from_seed(seller_seed)
+
+            # Amount of XRP you want to receive (example: 50 XRP)
+            xrp_amount = xrp_to_drops(xrp_amount)  # Converts 50 XRP to drops (50,000,000 drops)
+
+            issued_currency = IssuedCurrencyAmount(currency=currency_code, issuer=issuer_address, value=str(amount))
+            # Create the sell offer transaction
+            # Selling: currency_code
+            # Want: xrp_amount
+            sell_offer_request = OfferCreate(
+                account=seller_wallet.classic_address,
+                taker_gets=xrp_amount,  # XRP amount you want to receive
+                taker_pays=issued_currency
+            )
+
+            print(f"sell_offer_request: {sell_offer_request}")
+
+            try:
+                logger.info("signing and submitting the transaction, awaiting a response")
+                sell_offer_response = submit_and_wait(sell_offer_request, self.client, seller_wallet)
+            except XRPLException as e:
+                process_unexpected_error(e)
+
+            if validate_xrpl_response_data(sell_offer_response):
+                process_transaction_error(sell_offer_response)
+
+            logger.debug(json.dumps(sell_offer_response.result, indent=4, sort_keys=True))
+
+            result = sell_offer_response.result
+
+            # Print the results
+            print(f"Transaction successful!")
+            print(f"Transaction hash: {result['hash']}")
+            print(f"Seller address: {seller_wallet.classic_address}")
+            print(f"Selling {amount} RJS for 50 XRP")
+
+            return JsonResponse({
+                "sequence": result["tx_json"]["Sequence"],
+                "hash": result["hash"],
+                "metadata": result.get("meta", {})
+            })
+
+        except (XRPLRequestFailureException, XRPLException, XRPLAddressCodecException, ValueError) as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        except Exception as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        finally:
+            logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
+
+
+@method_decorator(csrf_exempt, name="dispatch")
 class SellAccountOffers(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.sell_account_offers(request)
 
@@ -203,7 +371,8 @@ class SellAccountOffers(BaseXRPLView):
             seller_wallet = Wallet.from_seed(seller_seed)
 
             # Check and create trust line
-            trust_line_created = check_and_create_trust_line(self, seller_wallet, issuer_address, currency_code, trust_line_limit_amount)
+            trust_line_created = check_and_create_trust_line(self, seller_wallet, issuer_address, currency_code,
+                                                             trust_line_limit_amount)
 
             # Check balances before offer
             balances_before = check_balance(self, seller_wallet, currency_code)
@@ -242,6 +411,9 @@ class SellAccountOffers(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class BuyAccountOffers(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.buy_account_offers(request)
 
@@ -284,7 +456,8 @@ class BuyAccountOffers(BaseXRPLView):
             buyer_wallet = Wallet.from_seed(buyer_seed)
 
             # Check and create trust line
-            trust_line_created = check_and_create_trust_line(self, buyer_wallet, issuer_address, currency_code, trust_line_limit_amount)
+            trust_line_created = check_and_create_trust_line(self, buyer_wallet, issuer_address, currency_code,
+                                                             trust_line_limit_amount)
 
             # Check balances before offer
             balances_before = check_balance(self, buyer_wallet, currency_code)
@@ -323,6 +496,9 @@ class BuyAccountOffers(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class TakerAccountOffers(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.taker_account_offers(request)
 
@@ -345,7 +521,8 @@ class TakerAccountOffers(BaseXRPLView):
             direction = data.get("direction")  # "buy" or "sell"
             trust_line_limit_amount = data.get("trust_line_limit_amount")
 
-            if not all([taker_seed, issuer_address, xrp_amount, amount, currency_code, direction, trust_line_limit_amount]):
+            if not all([taker_seed, issuer_address, xrp_amount, amount, currency_code, direction,
+                        trust_line_limit_amount]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
             if not is_valid_xrpl_seed(taker_seed):
@@ -366,7 +543,8 @@ class TakerAccountOffers(BaseXRPLView):
             taker_wallet = Wallet.from_seed(taker_seed)
 
             # Check and create trust line
-            trust_line_created = check_and_create_trust_line(self, taker_wallet, issuer_address, currency_code, trust_line_limit_amount)
+            trust_line_created = check_and_create_trust_line(self, taker_wallet, issuer_address, currency_code,
+                                                             trust_line_limit_amount)
 
             # Check balances before offer
             balances_before = check_balance(self, taker_wallet, currency_code)
@@ -411,6 +589,9 @@ class TakerAccountOffers(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CancelAccountOffers(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.cancel_account_offers(request)
 

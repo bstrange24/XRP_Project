@@ -34,6 +34,9 @@ logger = logging.getLogger('xrpl_app')
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MintNft(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request, *args, **kwargs):
         return self.mint_nft(request)
 
@@ -167,6 +170,9 @@ class MintNft(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GetAccountNft(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request, *args, **kwargs):
         return self.get_account_nft(request)
 
@@ -247,6 +253,9 @@ class GetAccountNft(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class BurnNft(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request, *args, **kwargs):
         return self.burn_nft(request)
 
@@ -311,6 +320,9 @@ class BurnNft(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class SellNft(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request, *args, **kwargs):
         return self.sell_nft(request)
 
@@ -338,6 +350,9 @@ class SellNft(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class BuyNft(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request, *args, **kwargs):
         return self.buy_nft(request)
 
@@ -446,6 +461,9 @@ class BuyNft(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CancelNftOffers(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request, *args, **kwargs):
         return self.cancel_nft_offers(request)
 

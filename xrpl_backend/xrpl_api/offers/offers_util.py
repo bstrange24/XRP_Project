@@ -145,7 +145,7 @@ def create_cancel_account_status_response(result, balances_before, balances_afte
 def prepare_cancel_offer(classic_address, sequence):
     return OfferCancel(
         account=classic_address,
-        sequence=sequence,
+        offer_sequence=sequence,
     )
 
 
@@ -185,7 +185,6 @@ def create_book_offer(wallet_address, we_want, we_spend):
         ledger_index="current",
         taker_gets=we_want["currency"],
         taker_pays=we_spend["currency"],
-        limit=10,
     )
 
 

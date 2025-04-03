@@ -9,7 +9,6 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import * as XRPL from 'xrpl';
 import { firstValueFrom } from 'rxjs';
 import { WalletService } from '../../services/wallet-services/wallet.service';
 import { ValidationUtils } from '../../utlities/validation-utils';

@@ -10,9 +10,10 @@ from .escrows.escrows import CreateEscrow, GetEscrowSequenceNumber, CancelEscrow
 from .ledger.ledger import GetLedgerInfo, GetServerInfo, GetXrpReserves
 from .nft.nft import MintNft, GetAccountNft, BuyNft, CancelNftOffers, BurnNft, SellNft
 from .offers.offers import SellAccountOffers, BuyAccountOffers, TakerAccountOffers, AccountStatus, \
-    CancelAccountOffers, GetAccountOffers
+    CancelAccountOffers, GetAccountOffers, SellAccountOffersNonXrp, GetAccountBookOffers
 from .oracles.oracle import GetPriceOracle, CreatePriceOracle, DeletePriceOracles
-from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount
+from .payments.payments import SendXrpPayments, SendXrpPaymentsAndDeleteAccount, SendXrpPaymentAndBlackHoleAccount, \
+    SendMemePayments
 from .transactions.transactions import GetTransactionHistory, GetTransactionStatus
 from .trust_lines.trust_line import GetAccountTrustLines, SetTrustLines, RemoveTrustLine
 
@@ -56,11 +57,13 @@ urlpatterns = [
     ################################# Offers #################################
     # Endpoint to get active offers on an account.
     path('account/offers/sell', SellAccountOffers.as_view(), name='sell_account_offers'),
+    path('account/offers/sell/non_xrp', SellAccountOffersNonXrp.as_view(), name='sell_account_offers_non_xrp'),
     path('account/offers/buy', BuyAccountOffers.as_view(), name='buy_account_offers'),
     path('account/offers/taker', TakerAccountOffers.as_view(), name='taker_account_offers'),
     path('account/offers/cancel', CancelAccountOffers.as_view(), name='cancel_account_offers'),
     path('account/offers/get', AccountStatus.as_view(), name='get_account_status'),
     path('account/offers/get/page', GetAccountOffers.as_view(), name='get_account_offers'),
+    path('account/offers/get/book/offer', GetAccountBookOffers.as_view(), name='get_account_book_offers'),
 
     ################################# DID #################################
     # Endpoint to get created offers on an account.
@@ -98,6 +101,8 @@ urlpatterns = [
     # Endpoint to send a payment transaction from one wallet to another.
     # Example: http://127.0.0.1:8000/xrpl/send-payment/?sender_seed=...&receiver=...&amount=10
     path('payment/send-xrp/', SendXrpPayments.as_view(), name='send_xrp_payment'),
+
+    path('payment/send-meme-payment/', SendMemePayments.as_view(), name='send_meme_payment'),
 
     # Endpoint to send payment and delete the sender's wallet account.
     # Example: http://127.0.0.1:8000/xrpl/send-payment-delete-wallet/?sender_seed=...&receiver=...&amount=10

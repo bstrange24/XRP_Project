@@ -27,6 +27,9 @@ logger = logging.getLogger('xrpl_app')
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GetChecks(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.get_checks(request)
 
@@ -71,6 +74,9 @@ class GetChecks(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class GetChecksPage(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.get_checks_with_pagination(request)
 
@@ -155,6 +161,9 @@ class GetChecksPage(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CreateTokenCheck(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.create_token_check(request)
 
@@ -231,6 +240,9 @@ class CreateTokenCheck(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CreateXrpCheck(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.create_xrp_check(request)
 
@@ -299,6 +311,9 @@ class CreateXrpCheck(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CashTokenCheck(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.cash_token_check(request)
 
@@ -372,6 +387,9 @@ class CashTokenCheck(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CashXrpCheck(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.cash_xrp_check(request)
 
@@ -435,6 +453,9 @@ class CashXrpCheck(BaseXRPLView):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CancelCheck(BaseXRPLView):
+    def __init__(self):
+        super().__init__()
+
     def post(self, request):
         return self.cancel_check(request)
 

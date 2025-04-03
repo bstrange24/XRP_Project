@@ -4,6 +4,7 @@ import time
 
 from asgiref.sync import sync_to_async
 from django.apps import apps
+from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -13,7 +14,7 @@ from xrpl.asyncio.clients import AsyncWebsocketClient, XRPLRequestFailureExcepti
 from xrpl.asyncio.ledger import get_fee, get_latest_validated_ledger_sequence
 from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.core.addresscodec import XRPLAddressCodecException
-from xrpl.models import AccountSetAsfFlag
+from xrpl.models import AccountSetAsfFlag, Payment, IssuedCurrencyAmount
 from xrpl.utils import xrp_to_drops, get_balance_changes, get_final_balances
 from xrpl.wallet import Wallet
 
@@ -36,6 +37,89 @@ from ..utilities.utilities import is_valid_xrpl_seed, \
     validate_xrp_wallet, validate_xrpl_response_data
 
 logger = logging.getLogger('xrpl_app')
+
+@method_decorator(csrf_exempt, name="dispatch")
+class SendMemePayments(View):
+    async def post(self, request, *args, **kwargs):
+        return await self.send_meme_payment(request)
+
+    async def get(self, request, *args, **kwargs):
+        return await self.send_meme_payment(request)
+
+    async def send_meme_payment(self, request):
+        start_time = time.time()
+        function_name = 'send_xrp_payment'
+        logger.info(ENTERING_FUNCTION_LOG.format(function_name))
+
+        try:
+            # Parse request body
+            data = json.loads(request.body)
+            issuer_seed = data.get("issuer_seed")  # Creator of the escrow
+            destination_address = data.get("destination_address")  # Seed of the escrow creator
+            source_currency = data.get("source_currency")  # Sequence number of the escrow create tx
+            amount_to_deliver = data.get("amount_to_deliver")
+
+            logger.info(f"Receiver account: {destination_address}")
+            logger.info(f"Sending {amount_to_deliver} {source_currency}")
+
+            xrpl_config = apps.get_app_config('xrpl_api')
+            async with AsyncWebsocketClient(xrpl_config.XRPL_WEB_SOCKET_NETWORK_URL) as client:
+                issuer_wallet = Wallet.from_seed(issuer_seed)
+
+                logger.info("Balances of wallets before Payment tx")
+                logger.info(f"Sender Address Balance: {await get_balance(issuer_wallet.classic_address, client)}")
+                logger.info(f"Receiver Address Balance: {await get_balance(destination_address, client)}")
+
+                payment_transaction = Payment(
+                    account=issuer_wallet.classic_address,
+                    destination=destination_address,
+                    amount=IssuedCurrencyAmount(
+                        currency=source_currency,
+                        issuer=issuer_wallet.classic_address,
+                        value=str(amount_to_deliver)
+                    ),
+                    send_max=IssuedCurrencyAmount(  # Specify the max amount the sender is willing to send
+                        currency=source_currency,
+                        issuer=issuer_wallet.classic_address,
+                        value=str(float(amount_to_deliver) * 1.05)  # Allowing 5% slippage
+                    ),
+                    flags=0x00020000  # tfPartialPayment flag
+                )
+
+                process_payment_start_time = time.time()
+                try:
+                    payment_response = await process_payment(payment_transaction, client, issuer_wallet)
+                    logger.info(f"await process_payment total time: {total_execution_time_in_millis(process_payment_start_time)}")
+                except Exception as e:
+                    raise XRPLException({str(e)})
+
+
+                # Validate client response. Raise exception on error
+                if validate_xrpl_response_data(payment_response):
+                    process_transaction_error(payment_response)
+
+                # Create a Transaction request to see transaction
+                tx_response = await client.request(prepare_tx(payment_response.result["hash"]))
+
+                # Check balances after 1000 was sent from wallet1 to wallet2
+                logger.info("Balances of wallets after Payment tx:")
+                logger.info(f"Sender Address Balance: {await get_balance(issuer_wallet.classic_address,client)}")
+                logger.info(f"Receiver Address Balance: {await get_balance(destination_address, client)}")
+                logger.info(f"Get balance changes: {get_balance_changes(tx_response.result['meta'])}")
+                logger.info(f"Get final balances: {get_final_balances(tx_response.result['meta'])}")
+
+                return JsonResponse({
+                    "result": payment_response.result
+                })
+
+        except (XRPLRequestFailureException, XRPLException) as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        except Exception as e:
+            # Handle error message
+            return handle_error_new(e, status_code=500, function_name=function_name)
+        finally:
+            logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 
 @method_decorator(csrf_exempt, name="dispatch")

@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const app = express();
+const { createProxyMiddleware } = require('http-proxy-middleware')
 
 // Enable CORS for all routes, allowing specific headers
 const corsOptions = {
@@ -16,6 +17,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Proxy endpoint for Xumm payload creation
+// In the POST /api/xumm/payload handler
 app.post('/api/xumm/payload', async (req, res) => {
   console.log('Received payload request:', req.body, 'Headers:', req.headers);
   try {
@@ -29,7 +31,11 @@ app.post('/api/xumm/payload', async (req, res) => {
     console.log('Xumm API response:', response.data);
     res.json(response.data);
   } catch (error) {
-    console.error('Error proxying to Xumm:', error);
+    console.error('Error proxying to Xumm:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data // Log the full error response
+    });
     res.status(error.response?.status || 500).json(error.response?.data || { message: 'An error occurred proxying to Xumm', details: error.message });
   }
 });
@@ -75,6 +81,19 @@ app.delete('/api/xumm/payload/:payloadId', async (req, res) => {
     res.status(500).json({ message: 'Failed to cancel payload', details: error.message });
   }
 });
+
+app.use(
+  '/api/v1/platform',
+  createProxyMiddleware({
+    target: 'https://xumm.app',
+    changeOrigin: true,
+    pathRewrite: { '^/api/v1/platform': '/api/v1/platform' },
+    headers: {
+      'X-API-Key': '93b47736-fd5d-4d16-968f-c1c565c8e54f',
+      'X-API-Secret': '3a89cac1-613b-49b5-b125-1d1a8ba3b35b',
+    },
+  })
+);
 
 // Handle OPTIONS preflight requests for all endpoints
 app.options('/api/xumm/payload*', (req, res) => {

@@ -1,0 +1,59 @@
+meme_coins:
+  - currency: TST
+    issuer: rEKBMamgBVqeqYNsHS2zstJT2id58GdYUM
+    trade_amount: 1000
+  - currency: KIK
+    issuer: rKacR1Mm32ve7wPsemwr52S9187StFTnWy
+    trade_amount: 1000
+  - currency: LAM
+    issuer: r9N6k8vWCekj2F3a2iNuAGUEbmdr6d7ty4
+    trade_amount: 1000
+settings:
+  check_interval: 2
+  min_profit_xrp: 0.00000000001
+  sell_premium: 1.00001  # Sell at 105% of market price (5% above)
+  buy_discount: 0.0001  # Buy at 95% of market price
+  trade_amount: 5000   # Match Bot 1 trade size
+  buy_premium: 0.01
+  base_reserve: 1
+  incremental_reserve: 0.2
+  base_amount: 500
+  stop_loss: -0.5
+wallet:
+  buy_bot_address1: rKR8Z8rYx7ESxJHytaf5s8rGDpJH8mygG4 # TST
+  buy_bot_seed1: sEdV899ZkEGGNPmWVzg4rRG8mhCgJEZ # TST
+  buy_bot_address2: rfQJe2GiUhQ5BZVAUtj4JV39t2aq7xKv3J # KIK
+  buy_bot_seed2: sEdTwrJCwZyJ4UDm4G16eAyRgMeL2pa  # KIK
+  buy_bot_address3: rpA21iTZxerFzz7K9WgG5Ltr5CYCTfhdVT # LAM
+  buy_bot_seed3: sEdT41wX5MhZRSBGW4jVDGzmxXt7F43 # LAM
+
+logging:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    verbose:
+#      format: "{levelname} {asctime} [Thread: {thread}] [{module} - {funcName}:{lineno}] {message}"
+      format: "{levelname} {asctime} [{module} - {funcName}:{lineno}] {message}"
+      style: "{"
+    simple:
+      format: "{levelname} {message}"
+      style: "{"
+  handlers:
+    file:
+      level: "INFO"
+      class: "logging.FileHandler"
+      filename: "logs/bot_setup.log"  # Relative path; adjust as needed
+      formatter: "verbose"
+    console:
+      level: "ERROR"
+      class: "logging.StreamHandler"
+      formatter: "simple"
+  loggers:
+    xrpl_trading_bot:
+      handlers: ["file","console"]  # Add "console" if you want console output
+      level: "INFO"
+      propagate: false
+    httpx: # Add this to silence httpx logs
+      level: "WARNING"  # Only log WARNING and above
+      handlers: [ ]  # No handlers; effectively silences it unless propagated
+      propagate: false  # Prevent propagation to root logger

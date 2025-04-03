@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XRPL Bot Setup</title>
+    <style>
+        .container { max-width: 800px; margin: 20px auto; }
+        .section { margin: 20px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+        #status { color: green; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .pagination { margin-top: 20px; text-align: center; }
+        .pagination button { padding: 5px 10px; margin: 0 5px; cursor: pointer; }
+        .pagination button:disabled { cursor: not-allowed; opacity: 0.5; }
+        #pageInfo { margin: 0 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>XRPL Bot Setup</h1>
+
+        <div class="section">
+            <button onclick="startBot()">Start Bot</button>
+            <button onclick="stopBot()">Stop Bot</button>
+            <button onclick="killBot()">Kill Bot</button>
+            <span id="status">{{ 'Running' if running else 'Stopped' }}</span>
+        </div>
+
+        <div class="section">
+            <h3>Wallets</h3>
+            {% for wallet in wallets %}
+                <div>
+                    <h4>Wallet Address: {{ wallet.classic_address }}</h4>
+<!--                    <img src="data:image/png;base64,{{ qr_code }}" alt="Wallet QR Code" style="max-width: 200px; max-height: 200px;">-->
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="section">
+            <h3>Metrics</h3>
+            <p>Trades Executed: {{ metrics.trades_executed }}</p>
+            <p>Trade Errors: {{ metrics.trade_errors }}</p>
+            <p>XRP Spent: {{ metrics.xrp_spent }}</p>
+        </div>
+
+        <div class="section">
+            <h3>Balances</h3>
+            {% for i in range(meme_coins|length) %}
+                {% set wallet = wallets[i] %}
+                {% set coin = meme_coins[i] %}
+                <div>
+                    <h4>{{ coin.currency }} (Wallet: {{ wallet.classic_address }})</h4>
+                    <p>XRP: {{ balances['XRP'][wallet.classic_address]|round(6) }}</p>
+                    <p>{{ coin.currency }}: {{ balances[coin.currency][wallet.classic_address]|round(2) }}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="section">
+            <h3>Recent Trades</h3>
+            <table id="trade_history">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Currency</th>
+                        <th>Price (XRP/Currency)</th>
+                        <th>Amount</th>
+                        <th>XRP</th>
+                        <th>Wallet</th>
+                        <th>Timestamp</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="trade_history_body">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button id="prevPage" onclick="prevPage()">Previous</button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button id="nextPage" onclick="nextPage()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const pageSize = 10;  // Number of trades per page
+        let totalPages = 1;
+        let fullTradeHistory = [];
+
+        async function startBot() {
+            try {
+                const response = await fetch('/start', { method: 'POST' });
+                const data = await response.json();
+                alert(data.message);
+                if (data.status === 'success') {
+                    document.getElementById('status').textContent = 'Running';
+                }
+            } catch (error) {
+                console.error('Error starting bot:', error);
+                alert('Error starting bot');
+            }
+        }
+
+        async function stopBot() {
+            try {
+                const response = await fetch('/stop', { method: 'POST' });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    document.getElementById('status').textContent = 'Stopped';
+                    alert(data.message);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error stopping bot:', error);
+                alert('Error stopping bot');
+            }
+        }
+
+        async function killBot() {
+            try {
+                const response = await fetch('/kill', { method: 'POST' });
+                const data = await response.json();
+                alert(data.message);
+                if (data.status === 'success') {
+                    document.getElementById('status').textContent = 'Stopped';
+                }
+            } catch (error) {
+                console.error('Error killing bot:', error);
+                alert('Error killing bot');
+            }
+        }
+
+        async function updateUI() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+
+                document.getElementById('status').textContent = data.running ? 'Running' : 'Stopped';
+
+                if (data.trade_history && data.trade_history.length > 0) {
+                    data.trade_history.forEach(newTrade => {
+                        const exists = fullTradeHistory.some(trade => trade.timestamp === newTrade.timestamp);
+                        if (!exists) {
+                            fullTradeHistory.unshift(newTrade);  // Add new trades to the start
+                        }
+                    });
+                    fullTradeHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));  // Sort by timestamp descending
+                }
+
+                totalPages = Math.ceil(fullTradeHistory.length / pageSize);
+                const tradeTableBody = document.getElementById('trade_history_body');
+                tradeTableBody.innerHTML = '';
+
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+                const paginatedTrades = fullTradeHistory.slice(startIndex, endIndex);
+
+                paginatedTrades.forEach(trade => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${trade.type}</td>
+                        <td>${trade.currency}</td>
+                        <td>${trade.price.toFixed(8)}</td>
+                        <td>${trade.amount}</td>
+                        <td>${trade.type === 'buy' ? trade.xrp_spent.toFixed(6) : trade.xrp_received.toFixed(6)}</td>
+                        <td>${trade.wallet}</td>
+                        <td>${trade.timestamp}</td>
+                        <td>${trade.status}</td>
+                    `;
+                    tradeTableBody.appendChild(row);
+                });
+
+                document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+                document.getElementById('prevPage').disabled = currentPage === 1;
+                document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+            } catch (error) {
+                console.error('Error updating UI:', error);
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateUI();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateUI();
+            }
+        }
+
+        setInterval(updateUI, 2000);  // Update every 2 seconds
+        updateUI();  // Initial update
+    </script>
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <title>XRPL Trading Bot</title>-->
+<!--    <style>-->
+<!--        .container { max-width: 800px; margin: 20px auto; }-->
+<!--        .section { margin: 20px 0; }-->
+<!--        button { padding: 10px 20px; margin: 5px; }-->
+<!--        #status { color: green; }-->
+<!--        #trade_qr_section img { max-width: 200px; max-height: 200px; }-->
+<!--        table { width: 100%; border-collapse: collapse; }-->
+<!--        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }-->
+<!--        th { background-color: #f2f2f2; }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <div class="container">-->
+<!--        <h1>XRPL Trading Bot</h1>-->
+
+<!--        <div class="section">-->
+<!--            <button onclick="startBot()">Start Bot</button>-->
+<!--            <button onclick="stopBot()">Stop Bot</button>-->
+<!--            <span id="status">{{ 'Running' if running else 'Stopped' }}</span>-->
+<!--        </div>-->
+
+<!--        <div class="section">-->
+<!--            <h3>Xaman Wallet Address: {{ address }}</h3>-->
+<!--&lt;!&ndash;            <img src="data:image/png;base64,{{ qr_code }}" alt="Wallet QR Code">&ndash;&gt;-->
+<!--        </div>-->
+
+<!--        <div class="section">-->
+<!--            <h3>Metrics</h3>-->
+<!--            <p>Trade Errors: <span id="trade_errors">{{ metrics.trade_errors }}</span></p>-->
+<!--            <p>XRP Spent: <span id="xrp_spent">{{ metrics.xrp_spent }}</span></p>-->
+<!--        </div>-->
+
+<!--        <div class="section">-->
+<!--            <h3>Balances</h3>-->
+<!--            <p>Xaman XRP: <span id="balance_xrp">{{ balances.XRP }}</span></p>-->
+<!--            <p>{{ currency }}: <span id="balance_meme">{{ balances[currency] }}</span></p>-->
+<!--        </div>-->
+
+<!--        <div class="section">-->
+<!--            <h3>Recent Trades</h3>-->
+<!--            <table id="trade_history">-->
+<!--                <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Type</th>-->
+<!--                        <th>Price (XRP/{{ currency }})</th>-->
+<!--                        <th>Amount ({{ currency }})</th>-->
+<!--                        <th>XRP</th>-->
+<!--                        <th>Timestamp</th>-->
+<!--                        <th>Status</th>-->
+<!--                    </tr>-->
+<!--                </thead>-->
+<!--                <tbody>-->
+<!--                    &lt;!&ndash; Populated by JavaScript &ndash;&gt;-->
+<!--                </tbody>-->
+<!--            </table>-->
+<!--        </div>-->
+
+<!--        <div class="section" id="trade_qr_section" style="display: none;">-->
+<!--            <h3>Scan with Xaman to Execute Trade</h3>-->
+<!--&lt;!&ndash;            <img id="trade_qr" src="" alt="Trade QR Code">&ndash;&gt;-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <script>-->
+<!--        const currency = "{{ currency }}";-->
+
+<!--        async function startBot() {-->
+<!--            try {-->
+<!--                const response = await fetch('/start', { method: 'POST' });-->
+<!--                const data = await response.json();-->
+<!--                alert(data.message);-->
+<!--                if (data.status === 'success') {-->
+<!--                    document.getElementById('status').textContent = 'Running';-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error('Error starting bot:', error);-->
+<!--                alert('Error starting bot');-->
+<!--            }-->
+<!--        }-->
+
+<!--        async function stopBot() {-->
+<!--            try {-->
+<!--                const response = await fetch('/stop', { method: 'POST' });-->
+<!--                const data = await response.json();-->
+<!--                alert(data.message);-->
+<!--                if (data.status === 'success') {-->
+<!--                    document.getElementById('status').textContent = 'Stopped';-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error('Error stopping bot:', error);-->
+<!--                alert('Error stopping bot');-->
+<!--            }-->
+<!--        }-->
+
+<!--        async function updateUI() {-->
+<!--            try {-->
+<!--                const response = await fetch('/status');-->
+<!--                const data = await response.json();-->
+
+<!--                document.getElementById('status').textContent = data.running ? 'Running' : 'Stopped';-->
+<!--                document.getElementById('trade_errors').textContent = data.metrics.trade_errors;-->
+<!--                document.getElementById('xrp_spent').textContent = data.metrics.xrp_spent.toFixed(6);-->
+<!--                document.getElementById('balance_xrp').textContent = data.balances.XRP.toFixed(6);-->
+<!--                document.getElementById('balance_meme').textContent = data.balances[currency].toFixed(2);-->
+
+<!--                // Update trade history table-->
+<!--                const tradeTableBody = document.querySelector('#trade_history tbody');-->
+<!--                tradeTableBody.innerHTML = ''; // Clear existing rows-->
+<!--                data.trade_history.forEach(trade => {-->
+<!--                    const row = document.createElement('tr');-->
+<!--                    row.innerHTML = `-->
+<!--                        <td>${trade.type}</td>-->
+<!--                        <td>${trade.price.toFixed(8)}</td>-->
+<!--                        <td>${trade.amount}</td>-->
+<!--                        <td>${trade.type === 'buy' ? trade.xrp_spent.toFixed(6) : trade.xrp_received.toFixed(6)}</td>-->
+<!--                        <td>${trade.timestamp}</td>-->
+<!--                        <td>${trade.status}</td>-->
+<!--                    `;-->
+<!--                    tradeTableBody.appendChild(row);-->
+<!--                });-->
+
+<!--                if (data.trade_qr) {-->
+<!--                    document.getElementById('trade_qr').src = "data:image/png;base64," + data.trade_qr;-->
+<!--                    document.getElementById('trade_qr_section').style.display = 'block';-->
+<!--                } else {-->
+<!--                    document.getElementById('trade_qr_section').style.display = 'none';-->
+<!--                }-->
+<!--            } catch (error) {-->
+<!--                console.error('Error updating UI:', error);-->
+<!--            }-->
+<!--        }-->
+
+<!--        setInterval(updateUI, 2000);-->
+<!--        updateUI();-->
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->

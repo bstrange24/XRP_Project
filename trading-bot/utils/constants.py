@@ -1,0 +1,21 @@
+
+# JSON_RPC_URL = "https://s.altnet.rippletest.net:51234/"
+JSON_RPC_URL = "https://s1.ripple.com:51234/"
+ENTERING_FUNCTION_LOG = "Entering: {}"
+LEAVING_FUNCTION_LOG = "Leaving: {}. Total execution time in ms: {}"
+ERROR_INITIALIZING_CLIENT = "Failed to initialize XRPL client. Client returned None"
+XRP = "XRP"
+INFO = 'INFO'
+DEBUG = 'DEBUG'
+WARNING = 'WARNING'
+ERROR = 'ERROR'
+
+MIN5_BUYS_AND_SELLS_MIN = 25
+HOUR1_BUYS_AND_SELLS_MIN = 500
+HOUR6_BUYS_AND_SELLS_MIN = 1000
+HOUR24_BUYS_AND_SELLS_MIN = 25
+
+MIN5_VOLUME_MIN = 350
+HOUR1_VOLUME_MIN = 500
+HOUR6_VOLUME_MIN = 1000
+HOUR24_VOLUME_MIN = 2000

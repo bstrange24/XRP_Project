@@ -106,6 +106,7 @@ async def get_remaining_time_for_ledger_close(client):
 def check_pay_channel_entries(account_objects):
     pay_channel_entries = [entry for entry in account_objects if entry.get('LedgerEntryType') == 'PayChannel']
     if pay_channel_entries:
+        logger.info(f"Found {len(pay_channel_entries)} PayChannel objects")
         logger.info(f"PayChannel entries found: {json.dumps(pay_channel_entries, indent=2)}")
         return False
     else:
@@ -200,7 +201,7 @@ def send_payment_response(result: dict, transaction_hash: str, sender_address: s
         'fee_drops': fee_drops,
     })
 
-def create_payment_transaction_with_memo(sender_address, receiver_account, amount_drops, fee_drops, memo_data, memo_type, memo_format):
+def create_payment_transaction_with_memo(sender_address, receiver_account, amount_drops, fee_drops, memo_data, memo_type, memo_format, last_ledger_sequence):
     return Payment(
         account=sender_address,
         destination=receiver_account,
@@ -213,16 +214,18 @@ def create_payment_transaction_with_memo(sender_address, receiver_account, amoun
                 memo_format=memo_format
             ),
         ],
+        last_ledger_sequence=last_ledger_sequence + 200
     )
 
 def create_payment_transaction(sender_address: str, receiver_address: str, amount_drops: str, fee_drops: str,
-                               send_and_delete_wallet: bool) -> Payment:
+                               send_and_delete_wallet: bool, last_ledger_sequence) -> Payment:
     if send_and_delete_wallet:
         # Create a Payment transaction without a fee (used when the sender's wallet will be deleted)
         return Payment(
             account=sender_address,
             destination=receiver_address,
-            amount=str(amount_drops)  # Amount must be passed as a string
+            amount=str(amount_drops),  # Amount must be passed as a string
+            last_ledger_sequence=last_ledger_sequence + 200
         )
     else:
         # Create a Payment transaction with a fee (standard use case)
@@ -231,6 +234,7 @@ def create_payment_transaction(sender_address: str, receiver_address: str, amoun
             destination=receiver_address,
             amount=str(amount_drops),
             fee=str(fee_drops),  # Fee must be passed as a string
+            last_ledger_sequence=last_ledger_sequence + 200
         )
 
 def create_offer_sell_payment_transaction(sender_address, receiver_address, currency_amount):

@@ -1,9 +1,8 @@
-# Function to check for Escrow entries
 import hashlib
 import json
 import logging
-
-from os import urandom
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from cryptoconditions import PreimageSha256
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
@@ -11,7 +10,6 @@ from django.http import JsonResponse
 from xrpl import XRPLException
 from xrpl.models import AccountObjects, EscrowCreate, EscrowCancel, EscrowFinish, AccountObjectType
 from xrpl.utils import xrp_to_drops, datetime_to_ripple_time
-from datetime import datetime, timedelta
 
 from .models.escrow_models import EscrowTransaction
 from ..errors.error_handling import error_response, process_transaction_error
@@ -25,28 +23,52 @@ def check_escrow_entries(account_objects):
     escrow_entries = [entry for entry in account_objects if entry.get('LedgerEntryType') == 'Escrow']
 
     if escrow_entries:
+        logger.info(f"Found {len(escrow_entries)} Escrow objects")
         logger.error(f"Escrow entries found: {json.dumps(escrow_entries, indent=2)}")
         return False
 
     logger.info("No Escrow entries found.")
     return True
 
-def generate_escrow_condition_and_fulfillment():
-    # """Generate a condition and fulfillment for escrows"""
 
+def generate_escrow_condition_and_fulfillment():
+    """Generate a condition and fulfillment for escrows"""
     # Generate a random preimage with at least 32 bytes of cryptographically-secure randomness.
-    secret = urandom(32)
+    # secret = urandom(32)
+    # secret = b"my-secret-valuemy-secret-valueee"
+    secret = b"jehovah-jireh-he-is-our-provider"
 
     # Generate cryptic image from secret
     fufill = PreimageSha256(preimage=secret)
 
     # Parse image and return the condition and fulfillment
-    condition = str.upper(fufill.condition_binary.hex())  # conditon
+    condition = str.upper(fufill.condition_binary.hex())  # condition
     fulfillment = str.upper(fufill.serialize_binary().hex())  # fulfillment
 
     # Print condition and fulfillment
-    print(f"condition: {condition}\nfulfillment {fulfillment}")
+    logger.info(f"Condition: {condition}")
+    logger.info(f"Fulfillment {fulfillment}")
+    # condition = "A02580203882E2EB9B44130530541C4CC360D079F265792C4A7ED3840968897CB7DF2DA1810120"
+    # fulfillment = "A0228020AED2C5FE4D147D310D3CFEBD9BFA81AD0F63CE1ADD92E00379DDDAF8E090E24C"
     return condition, fulfillment
+
+
+def log_postman_finish_escrow_request(create_escrow_transaction_response, escrow_creator_seed, escrow_receiver_account, escrow_receiver_account_seed, condition, fulfillment):
+    payload = {
+        "escrow_creator_account_seed": escrow_creator_seed,
+        "escrow_receiver_account": escrow_receiver_account,
+        "escrow_receiver_account_seed": escrow_receiver_account_seed,
+        "condition": condition,
+        "fulfillment": fulfillment,
+        "offer_sequence": create_escrow_transaction_response['tx_json']['Sequence'],
+        "prev_txn_id": create_escrow_transaction_response['hash']
+    }
+
+    # Convert to a JSON-formatted string
+    json_string = json.dumps(payload, indent=4)
+
+    # Print it (you can paste this into Postman)
+    logger.info(f"\n{json_string}")
 
 
 def validate_fulfillment(condition, fulfillment):
@@ -104,6 +126,7 @@ def parse_time_delta(finish_after_time):
     # Return the timedelta
     return timedelta(**unit_map[unit])
 
+
 def get_escrow_data_from_db(txn_hash):
     # Validate condition
     if not isinstance(txn_hash, str) or txn_hash is None:
@@ -122,10 +145,10 @@ def get_escrow_data_from_db(txn_hash):
         ).prefetch_related('affected_nodes').first()  # Use prefetch_related for reverse relation
 
         if escrow_tx:
-            escrow_sequence  = escrow_tx.sequence
-            condition =  escrow_tx.condition
+            escrow_sequence = escrow_tx.sequence
+            condition = escrow_tx.condition
             fulfillment = escrow_tx.fulfillment
-            logger.info( f"Found escrow data from the database for escrow_sequence: {escrow_sequence} condition: {condition} fulfillment: {fulfillment}")
+            logger.info(f"Found escrow data from the database for escrow_sequence: {escrow_sequence} condition: {condition} fulfillment: {fulfillment}")
             return escrow_sequence, condition, fulfillment
         else:
             logger.warning(f"No escrow transaction found for hash: {txn_hash}")
@@ -140,6 +163,7 @@ def get_escrow_data_from_db(txn_hash):
         logger.error(f"Unexpected error querying fulfillment for hash {txn_hash}: {str(e)}")
         raise Exception(error_response(f"Unexpected error when processing hash {txn_hash}: {str(e)}"))
 
+
 def set_claim_date(finish_after_time):
     # Parse the time delta from the request parameter
     time_delta = parse_time_delta(finish_after_time)
@@ -147,6 +171,7 @@ def set_claim_date(finish_after_time):
     # Calculate claim_date using datetime_to_ripple_time
     claim_date = datetime_to_ripple_time(datetime.now() + time_delta)
     return claim_date
+
 
 def get_escrow_sequence(client, prev_txn_id):
     """
@@ -189,12 +214,40 @@ def get_escrow_sequence(client, prev_txn_id):
     else:
         return None, None, None
 
+
+def format_ripple_time(ripple_time):
+    # Convert to Eastern Time
+    eastern = ZoneInfo("America/New_York")
+    escrow_cancel_after_local_time = ripple_time.astimezone(eastern)
+
+    # Define how many seconds you want to add (e.g., 60 seconds)
+    seconds_to_add = 60  # Example: adding 60 seconds
+
+    # Add the seconds to the datetime
+    new_escrow_cancel_after_local_time = escrow_cancel_after_local_time + timedelta(seconds=seconds_to_add)
+
+    # Format the new time
+    formatted_time = new_escrow_cancel_after_local_time.strftime("%B %d, %Y at %I:%M:%S %p")
+    timezone_abbr = new_escrow_cancel_after_local_time.tzname()
+
+    # Combine both
+    return f"{formatted_time} {timezone_abbr}"
+
+
+def get_escrow_sequence_from_account(account_objects, escrow_hash):
+    for account_object in account_objects:
+        if account_object['PreviousTxnID'] == escrow_hash:  # PreviousTxnID is the Escrow Hash
+            return True, account_object
+    return False, None
+
+
 def get_escrow_account_response(all_escrows_dict):
     return JsonResponse({
         'status': 'success',
         'message': 'Successfully retrieved escrow information.',
         'result': all_escrows_dict,
     })
+
 
 def get_escrow_tx_id_account_response(result):
     return JsonResponse({
@@ -203,12 +256,14 @@ def get_escrow_tx_id_account_response(result):
         'result': result,
     })
 
+
 def create_escrow_account_response(result):
     return JsonResponse({
         'status': 'success',
         'message': 'Successfully created escrow.',
         'result': result,
     })
+
 
 def create_escrow_sequence_number_response(result):
     if result is None:
@@ -223,12 +278,14 @@ def create_escrow_sequence_number_response(result):
             'result': result,
         })
 
+
 def create_escrow_cancel_response(result):
     return JsonResponse({
         'status': 'success',
         'message': f'Successfully cancelled escrow.',
         'result': result,
     })
+
 
 def create_finish_escrow_response(result):
     return JsonResponse({
@@ -239,15 +296,14 @@ def create_finish_escrow_response(result):
         "last_ledger_sequence": result["tx_json"]["LastLedgerSequence"]
     })
 
-# def get_escrow_account_response_pagination(paginated_transactions, paginator):
-#     return JsonResponse({
-#         "status": "success",
-#         "message": "Transaction history successfully retrieved.",
-#         "transactions": paginated_transactions.object_list,
-#         "page": paginated_transactions.number,
-#         "total_pages": paginator.num_pages,
-#         "total_offers": paginator.count
-#     })
+
+def create_finish_escrow_time_based_response(result):
+    return JsonResponse({
+        "status": "success",
+        "message": "Escrow finished successfully",
+        "result": result
+    })
+
 
 def create_escrow_account_transaction(account):
     return AccountObjects(
@@ -255,6 +311,7 @@ def create_escrow_account_transaction(account):
         ledger_index="validated",
         type=AccountObjectType.ESCROW
     )
+
 
 def create_escrow_transaction(escrow_creator_account, amount_to_escrow, escrow_receiver_account, condition, sequence, fee, last_ledger):
     return EscrowCreate(
@@ -269,29 +326,43 @@ def create_escrow_transaction(escrow_creator_account, amount_to_escrow, escrow_r
         condition=condition,
     )
 
-def create_escrow_transaction_condition_only(escrow_creator_account, amount_to_escrow, escrow_receiver_account, condition, sequence, fee, last_ledger):
-    return EscrowCreate(
-        account=escrow_creator_account,
-        amount=xrp_to_drops(amount_to_escrow),
-        destination=escrow_receiver_account,
-        # sequence=sequence,
-        # fee=fee,
-        last_ledger_sequence=last_ledger + 300,
-        condition=condition,
-    )
 
-def create_escrow_transaction_time_based_only(escrow_creator_account, amount_to_escrow, escrow_receiver_account, sequence, fee, last_ledger, finish_after, cancel_after):
+def create_escrow_transaction_condition_only(escrow_creator_account, amount_to_escrow, escrow_receiver_account, condition, sequence, fee, last_ledger, finish_after, cancel_after):
     return EscrowCreate(
         account=escrow_creator_account,
         amount=xrp_to_drops(amount_to_escrow),
         destination=escrow_receiver_account,
-        # sequence=sequence,
-        # fee=fee,
-        last_ledger_sequence=last_ledger + 300,
+        condition=condition,
         finish_after=finish_after,
         cancel_after=cancel_after,
-        # condition=condition,
+        sequence=sequence,
+        fee=fee,
+        last_ledger_sequence=last_ledger + 300,
     )
+
+
+def create_escrow_transaction_time_based_only(escrow_creator_account, amount_to_escrow, escrow_receiver_account, sequence, fee, last_ledger, finish_after, cancel_after):
+    if cancel_after:
+        return EscrowCreate(
+            account=escrow_creator_account,
+            amount=xrp_to_drops(amount_to_escrow),
+            destination=escrow_receiver_account,
+            fee=fee,
+            sequence=sequence,
+            last_ledger_sequence=last_ledger + 300,
+            finish_after=finish_after,
+            cancel_after=cancel_after,
+        )
+    else:
+        return EscrowCreate(
+            account=escrow_creator_account,
+            amount=xrp_to_drops(amount_to_escrow),
+            destination=escrow_receiver_account,
+            fee=fee,
+            sequence=sequence,
+            last_ledger_sequence=last_ledger + 300,
+            finish_after=finish_after,
+        )
 
 
 def create_escrow_transaction_combination(escrow_creator_account, amount_to_escrow, escrow_receiver_account, condition, sequence, fee, last_ledger, finish_after, cancel_after):
@@ -299,8 +370,7 @@ def create_escrow_transaction_combination(escrow_creator_account, amount_to_escr
         account=escrow_creator_account,
         amount=xrp_to_drops(amount_to_escrow),
         destination=escrow_receiver_account,
-        # sequence=sequence,
-        # fee=fee,
+        fee=fee,
         last_ledger_sequence=last_ledger + 300,
         finish_after=finish_after,
         cancel_after=cancel_after,
@@ -308,22 +378,35 @@ def create_escrow_transaction_combination(escrow_creator_account, amount_to_escr
     )
 
 
-def create_cancel_escrow_transaction(sender_wallet_address, escrow_sequence):
+def create_cancel_escrow_transaction(sender_wallet_address, escrow_sequence, fee, last_ledger_sequence):
     return EscrowCancel(
         account=sender_wallet_address,
         owner=sender_wallet_address,
-        offer_sequence=escrow_sequence
+        offer_sequence=escrow_sequence,
+        fee=str(fee),
+        last_ledger_sequence=last_ledger_sequence + 300
+    )
+
+
+def finish_escrow_time_based_transaction(submit_account, creator_wallet, offer_sequence, sequence, fee, last_ledger_sequence):
+    return EscrowFinish(
+        account=submit_account,
+        owner=creator_wallet,
+        offer_sequence=int(offer_sequence),
+        sequence=sequence,
+        fee=fee,
+        last_ledger_sequence=last_ledger_sequence + 300,
     )
 
 
 def create_finish_escrow_transaction(creator_wallet, escrow_creator_account, offer_sequence, condition, fulfillment, sequence, fee, last_ledger_sequence):
     return EscrowFinish(
-        account=creator_wallet, # The account finishing the escrow (typically the Destination or an authorized account).
-        owner=escrow_creator_account, # Owner: The account that created the escrow (from the EscrowCreate transaction).
-        offer_sequence=offer_sequence, # The sequence number of the EscrowCreate transaction.
+        account=creator_wallet,  # The account finishing the escrow (typically the Destination or an authorized account).
+        owner=escrow_creator_account,  # Owner: The account that created the escrow (from the EscrowCreate transaction).
+        offer_sequence=offer_sequence,  # The sequence number of the EscrowCreate transaction.
         condition=condition,
         fulfillment=fulfillment,
         sequence=sequence,
         fee=fee,
-        last_ledger_sequence=last_ledger_sequence
+        last_ledger_sequence=last_ledger_sequence + 300
     )

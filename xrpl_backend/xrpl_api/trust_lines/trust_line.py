@@ -27,23 +27,16 @@ from ..constants.constants import ENTERING_FUNCTION_LOG, \
 from ..errors.error_handling import error_response, process_transaction_error, handle_error_new, \
     process_unexpected_error
 from ..offers.offers_util import prepare_account_offers
+from ..utilities.base_xrpl_view import BaseXRPLView
 from ..utilities.utilities import get_xrpl_client, total_execution_time_in_millis, validate_xrp_wallet, \
     validate_xrpl_response_data, count_xrp_received
 
 logger = logging.getLogger('xrpl_app')
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GetAccountTrustLines(View):
+class GetAccountTrustLines(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request):
         return self.get_account_trust_lines(request)
@@ -134,17 +127,9 @@ class GetAccountTrustLines(View):
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 @method_decorator(csrf_exempt, name="dispatch")
-class SetTrustLines(View):
+class SetTrustLines(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request):
         return self.set_trust_line(request)
@@ -271,17 +256,9 @@ class SetTrustLines(View):
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 @method_decorator(csrf_exempt, name="dispatch")
-class RemoveTrustLine(View):
+class RemoveTrustLine(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request):
         return self.remove_trust_line(request)
@@ -292,6 +269,7 @@ class RemoveTrustLine(View):
     @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def remove_trust_line(self, request):
         # Capture the start time to calculate the total execution time of the function
+        submit_and_wait_end_time = 0
         start_time = time.time()
         function_name = 'remove_trust_line'
         logger.info(ENTERING_FUNCTION_LOG.format(function_name))
@@ -335,7 +313,7 @@ class RemoveTrustLine(View):
                 raise XRPLException(error_response("Outstanding offers prevent trustline removal"))
 
             # Check trustline eligibility
-            response = client.request(prepare_account_lines(sender_wallet.classic_address))
+            response = client.request(prepare_account_lines(sender_wallet.classic_address, None))
             lines = [line for line in response.result["lines"] if
                      line["currency"] == currency_code and line["account"] == issuer_address]
             if not lines:
@@ -370,10 +348,7 @@ class RemoveTrustLine(View):
             current_ledger = get_latest_validated_ledger_sequence(client)
             logger.info(f"Current ledger: {current_ledger}")
 
-            trust_set_tx = create_trust_set_transaction(currency_code, str(0), issuer_address,
-                                                        sender_wallet.classic_address,
-                                                        sequence_number, fee_drops, current_ledger)
-
+            trust_set_tx = create_trust_set_transaction(currency_code, str(0), issuer_address, sender_wallet.classic_address, sequence_number, fee_drops, current_ledger)
             logger.info(f"LastLedgerSequence: {trust_set_tx.last_ledger_sequence}")
 
             logger.info("signing and submitting the transaction, awaiting a response")

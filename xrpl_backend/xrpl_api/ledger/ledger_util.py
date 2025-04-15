@@ -64,6 +64,10 @@ def check_ripple_state_entries(account_objects):
     ripple_state_entries = [entry for entry in account_objects if entry.get('LedgerEntryType') == 'RippleState']
 
     if ripple_state_entries:
+        logger.info(f"Found {len(ripple_state_entries)} RippleState objects")
+        for rs in ripple_state_entries:
+            if rs["Balance"]["value"] != "0":
+                logger.info(f"Non-zero balance in trust line: {rs['Balance']}")
         logger.error(f"RippleState entries found: {json.dumps(ripple_state_entries, indent=2)}")
         return False
 

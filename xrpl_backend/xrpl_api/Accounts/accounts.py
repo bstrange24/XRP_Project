@@ -28,6 +28,7 @@ from ..constants.constants import ENTERING_FUNCTION_LOG, \
     MISSING_REQUEST_PARAMETERS, ACCOUNT_OBJECTS_TYPE
 from ..errors.error_handling import process_transaction_error, handle_error_new, error_response
 from ..transactions.transactions_util import prepare_tx
+from ..utilities.base_xrpl_view import BaseXRPLView
 from ..utilities.utilities import get_xrpl_client, convert_drops_to_xrp, \
     total_execution_time_in_millis, validate_xrp_wallet, is_valid_xrpl_seed, validate_xrpl_response_data
 
@@ -35,17 +36,9 @@ logger = logging.getLogger('xrpl_app')
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class CreateTestAccount(View):
+class CreateTestAccount(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.create_test_account(request)
@@ -113,17 +106,9 @@ class CreateTestAccount(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class CreateTestAccounts(View):
+class CreateTestAccounts(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.create_multiple_test_accounts(request)
@@ -206,17 +191,9 @@ class CreateTestAccounts(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GetAccountInfo(View):
+class GetAccountInfo(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.get_account_info(request)
@@ -277,17 +254,9 @@ class GetAccountInfo(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GetAccountInfoFromHash(View):
+class GetAccountInfoFromHash(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.get_account_info_from_hash(request)
@@ -399,17 +368,9 @@ class GetAccountInfoFromHash(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GetAccountBalance(View):
+class GetAccountBalance(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.check_account_balance(request)
@@ -464,17 +425,9 @@ class GetAccountBalance(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GetAccountConfiguration(View):
+class GetAccountConfiguration(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request, *args, **kwargs):
         return self.get_account_config(request)
@@ -528,17 +481,9 @@ class GetAccountConfiguration(View):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class UpdateAccountConfiguration(View):
+class UpdateAccountConfiguration(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def put(self, request, *args, **kwargs):
         return self.update_account_config(request)

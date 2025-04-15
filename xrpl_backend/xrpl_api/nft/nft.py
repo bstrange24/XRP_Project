@@ -3,18 +3,9 @@ import logging
 import random
 import time
 
-from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from tenacity import retry, wait_exponential, stop_after_attempt
-from xrpl import XRPLException
-from xrpl.account import does_account_exist
-from xrpl.asyncio.clients import XRPLRequestFailureException
-from xrpl.ledger import get_latest_validated_ledger_sequence
-from xrpl.transaction import submit_and_wait
-from xrpl.utils import XRPRangeException
-from xrpl.wallet import Wallet
-
+from tenacity import wait_exponential, stop_after_attempt, retry
 from .db_operations.nft_db_operations import save_nft_mint_transaction, save_nft_buy_transactions, save_nft_burn_transactions
 from .nft_utils import prepare_nftoken_mint_request, prepare_account_nft_request, create_nftoken_response, \
     prepare_nftoken_burn_request, create_nftoken_with_pagination_response, process_sell_account_nft, \
@@ -28,7 +19,13 @@ from ..errors.error_handling import error_response, process_transaction_error, h
     process_unexpected_error
 from ..utilities.base_xrpl_view import BaseXRPLView
 from ..utilities.utilities import validate_xrpl_response_data, total_execution_time_in_millis, count_xrp_received
-
+from xrpl.account import does_account_exist
+from xrpl import XRPLException
+from xrpl.transaction import submit_and_wait
+from xrpl.ledger import get_latest_validated_ledger_sequence
+from xrpl.wallet import Wallet
+from django.core.paginator import Paginator
+from xrpl.clients import XRPLRequestFailureException
 logger = logging.getLogger('xrpl_app')
 
 
@@ -43,7 +40,6 @@ class MintNft(BaseXRPLView):
     def get(self, request, *args, **kwargs):
         return self.mint_nft(request)
 
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def mint_nft(self, request):
         start_time = time.time()
         function_name = 'mint_nft'
@@ -92,28 +88,25 @@ class MintNft(BaseXRPLView):
                         tx_flag = None
 
                     taxon = random.randint(1, 999999)
-                    mint_nft_transaction_request = prepare_nftoken_mint_request(minter_wallet_address, tx_flag, taxon,
-                                                                                transfer_fee)
+                    mint_nft_transaction_request = prepare_nftoken_mint_request(minter_wallet_address, tx_flag, taxon, transfer_fee)
                     try:
                         logger.info("signing and submitting the transaction, awaiting a response")
-                        mint_transaction_response = submit_and_wait(transaction=mint_nft_transaction_request,
-                                                                client=self.client, wallet=minter_wallet)
+                        mint_transaction_response = submit_and_wait(mint_nft_transaction_request, self.client, minter_wallet)
                     except XRPLException as e:
                         process_unexpected_error(e)
 
                     if validate_xrpl_response_data(mint_transaction_response):
                         process_transaction_error(mint_transaction_response)
 
-                    count_xrp_received(mint_transaction_response.result, minter_wallet_address)
-                    print("Minted")
-                    print(mint_transaction_response.result)
+                    logger.info("Minted")
+                    logger.debug(mint_transaction_response.result)
                     save_nft_mint_transaction(mint_transaction_response.result)
 
                     mint_tx_result = mint_transaction_response.result
                     logger.info(f"Mint {i + 1} result: {mint_tx_result['meta']['TransactionResult']}")
 
                     # Try to extract NFTokenID from the response
-                    nft_token_id = mint_tx_result.get("nftoken_id")
+                    nft_token_id = mint_tx_result['meta']['nftoken_id']
                     if not nft_token_id:
                         # Fallback: Look in meta.AffectedNodes for ModifiedNode
                         meta = mint_tx_result.get('meta', {})
@@ -179,7 +172,6 @@ class GetAccountNft(BaseXRPLView):
     def get(self, request, *args, **kwargs):
         return self.get_account_nft(request)
 
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def get_account_nft(self, request):
         start_time = time.time()
         function_name = 'get_account_nft'
@@ -213,11 +205,9 @@ class GetAccountNft(BaseXRPLView):
                 if validate_xrpl_response_data(get_account_nfts_response):
                     process_transaction_error(get_account_nfts_response)
 
-                if get_account_nfts_response.result['account_nfts'] is not None and len(
-                        get_account_nfts_response.result['account_nfts']) > 0:
+                if get_account_nfts_response.result['account_nfts'] is not None and len(get_account_nfts_response.result['account_nfts']) > 0:
                     response = get_account_nfts_response.result['account_nfts'][0]
-                    logger.debug(
-                        f"NFToken metadata: Issuer: {response['Issuer']} NFT ID: {response['NFTokenID']} NFT Taxon: {response['NFTokenTaxon']}")
+                    logger.debug(f"NFToken metadata: Issuer: {response['Issuer']} NFT ID: {response['NFTokenID']} NFT Taxon: {response['NFTokenTaxon']}")
                 else:
                     logger.info(f"Account {account} has not minted any NFT's")
 
@@ -262,7 +252,6 @@ class BurnNft(BaseXRPLView):
     def get(self, request, *args, **kwargs):
         return self.burn_nft(request)
 
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def burn_nft(self, request):
         start_time = time.time()
         function_name = 'burn_nft'
@@ -289,7 +278,7 @@ class BurnNft(BaseXRPLView):
 
             try:
                 logger.info("signing and submitting the transaction, awaiting a response")
-                burn_tx_response = submit_and_wait(transaction=burn_tx, client=self.client, wallet=issuer_wallet)
+                burn_tx_response = submit_and_wait(burn_tx, self.client, issuer_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)
 
@@ -329,7 +318,6 @@ class SellNft(BaseXRPLView):
     def get(self, request, *args, **kwargs):
         return self.sell_nft(request)
 
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def sell_nft(self, request):
         start_time = time.time()
         function_name = 'sell_nft'
@@ -359,7 +347,6 @@ class BuyNft(BaseXRPLView):
     def get(self, request, *args, **kwargs):
         return self.buy_nft(request)
 
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def buy_nft(self, request):
         start_time = time.time()
         function_name = 'buy_nft'
@@ -415,10 +402,8 @@ class BuyNft(BaseXRPLView):
 
             offer_int = 1
             for offer in offer_objects['offers']:
-                logger.debug(
-                    f"{offer_int}. Sell Offer metadata: NFT ID: {offer_objects['nft_id']} Sell Offer ID: {offer['nft_offer_index']}")
-                logger.debug(
-                    f" Offer amount: {offer['amount']} drops Offer owner: {offer['owner']} Raw metadata: {offer}")
+                logger.debug(f"{offer_int}. Sell Offer metadata: NFT ID: {offer_objects['nft_id']} Sell Offer ID: {offer['nft_offer_index']}")
+                logger.debug(f" Offer amount: {offer['amount']} drops Offer owner: {offer['owner']} Raw metadata: {offer}")
                 offer_int += 1
 
             selected_offer_index = offer_objects['offers'][0]['nft_offer_index']
@@ -431,7 +416,7 @@ class BuyNft(BaseXRPLView):
             # Step 4: Sign and submit the transaction with the buyer’s wallet
             try:
                 logger.info("signing and submitting the transaction, awaiting a response")
-                accept_tx_signed = submit_and_wait(transaction=accept_tx, client=self.client, wallet=buyer_wallet)
+                accept_tx_signed = submit_and_wait(accept_tx, self.client, buyer_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)
 
@@ -470,7 +455,6 @@ class CancelNftOffers(BaseXRPLView):
     def get(self, request, *args, **kwargs):
         return self.cancel_nft_offers(request)
 
-    @retry(wait=wait_exponential(multiplier=RETRY_BACKOFF), stop=stop_after_attempt(MAX_RETRIES))
     def cancel_nft_offers(self, request):
         start_time = time.time()
         function_name = 'cancel_nft_offers'
@@ -502,8 +486,7 @@ class CancelNftOffers(BaseXRPLView):
             if existing_offers:
                 offer_ids = [offer['nft_offer_index'] for offer in existing_offers]
                 cancel_nft_sell_offers(self.client, issuer_wallet, offer_ids)
-                return create_nftoken_cancel_response(f"NFT {nft_token_id} offer has been cancelled successfully.",
-                                                      offer_ids)
+                return create_nftoken_cancel_response(f"NFT {nft_token_id} offer has been cancelled successfully.", offer_ids)
             else:
                 return create_nftoken_cancel_response(f"NFT {nft_token_id} has not offers.", None)
 

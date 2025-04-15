@@ -16,23 +16,16 @@ from .did_util import prepare_ledger_entry, did_response, prepare_did_set, set_d
 from ..constants.constants import ENTERING_FUNCTION_LOG, ERROR_INITIALIZING_CLIENT, LEAVING_FUNCTION_LOG, \
     INVALID_WALLET_IN_REQUEST, ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, SENDER_SEED_IS_INVALID, MISSING_REQUEST_PARAMETERS
 from ..errors.error_handling import process_transaction_error, error_response, handle_error_new
+from ..utilities.base_xrpl_view import BaseXRPLView
 from ..utilities.utilities import get_xrpl_client, total_execution_time_in_millis, validate_xrpl_response_data, \
     validate_xrp_wallet, is_valid_xrpl_seed
 
 logger = logging.getLogger('xrpl_app')
 
 @method_decorator(csrf_exempt, name="dispatch")
-class GetDid(View):
+class GetDid(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None  # Lazy-loaded client
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request):
         return self.get_did(request)
@@ -87,17 +80,9 @@ class GetDid(View):
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 @method_decorator(csrf_exempt, name="dispatch")
-class SetDid(View):
+class SetDid(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request):
         return self.set_did(request)
@@ -165,17 +150,9 @@ class SetDid(View):
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
 @method_decorator(csrf_exempt, name="dispatch")
-class DeleteDid(View):
+class DeleteDid(BaseXRPLView):
     def __init__(self):
         super().__init__()
-        self.client = None
-
-    def _initialize_client(self):
-        """Lazy initialization of the XRPL client."""
-        if not self.client:
-            self.client = get_xrpl_client()
-            if not self.client:
-                raise XRPLException(error_response(ERROR_INITIALIZING_CLIENT))
 
     def post(self, request):
         return self.delete_did(request)

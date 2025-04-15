@@ -182,7 +182,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'INFO',  # Log all messages (DEBUG and higher)
+            'level': 'DEBUG',  # Log all messages (DEBUG and higher)
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'debug.log'),  # Path to the log file
             'formatter': 'verbose',  # Use the verbose formatter
@@ -196,7 +196,7 @@ LOGGING = {
         },
         'xrpl_app': {  # Replace with your app name
             'handlers': ['file'],
-            'level': 'INFO',
+            'level': 'DEBUG',
         },
     },
 }

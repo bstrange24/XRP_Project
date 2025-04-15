@@ -71,7 +71,6 @@ class GetChecks(BaseXRPLView):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
 @method_decorator(csrf_exempt, name="dispatch")
 class GetChecksPage(BaseXRPLView):
     def __init__(self):
@@ -158,7 +157,6 @@ class GetChecksPage(BaseXRPLView):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
 @method_decorator(csrf_exempt, name="dispatch")
 class CreateTokenCheck(BaseXRPLView):
     def __init__(self):
@@ -237,7 +235,6 @@ class CreateTokenCheck(BaseXRPLView):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
 @method_decorator(csrf_exempt, name="dispatch")
 class CreateXrpCheck(BaseXRPLView):
     def __init__(self):
@@ -258,15 +255,15 @@ class CreateXrpCheck(BaseXRPLView):
             self._initialize_client()
 
             data = json.loads(request.body)
-            sender_seed = data.get("sender_seed")
+            check_creator_seed = data.get("check_creator_seed")
             check_receiver_address = data.get("check_receiver_address")
             amount_to_deliver = data.get("amount_to_deliver")
             expiration = data.get("expiration")
 
-            if not all([sender_seed, check_receiver_address, amount_to_deliver, expiration]):
+            if not all([check_creator_seed, check_receiver_address, amount_to_deliver, expiration]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
-            if not self._is_valid_xrpl_seed(sender_seed):
+            if not self._is_valid_xrpl_seed(check_creator_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
 
             if not self._validate_xrp_wallet(check_receiver_address):
@@ -275,18 +272,17 @@ class CreateXrpCheck(BaseXRPLView):
             if not self._is_valid_xrp_amount(amount_to_deliver):
                 raise ValueError(error_response("Invalid XRP amount"))
 
-            logger.info(
-                f"Check receiver address: {check_receiver_address} Amount to deliver: {amount_to_deliver} Expiration: {expiration}")
+            logger.info(f"Check receiver address: {check_receiver_address} Amount to deliver: {amount_to_deliver} Expiration: {expiration}")
 
             expiry_date = set_claim_date(expiration)
 
-            sender_wallet = Wallet.from_seed(sender_seed)
+            check_creator_wallet = Wallet.from_seed(check_creator_seed)
 
-            prepare_check_create_txn = prepare_xrp_check_create(sender_wallet.address, check_receiver_address,
-                                                                amount_to_deliver, expiry_date)
+            prepare_check_create_txn = prepare_xrp_check_create(check_creator_wallet.address, check_receiver_address,amount_to_deliver, expiry_date)
+
             try:
                 logger.info("signing and submitting the transaction, awaiting a response")
-                prepare_check_create_response = submit_and_wait(prepare_check_create_txn, self.client, sender_wallet)
+                prepare_check_create_response = submit_and_wait(prepare_check_create_txn, self.client, check_creator_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)
 
@@ -307,7 +303,6 @@ class CreateXrpCheck(BaseXRPLView):
             return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
-
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CashTokenCheck(BaseXRPLView):
@@ -384,7 +379,6 @@ class CashTokenCheck(BaseXRPLView):
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
 
-
 @method_decorator(csrf_exempt, name="dispatch")
 class CashXrpCheck(BaseXRPLView):
     def __init__(self):
@@ -407,28 +401,30 @@ class CashXrpCheck(BaseXRPLView):
 
             # Extract wallet address from request parameters
             data = json.loads(request.body)
-            sender_seed = data.get("sender_seed")
+            check_receiver_seed = data.get("check_receiver_seed")
             check_id = data.get("check_id")
             cash_amount = data.get("cash_amount")
 
-            if not all([sender_seed, check_id, cash_amount]):
+            if not all([check_receiver_seed, check_id, cash_amount]):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
-
-            if not self._is_valid_xrpl_seed(sender_seed):
+            if not self._is_valid_xrpl_seed(check_receiver_seed):
                 raise XRPLException(error_response(SENDER_SEED_IS_INVALID))
-
             if not self._is_valid_xrp_amount(cash_amount):
                 raise ValueError(error_response("Invalid XRP amount"))
 
             logger.info(f"Check Id: {check_id} Cash amount: {cash_amount}")
 
-            sender_wallet = Wallet.from_seed(sender_seed)
+            check_receiver_wallet = Wallet.from_seed(check_receiver_seed)
 
-            prepare_check_cash_txn = prepare_cash_check(sender_wallet.address, check_id, cash_amount)
+            result, response = get_checks_for_account(self.client, check_receiver_wallet.classic_address)
+            if not result:
+                return get_checks_response(response, False)
+
+            prepare_check_cash_txn = prepare_cash_check(check_receiver_wallet.address, check_id, cash_amount)
 
             try:
                 logger.info("signing and submitting the transaction, awaiting a response")
-                prepare_check_create_response = submit_and_wait(prepare_check_cash_txn, self.client, sender_wallet)
+                prepare_check_create_response = submit_and_wait(prepare_check_cash_txn, self.client, check_receiver_wallet)
             except XRPLException as e:
                 process_unexpected_error(e)
 
@@ -449,7 +445,6 @@ class CashXrpCheck(BaseXRPLView):
             return handle_error_new(e, status_code=500, function_name=function_name)
         finally:
             logger.info(LEAVING_FUNCTION_LOG.format(function_name, total_execution_time_in_millis(start_time)))
-
 
 @method_decorator(csrf_exempt, name="dispatch")
 class CancelCheck(BaseXRPLView):

@@ -1,11 +1,11 @@
 import asyncio
 import json
+import locale
 import logging
 import re
 import time
 from decimal import Decimal
-from typing import Optional
-
+from typing import Dict, Any, Optional
 from django.apps import apps
 from django.core.cache import cache
 from xrpl import XRPLException
@@ -14,11 +14,11 @@ from xrpl.clients import JsonRpcClient
 from xrpl.core.addresscodec import is_valid_classic_address, is_valid_xaddress
 from xrpl.core.keypairs import derive_keypair, derive_classic_address
 from xrpl.ledger import get_fee
-from xrpl.models import Response, AccountSetAsfFlag, Ledger
+from xrpl.models import Response, AccountSetAsfFlag, Ledger, Fee
 from xrpl.utils import xrp_to_drops, drops_to_xrp
 
 from ..constants.constants import BASE_RESERVE, INVALID_WALLET_IN_REQUEST, MISSING_REQUEST_PARAMETERS, ASF_FLAGS
-from ..errors.error_handling import handle_error, error_response
+from ..errors.error_handling import handle_error, error_response, process_transaction_error
 from ..transactions.transactions_util import prepare_tx
 
 logger = logging.getLogger('xrpl_app')
@@ -55,6 +55,23 @@ def is_valid_transaction_hash(transaction_hash: str) -> bool:
     """
     # Check if the transaction_hash matches the regex pattern
     return bool(re.match(r"^[A-Fa-f0-9]{64}$", transaction_hash))
+
+
+def is_valid_ledger_transaction_hash(transaction_hash: str, client) -> bool:
+    if not is_valid_transaction_hash(transaction_hash):
+        print(f"Transaction {transaction_hash} is not valid.")
+        return False
+
+    # Send a request to check the ledger hash
+    request = prepare_tx(transaction_hash)
+    response = client.request(request)
+
+    if response.status == 'success':
+        logger.info(f"Transaction {transaction_hash} is valid and exists.")
+        return True
+    else:
+        logger.error(f"Transaction {transaction_hash} is not valid.")
+        return False
 
 
 def validate_xrp_wallet(address):
@@ -539,6 +556,16 @@ def find_xrp_difference(tx, address):
         raise Exception(f"{str(e)}")
 
 
+def format_xrp_balance(balance_in_drops):
+    # Convert drops to XRP (1 XRP = 1,000,000 drops)
+    balance_in_xrp = int(balance_in_drops) / 1_000_000
+
+    # Format the XRP value with commas
+    formatted_balance = locale.format_string("%d", balance_in_xrp, grouping=True)
+
+    return formatted_balance
+
+
 def convert_param_to_bool(param):
     true_list = ["True", "true", "yes", "Yes"]
     false_list = ["False", "false", "No", "no"]
@@ -574,11 +601,29 @@ def count_xrp_received(tx, address):
 def get_ledger_index(client, ledger_index_status):
     try:
         ledger_response = client.request(Ledger(ledger_index=ledger_index_status))
+        validate_response(ledger_response, "Failed to fetch ledger")
         return ledger_response.result["ledger_index"]
     except Exception as e:
         logger.error(f"Error getting ledger_index. Ignoring error: {str(e)} Returning None")
         return None
 
+def get_ledger_index_and_close_time(client, ledger_index_status):
+    try:
+        ledger_response = client.request(Ledger(ledger_index=ledger_index_status))
+        validate_response(ledger_response, "Failed to fetch ledger")
+        return ledger_response.result["ledger_index"], ledger_response.result["ledger"]["close_time"]
+    except Exception as e:
+        logger.error(f"Error getting ledger_index. Ignoring error: {str(e)} Returning None")
+        return None
+
+def get_base_fee(client):
+    try:
+        fee_response = client.request(Fee())
+        validate_response(fee_response, "Failed to fetch fee")
+        return int(fee_response.result["drops"]["base_fee"])
+    except Exception as e:
+        logger.error(f"Error getting ledger_index. Ignoring error: {str(e)} Returning None")
+        return None
 
 def get_ledger_current_index(client, ledger_index_status):
     try:
@@ -587,3 +632,9 @@ def get_ledger_current_index(client, ledger_index_status):
     except Exception as e:
         logger.error(f"Error getting ledger_index. Ignoring error: {str(e)} Returning None")
         return None
+
+def validate_response(response: Any, error_msg: str) -> None:
+    """Validate XRPL response and raise exception on error."""
+    if validate_xrpl_response_data(response):
+        process_transaction_error(response)
+        raise XRPLException(error_response(error_msg))

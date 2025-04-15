@@ -3,8 +3,9 @@ import logging
 from decimal import Decimal
 import time
 from django.http import JsonResponse
+from xrpl import XRPLException
 from xrpl.models import ServerInfo, AccountDelete, AccountInfo, AccountTx, AccountSet, AccountObjects, SetRegularKey, \
-    AccountLines
+    AccountLines, AccountObjectType
 
 from django.db import transaction
 from xrpl.transaction import submit_and_wait
@@ -103,10 +104,58 @@ def check_check_entries(account_objects):
     check_entries = [entry for entry in account_objects if entry.get('LedgerEntryType') == 'Check']
 
     if check_entries:
+        logger.info(f"Found {len(check_entries)} Check objects")
         logger.error(f"Check entries found: {json.dumps(check_entries, indent=2)}")
         return False
 
     logger.info("No Check entries found.")
+    return True
+
+def check_nfts_entries(account_objects):
+    nft_pages = [obj for obj in account_objects if obj["LedgerEntryType"] == "NFTokenPage"]
+    if nft_pages:
+        logger.info(f"Found {len(nft_pages)} NFTokenPage objects")
+        return False
+
+    logger.info("No NFT entries found.")
+    return True
+
+def check_signer_list(account_objects):
+    signer_lists = [obj for obj in account_objects if obj["LedgerEntryType"] == "SignerList"]
+    if signer_lists:
+        logger.info(f"Found {len(signer_lists)} SignerList objects")
+        return False
+
+    logger.info("No Signer List entries found.")
+    return True
+
+def check_ticket_entries(account_objects):
+    tickets = [obj for obj in account_objects if obj["LedgerEntryType"] == "Ticket"]
+    if tickets:
+        logger.info(f"Found {len(tickets)} Ticket objects")
+        return False
+
+    logger.info("No Ticket entries found.")
+    return True
+
+def check_amm_entries(account_objects):
+    amm_objects = [obj for obj in account_objects if obj["LedgerEntryType"] == "AMM"]
+    if amm_objects:
+        logger.info(f"Found {len(amm_objects)} AMM objects")
+        return False
+
+    logger.info("No Ticket entries found.")
+    return True
+
+
+def check_for_unknown_entries(account_objects):
+    unknown_objects = [obj for obj in account_objects if obj["LedgerEntryType"] not in [
+        "Check", "PayChannel", "RippleState", "Escrow", "NFTokenPage", "SignerList", "Ticket", "AMM"]]
+    if unknown_objects:
+        logger.warning(f"Found {len(unknown_objects)} unknown objects: {[obj['LedgerEntryType'] for obj in unknown_objects]}")
+        return False
+
+    logger.info("No unknown entries found.")
     return True
 
 
@@ -296,6 +345,11 @@ def prepare_account_data(sender_address, black_hole):
             strict=True,
         )
 
+def prepare_account_signers(account):
+    return AccountObjects(
+        account=account,
+        type=AccountObjectType.SIGNER_LIST
+    )
 
 def prepare_regular_key(wallet_address, black_hole_address):
     return SetRegularKey(
@@ -345,12 +399,19 @@ def prepare_account_set_disabled_tx(sender_address, flag):
 
 
 def prepare_account_lines(wallet_address, marker):
-    return AccountLines(
-        account=wallet_address,
-        limit=100,
-        marker=marker,
-        ledger_index="validated",
-    )
+    if marker:
+        return AccountLines(
+            account=wallet_address,
+            limit=100,
+            marker=marker,
+            ledger_index="validated",
+        )
+    else:
+        return AccountLines(
+            account=wallet_address,
+            limit=100,
+            ledger_index="validated",
+        )
 
 
 def prepare_account_tx(sender_address):

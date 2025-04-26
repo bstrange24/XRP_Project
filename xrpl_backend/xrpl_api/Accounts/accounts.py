@@ -30,7 +30,7 @@ from ..errors.error_handling import process_transaction_error, handle_error_new,
 from ..transactions.transactions_util import prepare_tx
 from ..utilities.base_xrpl_view import BaseXRPLView
 from ..utilities.utilities import get_xrpl_client, convert_drops_to_xrp, \
-    total_execution_time_in_millis, validate_xrp_wallet, is_valid_xrpl_seed, validate_xrpl_response_data
+    total_execution_time_in_millis, validate_xrp_wallet, is_valid_xrpl_seed, validate_xrpl_response_data, validate_response
 
 logger = logging.getLogger('xrpl_app')
 
@@ -284,8 +284,7 @@ class GetAccountInfoFromHash(BaseXRPLView):
                 raise ValueError(error_response(MISSING_REQUEST_PARAMETERS))
 
             if get_account_objects == 'True' and get_all_tx_for_account == 'True':
-                raise ValueError(
-                    error_response('Getting all transactions and account object at the same time is not supported.'))
+                raise ValueError(error_response('Getting all transactions and account object at the same time is not supported.'))
 
             # Check if value is in the list using 'in'
             if filter_account_object in ACCOUNT_OBJECTS_TYPE:
@@ -299,6 +298,7 @@ class GetAccountInfoFromHash(BaseXRPLView):
 
             tx_hash_request = prepare_tx(tx_hash)
             tx_response = self.client.request(tx_hash_request)
+            validate_response(tx_response, "Failed to fetch tx")
             account = tx_response.result['tx_json']["Account"]  # The account that initiated the transaction
             logger.info(f"Account associated with hash {tx_hash}: {account}")
 

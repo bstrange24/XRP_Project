@@ -157,8 +157,7 @@ def save_account_delete_tx_response(account_delete_response, payment_response, s
         pass
 
 
-def process_payment_response(payment_result: dict, payment_response, sender_address: str, receiver_address: str,
-                             amount_xrp: Decimal, fee_drops: str):
+def process_payment_response(payment_result, payment_response, sender_address: str, receiver_address: str, amount_xrp: Decimal, fee_drops: str):
     function_name = "process_payment_response"
     try:
         logger.debug(f"Payment response: {payment_response}")
@@ -172,12 +171,10 @@ def process_payment_response(payment_result: dict, payment_response, sender_addr
 
         # Save the payment transaction details
         logger.info(f"Saving payment data in table")
-        save_payment_data(payment_result.result, transaction_hash, sender_address, receiver_address, amount_xrp,
-                                     str(fee_drops))
+        save_payment_data(payment_result.result, transaction_hash, sender_address, receiver_address, amount_xrp,str(fee_drops))
 
         # Send a response to indicate successful payment
-        return send_payment_response(payment_result, transaction_hash, sender_address, receiver_address, amount_xrp,
-                                     str(fee_drops))
+        return send_payment_response(payment_result, transaction_hash, sender_address, receiver_address, amount_xrp, str(fee_drops))
     except (XRPLException, AttributeError, KeyError, TypeError, ValueError) as e:
         # Handle error message
         return handle_error_new(e, status_code=500, function_name=function_name)

@@ -24,7 +24,7 @@ from .escrows_util import create_escrow_account_transaction, \
     get_escrow_tx_id_account_response, generate_escrow_condition_and_fulfillment, create_escrow_account_response, \
     set_claim_date, create_escrow_sequence_number_response, \
     get_escrow_sequence, create_escrow_cancel_response, validate_fulfillment, create_escrow_transaction_time_based_only, \
-    create_escrow_transaction_condition_only, finish_escrow_time_based_transaction, format_ripple_time, create_finish_escrow_time_based_response, create_finish_escrow_transaction, log_postman_finish_escrow_request
+    create_escrow_transaction_condition_only, format_ripple_time, create_finish_escrow_time_based_response, create_finish_escrow_transaction, log_postman_finish_escrow_request, create_finish_escrow_time_based_transaction
 from ..accounts.account_utils import prepare_account_data, prepare_account_tx, prepare_account_signers
 from ..constants.constants import ENTERING_FUNCTION_LOG, LEAVING_FUNCTION_LOG, INVALID_WALLET_IN_REQUEST, \
     ACCOUNT_DOES_NOT_EXIST_ON_THE_LEDGER, SENDER_SEED_IS_INVALID, MISSING_REQUEST_PARAMETERS, INVALID_TX_ID_IN_REQUEST, INVALID_TRANSACTION_HASH
@@ -407,7 +407,7 @@ class FinishEscrowTimeBased(BaseXRPLView):
             fee = get_base_fee(self.client)
 
             # Build EscrowFinish transaction
-            finish_tx = finish_escrow_time_based_transaction(submit_account, creator_wallet.address, int(offer_sequence), account_sequence, str(fee), current_ledger_index)
+            finish_tx = create_finish_escrow_time_based_transaction(submit_account, creator_wallet.address, int(offer_sequence), account_sequence, str(fee), current_ledger_index)
             logger.info(f"EscrowFinish transaction (pre-sign): {finish_tx.to_dict()}")
 
             # Sign and submit
